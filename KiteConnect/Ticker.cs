@@ -238,7 +238,7 @@ namespace KiteConnect
             tick.High = ReadInt(b, ref offset) / divisor;
             tick.Low = ReadInt(b, ref offset) / divisor;
             tick.Close = ReadInt(b, ref offset) / divisor;
-            tick.Change = ReadInt(b, ref offset) / divisor;
+
             return tick;
         }
 
@@ -264,22 +264,23 @@ namespace KiteConnect
             tick.High = ReadInt(b, ref offset) / divisor;
             tick.Low = ReadInt(b, ref offset) / divisor;
             tick.Close = ReadInt(b, ref offset) / divisor;
-            tick.Change = ReadInt(b, ref offset) / divisor;
 
             tick.Bids = new DepthItem[5];
             for (int i = 0; i < 5; i++)
             {
                 tick.Bids[i].Quantity = ReadInt(b, ref offset);
                 tick.Bids[i].Price = ReadInt(b, ref offset) / divisor;
-                tick.Bids[i].Orders = ReadInt(b, ref offset);
+                tick.Bids[i].Orders = ReadShort(b, ref offset);
+                offset += 2;
             }
 
             tick.Offers = new DepthItem[5];
             for (int i = 0; i < 5; i++)
             {
                 tick.Offers[i].Quantity = ReadInt(b, ref offset);
-                tick.Offers[i].Price = ReadInt(b, ref offset);
-                tick.Offers[i].Orders = ReadInt(b, ref offset);
+                tick.Offers[i].Price = ReadInt(b, ref offset) / divisor;
+                tick.Offers[i].Orders = ReadShort(b, ref offset);
+                offset += 2;
             }
             return tick;
         }
