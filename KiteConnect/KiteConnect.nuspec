@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Tech.Zerodha.KiteConnect</id>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
     <title>KiteConnect .Net Client Library</title>
     <authors>Ajin Asokan</authors>
     <owners>Zerodha Tech</owners>
