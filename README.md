@@ -19,12 +19,12 @@ Kite Connect is a set of REST-like APIs that expose many capabilities required t
 Execute in **Tools** &raquo; **NuGet Package Manager** &raquo; **Package Manager Console**
 
 ```
-Install-Package Tech.Zerodha.KiteConnect -Version 1.0.1
+Install-Package Tech.Zerodha.KiteConnect
 ```
 ### Using .Net CLI
 
 ```
-dotnet add package Tech.Zerodha.KiteConnect --version 1.0.1
+dotnet add package Tech.Zerodha.KiteConnect
 ```
 ### Manual Install
 
