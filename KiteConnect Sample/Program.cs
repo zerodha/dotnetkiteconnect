@@ -87,6 +87,9 @@ namespace KiteConnectSample
 
             // Orders
 
+            List<Order> orders = kite.GetOrders();
+            Console.WriteLine(JsonSerialize(orders[0]));
+
             Dictionary<string, dynamic> response = kite.PlaceOrder("CDS", "USDINR17AUGFUT", "SELL", "1", Price: "64.0000", OrderType: "MARKET", Product: "NRML");
             Console.WriteLine("Order Id: " + response["data"]["order_id"]);
 
