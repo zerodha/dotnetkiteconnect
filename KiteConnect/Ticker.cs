@@ -299,20 +299,27 @@ namespace KiteConnect
                     int offset = 0;
                     ushort count = ReadShort(Data, ref offset); //number of packets
                     if(_debug) Console.WriteLine("No of packets: " + count);
+                    if (_debug) Console.WriteLine("No of bytes: " + Count);
 
                     for (ushort i = 0; i < count; i++)
                     {                         
                         ushort length = ReadShort(Data, ref offset); // length of the packet
                         if (_debug) Console.WriteLine("Packet Length " + length);
-
+                        Tick tick = new Tick();
                         if (length == 8) // ltp
-                            OnTick(ReadLTP(Data, ref offset));
+                            tick = ReadLTP(Data, ref offset);
                         else if (length == 28) // index quote
-                            OnTick(ReadIndex(Data, ref offset));
+                            tick = ReadIndex(Data, ref offset);
                         else if (length == 44) // quote
-                            OnTick(ReadQuote(Data, ref offset));
+                            tick = ReadQuote(Data, ref offset);
                         else if (length == 164) // marketdepth
-                            OnTick(ReadFull(Data, ref offset));
+                            tick = ReadFull(Data, ref offset);
+                        // If the number of bytes got from stream is less that that is required
+                        // data is invalid. This will skip that wrong tick
+                        if(tick.InstrumentToken != 0 && IsConnected && offset <= Count)
+                        {
+                            OnTick(tick);
+                        }
                     }
                 }
             }
