@@ -48,6 +48,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Cache.cs" />
     <Compile Include="Structures.cs" />
     <Compile Include="Kite.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
