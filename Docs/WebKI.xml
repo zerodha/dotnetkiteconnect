@@ -38,6 +38,7 @@
   <HelpKINode Title="Close method" Url="html/79d00de1-7aee-a440-0327-84acb38b5e68.htm" />
   <HelpKINode Title="Close property">
     <HelpKINode Title="Historical.Close Property " Url="html/be9fec4b-d10e-774d-f86c-2a090c5c8cf0.htm" />
+    <HelpKINode Title="OHLC.Close Property " Url="html/2c4c5f57-eec4-8e0e-62fd-685ceacff28e.htm" />
     <HelpKINode Title="Quote.Close Property " Url="html/4555a6b9-e41b-b136-b85c-39a81ac55b4e.htm" />
     <HelpKINode Title="Tick.Close Property " Url="html/d0932cfa-454e-e73e-0361-df95cec05aba.htm" />
   </HelpKINode>
@@ -105,16 +106,18 @@
     <HelpKINode Title="MFOrder.Fund Property " Url="html/c86b8a47-2eba-a127-7dee-8ae3a9e17c91.htm" />
     <HelpKINode Title="MFSIP.Fund Property " Url="html/b114ef51-de95-6539-45e6-0b237eb42c70.htm" />
   </HelpKINode>
-  <HelpKINode Title="GetHistorical method" Url="html/98a91fc0-c6f7-50f1-714a-f6979fbd0f0a.htm" />
+  <HelpKINode Title="GetHistorical method" Url="html/eefaf461-63aa-880d-3dec-bdc675058553.htm" />
   <HelpKINode Title="GetHoldings method" Url="html/fcd7875f-9407-3a7c-6aee-40571efe66f5.htm" />
   <HelpKINode Title="GetInstruments method" Url="html/b6cc3e25-28e1-5c9a-761e-5072fe07bfd2.htm" />
   <HelpKINode Title="GetLoginURL method" Url="html/c35be739-91db-ff8d-e662-7ccb12120812.htm" />
+  <HelpKINode Title="GetLTP method" Url="html/65a4b2d8-3c45-e912-e3ab-c15d71b59c2c.htm" />
   <HelpKINode Title="GetMFHoldings method" Url="html/c55998d4-e267-ecbb-0ab4-47061f3cf3df.htm" />
   <HelpKINode Title="GetMFInstruments method" Url="html/2446dc3a-4c1d-e272-0924-a93aa8a585ba.htm" />
   <HelpKINode Title="GetMFOrder method" Url="html/76b18ff4-3d93-abc8-bc52-9c26181448b0.htm" />
   <HelpKINode Title="GetMFOrders method" Url="html/173412eb-3c76-adb2-9643-61a66966ba17.htm" />
   <HelpKINode Title="GetMFSIP method" Url="html/5849287c-1f87-7b19-6453-e8f0b586668b.htm" />
   <HelpKINode Title="GetMFSIPs method" Url="html/9e921218-dfb1-b3f4-0607-48f516b4594b.htm" />
+  <HelpKINode Title="GetOHLC method" Url="html/59570c6c-7caa-863c-03f4-fc681b060313.htm" />
   <HelpKINode Title="GetOrder method" Url="html/92a7ba3f-7cbd-9761-1610-9e7939abb45d.htm" />
   <HelpKINode Title="GetOrders method" Url="html/6e5cba02-8745-5fe0-4319-414345527b0a.htm" />
   <HelpKINode Title="GetPositions method" Url="html/752996a0-2eb5-743f-a9f7-deff63ada727.htm" />
@@ -123,6 +126,7 @@
   <HelpKINode Title="GetTriggerRange method" Url="html/e0ec76d7-d1fe-2020-f548-53a180718f54.htm" />
   <HelpKINode Title="High property">
     <HelpKINode Title="Historical.High Property " Url="html/e54e2cfc-5012-acf5-a24f-e12a39909307.htm" />
+    <HelpKINode Title="OHLC.High Property " Url="html/e6e0065e-90a1-cf75-6a29-2e8756aab66d.htm" />
     <HelpKINode Title="Quote.High Property " Url="html/fa910413-0620-a95c-0135-543c4273da24.htm" />
     <HelpKINode Title="Tick.High Property " Url="html/c3f348da-7c60-5766-2bf9-a555dea9a86a.htm" />
   </HelpKINode>
@@ -186,6 +190,8 @@
   <HelpKINode Title="InstrumentToken property">
     <HelpKINode Title="Holding.InstrumentToken Property " Url="html/f1eaa662-ea85-3893-cd9a-d8a033993252.htm" />
     <HelpKINode Title="Instrument.InstrumentToken Property " Url="html/317bc4b5-77a6-1bd0-1adc-a9c476dfd140.htm" />
+    <HelpKINode Title="LTP.InstrumentToken Property " Url="html/8983d80a-2b38-e2a8-3ac2-417087cc9de4.htm" />
+    <HelpKINode Title="OHLC.InstrumentToken Property " Url="html/85fb2d58-4fb9-dee9-b808-975708f13b83.htm" />
     <HelpKINode Title="Order.InstrumentToken Property " Url="html/1d1884ff-344a-a5cd-cc80-60b92114097d.htm" />
     <HelpKINode Title="Position.InstrumentToken Property " Url="html/821981d5-1e25-4811-741c-abdbe46ce1f9.htm" />
     <HelpKINode Title="Tick.InstrumentToken Property " Url="html/a06c346c-252e-89e0-7c91-6ad6bdecb282.htm" />
@@ -204,16 +210,18 @@
   <HelpKINode Title="Kite.CancelMFOrder method" Url="html/48a26272-8081-ec86-79db-b2d7215e1ea2.htm" />
   <HelpKINode Title="Kite.CancelMFSIP method" Url="html/49e923cb-edc3-655d-85c1-e122b1316971.htm" />
   <HelpKINode Title="Kite.CancelOrder method" Url="html/04cae755-dd46-91fc-0a3f-14e188f253f1.htm" />
-  <HelpKINode Title="Kite.GetHistorical method" Url="html/98a91fc0-c6f7-50f1-714a-f6979fbd0f0a.htm" />
+  <HelpKINode Title="Kite.GetHistorical method" Url="html/eefaf461-63aa-880d-3dec-bdc675058553.htm" />
   <HelpKINode Title="Kite.GetHoldings method" Url="html/fcd7875f-9407-3a7c-6aee-40571efe66f5.htm" />
   <HelpKINode Title="Kite.GetInstruments method" Url="html/b6cc3e25-28e1-5c9a-761e-5072fe07bfd2.htm" />
   <HelpKINode Title="Kite.GetLoginURL method" Url="html/c35be739-91db-ff8d-e662-7ccb12120812.htm" />
+  <HelpKINode Title="Kite.GetLTP method" Url="html/65a4b2d8-3c45-e912-e3ab-c15d71b59c2c.htm" />
   <HelpKINode Title="Kite.GetMFHoldings method" Url="html/c55998d4-e267-ecbb-0ab4-47061f3cf3df.htm" />
   <HelpKINode Title="Kite.GetMFInstruments method" Url="html/2446dc3a-4c1d-e272-0924-a93aa8a585ba.htm" />
   <HelpKINode Title="Kite.GetMFOrder method" Url="html/76b18ff4-3d93-abc8-bc52-9c26181448b0.htm" />
   <HelpKINode Title="Kite.GetMFOrders method" Url="html/173412eb-3c76-adb2-9643-61a66966ba17.htm" />
   <HelpKINode Title="Kite.GetMFSIP method" Url="html/5849287c-1f87-7b19-6453-e8f0b586668b.htm" />
   <HelpKINode Title="Kite.GetMFSIPs method" Url="html/9e921218-dfb1-b3f4-0607-48f516b4594b.htm" />
+  <HelpKINode Title="Kite.GetOHLC method" Url="html/59570c6c-7caa-863c-03f4-fc681b060313.htm" />
   <HelpKINode Title="Kite.GetOrder method" Url="html/92a7ba3f-7cbd-9761-1610-9e7939abb45d.htm" />
   <HelpKINode Title="Kite.GetOrders method" Url="html/6e5cba02-8745-5fe0-4319-414345527b0a.htm" />
   <HelpKINode Title="Kite.GetPositions method" Url="html/752996a0-2eb5-743f-a9f7-deff63ada727.htm" />
@@ -238,10 +246,12 @@
   <HelpKINode Title="KiteConnect.Holding structure" Url="html/cef0122c-25aa-7750-a117-2ae685a1eab3.htm" />
   <HelpKINode Title="KiteConnect.Instrument structure" Url="html/21d021b3-1ffa-fbf5-d431-92c1559fb4e7.htm" />
   <HelpKINode Title="KiteConnect.Kite class" Url="html/6df33f62-835f-e969-530b-a85b3544508c.htm" />
+  <HelpKINode Title="KiteConnect.LTP structure" Url="html/0e4ea87b-f71d-607b-0c10-1aad99325012.htm" />
   <HelpKINode Title="KiteConnect.MFHolding structure" Url="html/375b24ba-d3e6-9e62-3344-4da3d7699bd8.htm" />
   <HelpKINode Title="KiteConnect.MFInstrument structure" Url="html/cc3f8805-f52c-bcaa-b6bb-ebc3d8d514c4.htm" />
   <HelpKINode Title="KiteConnect.MFOrder structure" Url="html/d85ebd50-8d55-98c8-e486-e74b1570b2b6.htm" />
   <HelpKINode Title="KiteConnect.MFSIP structure" Url="html/fe51cb89-1c47-1492-57a4-9cc01f9133c4.htm" />
+  <HelpKINode Title="KiteConnect.OHLC structure" Url="html/70a70cb3-b882-7c03-6853-ce77e05b9fc9.htm" />
   <HelpKINode Title="KiteConnect.Order structure" Url="html/387986b2-73fd-82e7-646f-13939f42c08d.htm" />
   <HelpKINode Title="KiteConnect.OrderInfo structure" Url="html/22e800f0-f51a-2282-5461-8e00055849fc.htm" />
   <HelpKINode Title="KiteConnect.ParseException class" Url="html/12a0e4be-b4d3-75f3-abc3-b9efeacbcf36.htm" />
@@ -263,9 +273,11 @@
   <HelpKINode Title="LastPrice property">
     <HelpKINode Title="Holding.LastPrice Property " Url="html/6b83124c-8be5-ccd9-c782-85907b99a726.htm" />
     <HelpKINode Title="Instrument.LastPrice Property " Url="html/f7f6247d-97f6-323a-e8be-32e5fbb766a3.htm" />
+    <HelpKINode Title="LTP.LastPrice Property " Url="html/a3fc5ce4-b17d-bdd6-75fa-5688a2f2e5d4.htm" />
     <HelpKINode Title="MFHolding.LastPrice Property " Url="html/1b078d15-cb81-5232-66b2-a62a3ca91102.htm" />
     <HelpKINode Title="MFInstrument.LastPrice Property " Url="html/9595f7ba-4c9c-50c5-8a80-03218e303f32.htm" />
     <HelpKINode Title="MFOrder.LastPrice Property " Url="html/b94e5607-bdfc-3b81-acac-7c0323da02fd.htm" />
+    <HelpKINode Title="OHLC.LastPrice Property " Url="html/5a92796f-8cd2-197b-8d28-38ac3ff0803c.htm" />
     <HelpKINode Title="Position.LastPrice Property " Url="html/c4c47552-78e7-aa2d-40f5-322f92b2d1b6.htm" />
     <HelpKINode Title="Quote.LastPrice Property " Url="html/6f0f3c75-63cb-632d-33c9-05c54c58d392.htm" />
     <HelpKINode Title="Tick.LastPrice Property " Url="html/911424ef-33d9-a03b-d973-111de3e63594.htm" />
@@ -280,9 +292,19 @@
   <HelpKINode Title="LotSize property" Url="html/cb4bf595-6607-28c1-0d3f-1788dc4b5615.htm" />
   <HelpKINode Title="Low property">
     <HelpKINode Title="Historical.Low Property " Url="html/69a871d9-83bb-1c35-6ee8-cf851462a3f0.htm" />
+    <HelpKINode Title="OHLC.Low Property " Url="html/2344ffae-31ff-0270-d44d-e5a891af6354.htm" />
     <HelpKINode Title="Quote.Low Property " Url="html/df0f12c7-8831-4a2b-a944-ccb564b686d0.htm" />
     <HelpKINode Title="Tick.Low Property " Url="html/84eda3b3-9e05-6593-33c2-73bbf8147e97.htm" />
   </HelpKINode>
+  <HelpKINode Title="LTP structure">
+    <HelpKINode Title="LTP Structure" Url="html/0e4ea87b-f71d-607b-0c10-1aad99325012.htm" />
+    <HelpKINode Title="about LTP structure" Url="html/0e4ea87b-f71d-607b-0c10-1aad99325012.htm" />
+    <HelpKINode Title="constructor" Url="html/0c5a98c0-314d-546c-1c62-6e02e8151eca.htm" />
+    <HelpKINode Title="properties" Url="html/ceda1aca-5dac-0be0-de36-7aef99c4f698.htm" />
+  </HelpKINode>
+  <HelpKINode Title="LTP.InstrumentToken property" Url="html/8983d80a-2b38-e2a8-3ac2-417087cc9de4.htm" />
+  <HelpKINode Title="LTP.LastPrice property" Url="html/a3fc5ce4-b17d-bdd6-75fa-5688a2f2e5d4.htm" />
+  <HelpKINode Title="LTP.LTP constructor" Url="html/0c5a98c0-314d-546c-1c62-6e02e8151eca.htm" />
   <HelpKINode Title="M2M property" Url="html/2b7c92df-b8f8-bc2a-0944-6b77a051ef7f.htm" />
   <HelpKINode Title="Margins method" Url="html/1d866645-d563-289d-be20-7261215199a3.htm" />
   <HelpKINode Title="MarketProtection property" Url="html/b22e5a69-f62a-9125-a6f4-0f371cf63c06.htm" />
@@ -392,6 +414,19 @@
     <HelpKINode Title="Quote.Offers Property " Url="html/eaf786cb-1bca-3275-37f0-ed5b994f471c.htm" />
     <HelpKINode Title="Tick.Offers Property " Url="html/9ff74660-beae-dc3b-b05e-e531a0d73144.htm" />
   </HelpKINode>
+  <HelpKINode Title="OHLC structure">
+    <HelpKINode Title="OHLC Structure" Url="html/70a70cb3-b882-7c03-6853-ce77e05b9fc9.htm" />
+    <HelpKINode Title="about OHLC structure" Url="html/70a70cb3-b882-7c03-6853-ce77e05b9fc9.htm" />
+    <HelpKINode Title="constructor" Url="html/bc6b4a1c-ab8b-7aa6-025a-89b8ec2a19f0.htm" />
+    <HelpKINode Title="properties" Url="html/4d4fb73d-8c54-7141-6b39-f17d5d820153.htm" />
+  </HelpKINode>
+  <HelpKINode Title="OHLC.Close property" Url="html/2c4c5f57-eec4-8e0e-62fd-685ceacff28e.htm" />
+  <HelpKINode Title="OHLC.High property" Url="html/e6e0065e-90a1-cf75-6a29-2e8756aab66d.htm" />
+  <HelpKINode Title="OHLC.InstrumentToken property" Url="html/85fb2d58-4fb9-dee9-b808-975708f13b83.htm" />
+  <HelpKINode Title="OHLC.LastPrice property" Url="html/5a92796f-8cd2-197b-8d28-38ac3ff0803c.htm" />
+  <HelpKINode Title="OHLC.Low property" Url="html/2344ffae-31ff-0270-d44d-e5a891af6354.htm" />
+  <HelpKINode Title="OHLC.OHLC constructor" Url="html/bc6b4a1c-ab8b-7aa6-025a-89b8ec2a19f0.htm" />
+  <HelpKINode Title="OHLC.Open property" Url="html/47c8489d-2e6e-2de4-2e03-90e50d4eb361.htm" />
   <HelpKINode Title="OnClose event" Url="html/44299a69-9001-adf6-ca4f-a0db0692b818.htm" />
   <HelpKINode Title="OnConnect event" Url="html/785bd19b-6f21-c5e4-6976-acf0054207d5.htm" />
   <HelpKINode Title="OnError event" Url="html/62bf7bbd-a659-8649-6751-23975d68878e.htm" />
@@ -400,6 +435,7 @@
   <HelpKINode Title="OnTick event" Url="html/bbee0c03-8a78-1050-8d7d-071f75055a7c.htm" />
   <HelpKINode Title="Open property">
     <HelpKINode Title="Historical.Open Property " Url="html/01042f07-f1c5-9032-1262-72a2fcebf9c5.htm" />
+    <HelpKINode Title="OHLC.Open Property " Url="html/47c8489d-2e6e-2de4-2e03-90e50d4eb361.htm" />
     <HelpKINode Title="Quote.Open Property " Url="html/0aad8bdf-505a-d0bf-8255-b30c410aa2ce.htm" />
     <HelpKINode Title="Tick.Open Property " Url="html/211f1696-2ed2-94bd-3576-3812da5deabf.htm" />
   </HelpKINode>
@@ -722,14 +758,14 @@
     <HelpKINode Title="Holding.TradingSymbol Property " Url="html/6672bc85-1cbf-65b4-435d-87f8efd71c0e.htm" />
     <HelpKINode Title="Instrument.TradingSymbol Property " Url="html/85385897-fbbf-ce69-4bde-eeb1c96d8996.htm" />
     <HelpKINode Title="MFHolding.TradingSymbol Property " Url="html/48df7354-4c56-2a80-a0ab-42bd0f6a00d9.htm" />
-    <HelpKINode Title="MFInstrument.TradingSymbol Property " Url="html/a0c939d3-3bdb-00f3-40cc-da07bc1b2c17.htm" />
     <HelpKINode Title="Position.TradingSymbol Property " Url="html/93e1fbab-816c-c9ad-06e6-504f732c772b.htm" />
+    <HelpKINode Title="MFInstrument.TradingSymbol Property " Url="html/a0c939d3-3bdb-00f3-40cc-da07bc1b2c17.htm" />
   </HelpKINode>
   <HelpKINode Title="Tradingsymbol property">
-    <HelpKINode Title="MFOrder.Tradingsymbol Property " Url="html/f7912c2f-4cbc-ab63-4ddf-14dea870ef4a.htm" />
     <HelpKINode Title="MFSIP.Tradingsymbol Property " Url="html/11874716-0952-c288-a8e1-11e6def67882.htm" />
     <HelpKINode Title="Order.Tradingsymbol Property " Url="html/0ce96b00-1f40-853b-75a0-ece476a20ab8.htm" />
     <HelpKINode Title="Trade.Tradingsymbol Property " Url="html/c4436395-af99-e4b6-dc46-4dc58fb3406d.htm" />
+    <HelpKINode Title="MFOrder.Tradingsymbol Property " Url="html/f7912c2f-4cbc-ab63-4ddf-14dea870ef4a.htm" />
   </HelpKINode>
   <HelpKINode Title="TransactionType property">
     <HelpKINode Title="MFOrder.TransactionType Property " Url="html/49fe8445-5d56-aa53-d3cf-8e1972c5c5aa.htm" />
