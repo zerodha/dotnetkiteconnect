@@ -503,8 +503,8 @@ namespace KiteConnect
 
                 Open = data["ohlc"]["open"];
                 Close = data["ohlc"]["close"];
-                Low = data["ohlc"]["high"];
-                High = data["ohlc"]["low"];
+                Low = data["ohlc"]["low"];
+                High = data["ohlc"]["high"];
 
                 Bids = new List<DepthItem>();
                 Offers = new List<DepthItem>();
@@ -539,10 +539,63 @@ namespace KiteConnect
         public List<DepthItem> Offers { get; }
     }
 
-	/// <summary>
-	/// Mutual funds holdings structure
-	/// </summary>
-	public struct MFHolding
+    /// <summary>
+    /// OHLC Quote structure
+    /// </summary>
+    public struct OHLC
+    {
+        public OHLC(Dictionary<string, dynamic> data)
+        {
+            try
+            {
+                InstrumentToken = Convert.ToUInt32(data["instrument_token"]);
+                LastPrice = data["last_price"];
+
+                Open = data["ohlc"]["open"];
+                Close = data["ohlc"]["close"];
+                Low = data["ohlc"]["low"];
+                High = data["ohlc"]["high"];
+            }
+            catch (Exception)
+            {
+                throw new ParseException(data);
+            }
+
+        }
+        public UInt32 InstrumentToken { get; set; }
+        public decimal LastPrice { get; }
+        public decimal Open { get; }
+        public decimal Close { get; }
+        public decimal High { get; }
+        public decimal Low { get; }
+    }
+
+    /// <summary>
+    /// LTP Quote structure
+    /// </summary>
+    public struct LTP
+    {
+        public LTP(Dictionary<string, dynamic> data)
+        {
+            try
+            {
+                InstrumentToken = Convert.ToUInt32(data["instrument_token"]);
+                LastPrice = data["last_price"];
+            }
+            catch (Exception)
+            {
+                throw new ParseException(data);
+            }
+
+        }
+        public UInt32 InstrumentToken { get; set; }
+        public decimal LastPrice { get; }
+    }
+
+    /// <summary>
+    /// Mutual funds holdings structure
+    /// </summary>
+    public struct MFHolding
 	{
 		public MFHolding(Dictionary<string, dynamic> data)
 		{

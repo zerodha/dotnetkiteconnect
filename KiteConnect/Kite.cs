@@ -32,6 +32,8 @@ namespace KiteConnect
 
         private Action _sessionHook;
 
+        //private Cache cache = new Cache();
+
         private readonly Dictionary<string, string> _routes = new Dictionary<string, string>
         {
             ["parameters"] = "/parameters",
@@ -55,6 +57,8 @@ namespace KiteConnect
             ["market.instruments.all"] = "/instruments",
             ["market.instruments"] = "/instruments/{exchange}",
             ["market.quote"] = "/instruments/{exchange}/{tradingsymbol}",
+            ["market.ohlc"] = "/quote/ohlc",
+            ["market.ltp"] = "/quote/ltp",
             ["market.historical"] = "/instruments/historical/{instrument_token}/{interval}",
             ["market.trigger_range"] = "/instruments/{exchange}/{tradingsymbol}/trigger_range",
 
@@ -146,7 +150,7 @@ namespace KiteConnect
         {
             string checksum = SHA256(this._apiKey + RequestToken + AppSecret);
 
-            var param = new Dictionary<string, string>
+            var param = new Dictionary<string, dynamic>
             {
                 {"request_token", RequestToken},
                 {"checksum", checksum}
@@ -164,7 +168,7 @@ namespace KiteConnect
         /// <returns>Json response in the form of nested string dictionary.</returns>
         public Dictionary<string, dynamic> InvalidateToken(string AccessToken = null)
         {
-            var param = new Dictionary<string, string>();
+            var param = new Dictionary<string, dynamic>();
 
             AddIfNotNull(param, "access_token", AccessToken);
 
@@ -178,7 +182,7 @@ namespace KiteConnect
         /// <returns>Json response in the form of nested string dictionary.</returns>
         public Dictionary<string, dynamic> Margins(string Segment)
         {
-            return Get("user.margins", new Dictionary<string, string> { { "segment", Segment } });
+            return Get("user.margins", new Dictionary<string, dynamic> { { "segment", Segment } });
         }
 
         /// <summary>
@@ -217,7 +221,7 @@ namespace KiteConnect
             string Variety = "regular",
             string Tag = "")
         {
-            var param = new Dictionary<string, string>();
+            var param = new Dictionary<string, dynamic>();
 
             AddIfNotNull(param, "exchange", Exchange);
             AddIfNotNull(param, "tradingsymbol", TradingSymbol);
@@ -233,6 +237,7 @@ namespace KiteConnect
             AddIfNotNull(param, "stoploss_value", StoplossValue);
             AddIfNotNull(param, "trailing_stoploss", TrailingStoploss);
             AddIfNotNull(param, "variety", Variety);
+            AddIfNotNull(param, "tag", Tag);
 
             return Post("orders.place", param);
         }
@@ -269,7 +274,7 @@ namespace KiteConnect
             string TriggerPrice = "0",
             string Variety = "regular")
         {
-            var param = new Dictionary<string, string>();
+            var param = new Dictionary<string, dynamic>();
 
             if ((Product.ToLower() == "bo" || Product.ToLower() == "co") && Variety.ToLower() != Product.ToLower())           
                 throw new Exception(String.Format("Invalid variety. It should be: {}", Product.ToLower()));
@@ -310,7 +315,7 @@ namespace KiteConnect
         /// <returns>Json response in the form of nested string dictionary.</returns>
         public Dictionary<string, dynamic> CancelOrder(string OrderId, string Variety = "regular", string ParentOrderId = null)
         {
-            var param = new Dictionary<string, string>();
+            var param = new Dictionary<string, dynamic>();
 
             AddIfNotNull(param, "order_id", OrderId);
             AddIfNotNull(param, "parent_order_id", ParentOrderId);
@@ -342,7 +347,7 @@ namespace KiteConnect
         /// <returns>Json response in the form of nested string dictionary.</returns>
         public List<OrderInfo> GetOrder(string OrderId)
         {
-            var param = new Dictionary<string, string>();
+            var param = new Dictionary<string, dynamic>();
             param.Add("order_id", OrderId);
 
             var orderdata = Get("orders.info", param);
@@ -367,7 +372,7 @@ namespace KiteConnect
             Dictionary<string, dynamic> tradesdata;
             if (!String.IsNullOrEmpty(OrderId))
             {
-                var param = new Dictionary<string, string>();
+                var param = new Dictionary<string, dynamic>();
                 param.Add("order_id", OrderId);
                 tradesdata = Get("orders.trades", param);
             }
@@ -439,7 +444,7 @@ namespace KiteConnect
             string OldProduct,
             string NewProduct)
         {
-            var param = new Dictionary<string, string>();
+            var param = new Dictionary<string, dynamic>();
 
             AddIfNotNull(param, "exchange", Exchange);
             AddIfNotNull(param, "tradingsymbol", TradingSymbol);
@@ -461,7 +466,7 @@ namespace KiteConnect
         /// <returns>Json response in the form of array of nested string dictionary.</returns>
         public List<Instrument> GetInstruments(string Exchange = null)
         {
-            var param = new Dictionary<string, string>();
+            var param = new Dictionary<string, dynamic>();
 
             List<Dictionary<string, dynamic>> instrumentsData;
 
@@ -489,7 +494,7 @@ namespace KiteConnect
         /// <returns>Json response in the form of nested string dictionary.</returns>
         public Quote GetQuote(string Exchange, string TradingSymbol)
         {
-            var param = new Dictionary<string, string>();
+            var param = new Dictionary<string, dynamic>();
 
             param.Add("exchange", Exchange);
             param.Add("tradingsymbol", TradingSymbol);
@@ -500,25 +505,66 @@ namespace KiteConnect
         }
 
         /// <summary>
+        /// Retrieve LTP and OHLC of upto 200 instruments
+        /// </summary>
+        /// <param name="Exchange">Name of the exchange</param>
+        /// <param name="TradingSymbol">Tradingsymbol of the instrument</param>
+        /// <returns>Json response in the form of nested string dictionary.</returns>
+        public Dictionary<string, OHLC> GetOHLC(string[] ExchangeTradingSymbol)
+        {
+            var param = new Dictionary<string, dynamic>();
+            param.Add("i", ExchangeTradingSymbol);
+            var ohlcdata = Get("market.ohlc", param);
+
+            Dictionary<string, OHLC> ohlcs = new Dictionary<string, OHLC>();
+            foreach (string item in ExchangeTradingSymbol)
+                ohlcs.Add(item, new OHLC(ohlcdata["data"][item]));
+
+            return ohlcs;
+        }
+
+        /// <summary>
+        /// Retrieve LTP of upto 200 instruments
+        /// </summary>
+        /// <param name="Exchange">Name of the exchange</param>
+        /// <param name="TradingSymbol">Tradingsymbol of the instrument</param>
+        /// <returns>Json response in the form of nested string dictionary.</returns>
+        public Dictionary<string, LTP> GetLTP(string[] ExchangeTradingSymbol)
+        {
+            var param = new Dictionary<string, dynamic>();
+            param.Add("i", ExchangeTradingSymbol);
+            var ltpdata = Get("market.ltp", param);
+
+            Dictionary<string, LTP> ltps = new Dictionary<string, LTP>();
+            foreach (string item in ExchangeTradingSymbol)
+                ltps.Add(item, new LTP(ltpdata["data"][item]));
+
+            return ltps;
+        }
+
+        /// <summary>
         /// Retrieve historical data (candles) for an instrument.
         /// </summary>
         /// <param name="InstrumentToken">Identifier for the instrument whose historical records you want to fetch. This is obtained with the instrument list API.</param>
-        /// <param name="FromDate">yyyy-mm-dd formatted date indicating the start date of records.</param>
-        /// <param name="ToDate">yyyy-mm-dd formatted date indicating the end date of records.</param>
+        /// <param name="FromDate">Date in format yyyy-mm-dd for fetching candles between two days. Date in format yyyy-mm-dd hh:mm:ss for fetching candles between two timestamps.</param>
+        /// <param name="ToDate">Date in format yyyy-mm-dd for fetching candles between two days. Date in format yyyy-mm-dd hh:mm:ss for fetching candles between two timestamps.</param>
         /// <param name="Interval">The candle record interval. Possible values are: minute, day, 3minute, 5minute, 10minute, 15minute, 30minute, 60minute</param>
+        /// <param name="Continuous">Pass true to get continous data of expired instruments/</param>
         /// <returns>Json response in the form of nested string dictionary.</returns>
         public List<Historical> GetHistorical(
             string InstrumentToken,
             string FromDate,
             string ToDate,
-            string Interval)
+            string Interval,
+            bool Continuous = false)
         {
-            var param = new Dictionary<string, string>();
+            var param = new Dictionary<string, dynamic>();
 
             param.Add("instrument_token", InstrumentToken);
             param.Add("from", FromDate);
             param.Add("to", ToDate);
             param.Add("interval", Interval);
+            param.Add("continuous", Continuous ? "1" : "0");
 
             var historicaldata = Get("market.historical", param);
 
@@ -539,7 +585,7 @@ namespace KiteConnect
         /// <returns>Json response in the form of nested string dictionary.</returns>
         public TrigerRange GetTriggerRange(string Exchange, string TradingSymbol, string TrasactionType)
         {
-            var param = new Dictionary<string, string>();
+            var param = new Dictionary<string, dynamic>();
 
             param.Add("exchange", Exchange);
             param.Add("tradingsymbol", TradingSymbol);
@@ -555,7 +601,7 @@ namespace KiteConnect
         /// </summary>
         /// <returns>The Mutual funds Instruments.</returns>
         public List<MFInstrument> GetMFInstruments(){
-			var param = new Dictionary<string, string>();
+			var param = new Dictionary<string, dynamic>();
 
 			List<Dictionary<string, dynamic>> instrumentsData;
 			
@@ -575,7 +621,7 @@ namespace KiteConnect
         /// <returns>The Mutual funds orders.</returns>
         public List<MFOrder> GetMFOrders()
 		{
-			var param = new Dictionary<string, string>();
+			var param = new Dictionary<string, dynamic>();
 
 			Dictionary<string, dynamic> ordersData;
 			ordersData = Get("mutualfunds.orders", param);
@@ -595,7 +641,7 @@ namespace KiteConnect
         /// <param name="OrderId">Order id.</param>
         public MFOrder GetMFOrder(String OrderId)
 		{
-			var param = new Dictionary<string, string>();
+			var param = new Dictionary<string, dynamic>();
             param.Add("order_id", OrderId);
 
 			Dictionary<string, dynamic> orderData;
@@ -614,7 +660,7 @@ namespace KiteConnect
 		/// <param name="Quantity">Quantity to SELL. Not applicable on BUYs. If the holding is less than minimum_redemption_quantity, all the units have to be sold.</param>
 		/// <param name="Tag">An optional tag to apply to an order to identify it (alphanumeric, max 8 chars).</param>
 		public Dictionary<string, dynamic> PlaceMFOrder(string TradingSymbol, string TransactionType, string Amount, string Quantity = "", string Tag = ""){
-			var param = new Dictionary<string, string>();
+			var param = new Dictionary<string, dynamic>();
 			
             AddIfNotNull(param, "tradingsymbol", TradingSymbol);
             AddIfNotNull(param, "transaction_type", TransactionType);
@@ -632,7 +678,7 @@ namespace KiteConnect
 		/// <param name="OrderId">Unique order id.</param>
 		public Dictionary<string, dynamic> CancelMFOrder(String OrderId)
 		{
-			var param = new Dictionary<string, string>();
+			var param = new Dictionary<string, dynamic>();
 
 			AddIfNotNull(param, "order_id", OrderId);
 
@@ -645,7 +691,7 @@ namespace KiteConnect
 		/// <returns>The list of all Mutual funds SIPs.</returns>
 		public List<MFSIP> GetMFSIPs()
 		{
-			var param = new Dictionary<string, string>();
+			var param = new Dictionary<string, dynamic>();
 
 			Dictionary<string, dynamic> sipData;
 			sipData = Get("mutualfunds.sips", param);
@@ -665,7 +711,7 @@ namespace KiteConnect
 		/// <param name="SIPID">SIP id.</param>
 		public MFSIP GetMFSIP(String SIPID)
 		{
-			var param = new Dictionary<string, string>();
+			var param = new Dictionary<string, dynamic>();
 			param.Add("sip_id", SIPID);
 
 			Dictionary<string, dynamic> sipData;
@@ -687,7 +733,7 @@ namespace KiteConnect
 		/// <param name="Tag">An optional tag to apply to an order to identify it (alphanumeric, max 8 chars).</param>
 		public Dictionary<string, dynamic> PlaceMFSIP(string TradingSymbol, string Amount, string InitialAmount, string Frequency, string InstalmentDay, string Instalments, string Tag = "")
 		{
-			var param = new Dictionary<string, string>();
+			var param = new Dictionary<string, dynamic>();
 
 			AddIfNotNull(param, "tradingsymbol", TradingSymbol);
 			AddIfNotNull(param, "initial_amount", InitialAmount);
@@ -711,7 +757,7 @@ namespace KiteConnect
 		/// <param name="Status">Pause or unpause an SIP (active or paused).</param>
 		public Dictionary<string, dynamic> ModifyMFSIP(string SIPId, string Amount, string Frequency, string InstalmentDay, string Instalments, string Status)
 		{
-			var param = new Dictionary<string, string>();
+			var param = new Dictionary<string, dynamic>();
 
 			AddIfNotNull(param, "status", Status);
 			AddIfNotNull(param, "sip_id", SIPId);
@@ -730,7 +776,7 @@ namespace KiteConnect
         /// <param name="SIPId">SIP id.</param>
 		public Dictionary<string, dynamic> CancelMFSIP(String SIPId)
 		{
-			var param = new Dictionary<string, string>();
+			var param = new Dictionary<string, dynamic>();
 
 			AddIfNotNull(param, "sip_id", SIPId);
 
@@ -743,7 +789,7 @@ namespace KiteConnect
         /// <returns>The list of all Mutual funds holdings.</returns>
         public List<MFHolding> GetMFHoldings()
 		{
-			var param = new Dictionary<string, string>();
+			var param = new Dictionary<string, dynamic>();
 
 			Dictionary<string, dynamic> holdingsData;
 			holdingsData = Get("mutualfunds.holdings", param);
@@ -762,7 +808,7 @@ namespace KiteConnect
         /// <param name="Route">URL route of API</param>
         /// <param name="Params">Additional paramerters</param>
         /// <returns>Varies according to API endpoint</returns>
-        private dynamic Get(string Route, Dictionary<string, string> Params = null)
+        private dynamic Get(string Route, Dictionary<string, dynamic> Params = null)
         {
             return Request(Route, "GET", Params);
         }
@@ -773,7 +819,7 @@ namespace KiteConnect
         /// <param name="Route">URL route of API</param>
         /// <param name="Params">Additional paramerters</param>
         /// <returns>Varies according to API endpoint</returns>
-        private dynamic Post(string Route, Dictionary<string, string> Params = null)
+        private dynamic Post(string Route, Dictionary<string, dynamic> Params = null)
         {
             return Request(Route, "POST", Params);
         }
@@ -784,7 +830,7 @@ namespace KiteConnect
         /// <param name="Route">URL route of API</param>
         /// <param name="Params">Additional paramerters</param>
         /// <returns>Varies according to API endpoint</returns>
-        private dynamic Put(string Route, Dictionary<string, string> Params = null)
+        private dynamic Put(string Route, Dictionary<string, dynamic> Params = null)
         {
             return Request(Route, "PUT", Params);
         }
@@ -795,11 +841,23 @@ namespace KiteConnect
         /// <param name="Route">URL route of API</param>
         /// <param name="Params">Additional paramerters</param>
         /// <returns>Varies according to API endpoint</returns>
-        private dynamic Delete(string Route, Dictionary<string, string> Params = null)
+        private dynamic Delete(string Route, Dictionary<string, dynamic> Params = null)
         {
             return Request(Route, "DELETE", Params);
         }
 
+        private string BuildParam(string Key, dynamic Value)
+        {
+            if(Value is string)
+            {
+                return HttpUtility.UrlEncode(Key) + "=" + HttpUtility.UrlEncode((string)Value);
+            }
+            else
+            {
+                string[] values = (string[])Value;
+                return String.Join("&", values.Select(x => HttpUtility.UrlEncode(Key) + "=" + HttpUtility.UrlEncode(x)));
+            }
+        }
         /// <summary>
         /// Make an HTTP request.
         /// </summary>
@@ -807,21 +865,21 @@ namespace KiteConnect
         /// <param name="Method">Method of HTTP request</param>
         /// <param name="Params">Additional paramerters</param>
         /// <returns>Varies according to API endpoint</returns>
-        private dynamic Request(string Route, string Method, Dictionary<string, string> Params = null)
+        private dynamic Request(string Route, string Method, Dictionary<string, dynamic> Params = null)
         {
             string url = _root + _routes[Route];
 
             if (Params is null)
-                Params = new Dictionary<string, string>();
+                Params = new Dictionary<string, dynamic>();
 
             if (url.Contains("{"))
             {
                 var urlparams = Params.ToDictionary(entry => entry.Key, entry => entry.Value);
 
-                foreach (KeyValuePair<string, string> item in urlparams)
+                foreach (KeyValuePair<string, dynamic> item in urlparams)
                     if (url.Contains("{" + item.Key + "}"))
                     {
-                        url = url.Replace("{" + item.Key + "}", item.Value);
+                        url = url.Replace("{" + item.Key + "}", (string)item.Value);
                         Params.Remove(item.Key);
                     }
             }
@@ -833,8 +891,9 @@ namespace KiteConnect
                 Params.Add("access_token", _accessToken);
 
             HttpWebRequest request;
-            string paramString = String.Join("&", Params.Select(x => HttpUtility.UrlEncode(x.Key) + "=" + HttpUtility.UrlEncode(x.Value)));
+            string paramString = String.Join("&", Params.Select(x => BuildParam(x.Key, x.Value)));
 
+            
             if (Method == "POST" || Method == "PUT")
             {
                 request = (HttpWebRequest)WebRequest.Create(url);
@@ -854,6 +913,11 @@ namespace KiteConnect
                 if (_debug) Console.WriteLine("DEBUG: " + Method + " " + url + "?" + paramString + "\n");
             }
 
+            //request.Headers.Add("X-Kite-Version: 3");
+            //if(request.Method == "GET" && cache.IsCached(request.RequestUri.AbsoluteUri))
+            //{
+            //    request.Headers.Add("If-None-Match: " + cache.GetETag(request.RequestUri.AbsoluteUri));
+            //}
             request.Timeout = _timeout;
             if (_proxy != null) request.Proxy = _proxy;
 
@@ -880,6 +944,10 @@ namespace KiteConnect
                     if (((HttpWebResponse)webResponse).StatusCode == HttpStatusCode.Forbidden)
                         _sessionHook?.Invoke();
 
+                    //if (request.Method == "GET" && webResponse.Headers[HttpResponseHeader.ETag] != null)
+                    //{
+
+                    //}
                     if (webResponse.ContentType == "application/json")
                     {
                         Dictionary<string, dynamic> responseDictionary = JsonDeserialize(response);
@@ -969,7 +1037,7 @@ namespace KiteConnect
         /// <param name="Params">Dictionary to add the key-value pair</param>
         /// <param name="Key">Key of the parameter</param>
         /// <param name="Value">Value of the parameter</param>
-        private void AddIfNotNull(Dictionary<string, string> Params, string Key, string Value)
+        private void AddIfNotNull(Dictionary<string, dynamic> Params, string Key, string Value)
         {
             if (!String.IsNullOrEmpty(Value))
                 Params.Add(Key, Value);
