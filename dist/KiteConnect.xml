@@ -69,6 +69,16 @@
             Quote structure
             </summary>
         </member>
+        <member name="T:KiteConnect.OHLC">
+            <summary>
+            OHLC Quote structure
+            </summary>
+        </member>
+        <member name="T:KiteConnect.LTP">
+            <summary>
+            LTP Quote structure
+            </summary>
+        </member>
         <member name="T:KiteConnect.MFHolding">
             <summary>
             Mutual funds holdings structure
@@ -277,14 +287,31 @@
             <param name="TradingSymbol">Tradingsymbol of the instrument</param>
             <returns>Json response in the form of nested string dictionary.</returns>
         </member>
-        <member name="M:KiteConnect.Kite.GetHistorical(System.String,System.String,System.String,System.String)">
+        <member name="M:KiteConnect.Kite.GetOHLC(System.String[])">
+            <summary>
+            Retrieve LTP and OHLC of upto 200 instruments
+            </summary>
+            <param name="Exchange">Name of the exchange</param>
+            <param name="TradingSymbol">Tradingsymbol of the instrument</param>
+            <returns>Json response in the form of nested string dictionary.</returns>
+        </member>
+        <member name="M:KiteConnect.Kite.GetLTP(System.String[])">
+            <summary>
+            Retrieve LTP of upto 200 instruments
+            </summary>
+            <param name="Exchange">Name of the exchange</param>
+            <param name="TradingSymbol">Tradingsymbol of the instrument</param>
+            <returns>Json response in the form of nested string dictionary.</returns>
+        </member>
+        <member name="M:KiteConnect.Kite.GetHistorical(System.String,System.String,System.String,System.String,System.Boolean)">
             <summary>
             Retrieve historical data (candles) for an instrument.
             </summary>
             <param name="InstrumentToken">Identifier for the instrument whose historical records you want to fetch. This is obtained with the instrument list API.</param>
-            <param name="FromDate">yyyy-mm-dd formatted date indicating the start date of records.</param>
-            <param name="ToDate">yyyy-mm-dd formatted date indicating the end date of records.</param>
+            <param name="FromDate">Date in format yyyy-mm-dd for fetching candles between two days. Date in format yyyy-mm-dd hh:mm:ss for fetching candles between two timestamps.</param>
+            <param name="ToDate">Date in format yyyy-mm-dd for fetching candles between two days. Date in format yyyy-mm-dd hh:mm:ss for fetching candles between two timestamps.</param>
             <param name="Interval">The candle record interval. Possible values are: minute, day, 3minute, 5minute, 10minute, 15minute, 30minute, 60minute</param>
+            <param name="Continuous">Pass true to get continous data of expired instruments.</param>
             <returns>Json response in the form of nested string dictionary.</returns>
         </member>
         <member name="M:KiteConnect.Kite.GetTriggerRange(System.String,System.String,System.String)">
@@ -384,7 +411,7 @@
             </summary>
             <returns>The list of all Mutual funds holdings.</returns>
         </member>
-        <member name="M:KiteConnect.Kite.Get(System.String,System.Collections.Generic.Dictionary{System.String,System.String})">
+        <member name="M:KiteConnect.Kite.Get(System.String,System.Collections.Generic.Dictionary{System.String,System.Object})">
             <summary>
             Alias for sending a GET request.
             </summary>
@@ -392,7 +419,7 @@
             <param name="Params">Additional paramerters</param>
             <returns>Varies according to API endpoint</returns>
         </member>
-        <member name="M:KiteConnect.Kite.Post(System.String,System.Collections.Generic.Dictionary{System.String,System.String})">
+        <member name="M:KiteConnect.Kite.Post(System.String,System.Collections.Generic.Dictionary{System.String,System.Object})">
             <summary>
             Alias for sending a POST request.
             </summary>
@@ -400,7 +427,7 @@
             <param name="Params">Additional paramerters</param>
             <returns>Varies according to API endpoint</returns>
         </member>
-        <member name="M:KiteConnect.Kite.Put(System.String,System.Collections.Generic.Dictionary{System.String,System.String})">
+        <member name="M:KiteConnect.Kite.Put(System.String,System.Collections.Generic.Dictionary{System.String,System.Object})">
             <summary>
             Alias for sending a PUT request.
             </summary>
@@ -408,7 +435,7 @@
             <param name="Params">Additional paramerters</param>
             <returns>Varies according to API endpoint</returns>
         </member>
-        <member name="M:KiteConnect.Kite.Delete(System.String,System.Collections.Generic.Dictionary{System.String,System.String})">
+        <member name="M:KiteConnect.Kite.Delete(System.String,System.Collections.Generic.Dictionary{System.String,System.Object})">
             <summary>
             Alias for sending a DELETE request.
             </summary>
@@ -416,7 +443,7 @@
             <param name="Params">Additional paramerters</param>
             <returns>Varies according to API endpoint</returns>
         </member>
-        <member name="M:KiteConnect.Kite.Request(System.String,System.String,System.Collections.Generic.Dictionary{System.String,System.String})">
+        <member name="M:KiteConnect.Kite.Request(System.String,System.String,System.Collections.Generic.Dictionary{System.String,System.Object})">
             <summary>
             Make an HTTP request.
             </summary>
@@ -446,7 +473,7 @@
             <param name="value">string data</param>
             <returns>Stream that reads input string</returns>
         </member>
-        <member name="M:KiteConnect.Kite.AddIfNotNull(System.Collections.Generic.Dictionary{System.String,System.String},System.String,System.String)">
+        <member name="M:KiteConnect.Kite.AddIfNotNull(System.Collections.Generic.Dictionary{System.String,System.Object},System.String,System.String)">
             <summary>
             Helper function to add parameter to the request only if it is not null or empty
             </summary>
