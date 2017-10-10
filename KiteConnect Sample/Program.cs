@@ -70,6 +70,16 @@ namespace KiteConnectSample
             Quote quote = kite.GetQuote("NSE", "INFY");
             Console.WriteLine(JsonSerialize(quote));
 
+            // Get OHLC and LTP of upto 200 scrips
+
+            Dictionary<string, OHLC> ohlcs = kite.GetOHLC(new string[] { "NSE:INFY", "NSE:ASHOKLEY" });
+            Console.WriteLine(JsonSerialize(ohlcs));
+
+            // Get LTP of upto 200 scrips
+
+            Dictionary<string, LTP> ltps = kite.GetLTP(new string[] { "NSE:INFY", "NSE:ASHOKLEY" });
+            Console.WriteLine(JsonSerialize(ltps));
+
             // Trigger Range
 
             TrigerRange triggerRange = kite.GetTriggerRange("NSE", "INFY", "BUY");
@@ -77,13 +87,14 @@ namespace KiteConnectSample
 
             // Orders
 
-            kite.PlaceOrder("CDS", "USDINR17AUGFUT", "SELL", "1", Price: "64.0000", OrderType: "MARKET", Product: "NRML");
+            Dictionary<string, dynamic> response = kite.PlaceOrder("CDS", "USDINR17AUGFUT", "SELL", "1", Price: "64.0000", OrderType: "MARKET", Product: "NRML");
+            Console.WriteLine("Order Id: " + response["data"]["order_id"]);
+
             kite.PlaceOrder("CDS", "USDINR17AUGFUT", "BUY", "1", Price: "63.9000", OrderType: "LIMIT", Product: "NRML");
             kite.CancelOrder("1234");
 
             List<OrderInfo> orderinfo = kite.GetOrder("1234");
             Console.WriteLine(JsonSerialize(orderinfo[0]));
-
 
             // Trades
 
@@ -95,10 +106,20 @@ namespace KiteConnectSample
             kite.Margins("commodity");
             kite.Margins("equity");
 
-            // Historical Data
+            // Historical Data With Dates
 
             List<Historical> historical = kite.GetHistorical("5633", "2015-12-28", "2016-01-01", "minute");
             Console.WriteLine(JsonSerialize(historical[0]));
+
+            // Historical Data With Timestamps
+
+            List<Historical> historical_timestamp = kite.GetHistorical("5633", "2016-01-01 11:00:00", "2016-01-01 11:10:00", "minute");
+            Console.WriteLine(JsonSerialize(historical_timestamp[0]));
+
+            // Continuous Historical Data
+
+            List<Historical> historical_continuous = kite.GetHistorical("5633", "2015-12-28", "2016-01-01", "minute", Continuous: true);
+            Console.WriteLine(JsonSerialize(historical_continuous[0]));
 
             // Mutual Funds Instruments
 

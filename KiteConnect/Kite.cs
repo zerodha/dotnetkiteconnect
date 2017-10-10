@@ -549,7 +549,7 @@ namespace KiteConnect
         /// <param name="FromDate">Date in format yyyy-mm-dd for fetching candles between two days. Date in format yyyy-mm-dd hh:mm:ss for fetching candles between two timestamps.</param>
         /// <param name="ToDate">Date in format yyyy-mm-dd for fetching candles between two days. Date in format yyyy-mm-dd hh:mm:ss for fetching candles between two timestamps.</param>
         /// <param name="Interval">The candle record interval. Possible values are: minute, day, 3minute, 5minute, 10minute, 15minute, 30minute, 60minute</param>
-        /// <param name="Continuous">Pass true to get continous data of expired instruments/</param>
+        /// <param name="Continuous">Pass true to get continous data of expired instruments.</param>
         /// <returns>Json response in the form of nested string dictionary.</returns>
         public List<Historical> GetHistorical(
             string InstrumentToken,
