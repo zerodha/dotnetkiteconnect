@@ -58,7 +58,7 @@ namespace KiteConnect
             High = Convert.ToDecimal(data[2]);
             Low = Convert.ToDecimal(data[3]);
             Close = Convert.ToDecimal(data[4]);
-            Volume = Convert.ToUInt32(data[4]);
+            Volume = Convert.ToUInt32(data[5]);
         }
 
         public string TimeStamp { get; }
