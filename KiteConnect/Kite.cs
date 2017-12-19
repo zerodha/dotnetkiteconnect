@@ -507,17 +507,16 @@ namespace KiteConnect
         /// <summary>
         /// Retrieve LTP and OHLC of upto 200 instruments
         /// </summary>
-        /// <param name="Exchange">Name of the exchange</param>
-        /// <param name="TradingSymbol">Tradingsymbol of the instrument</param>
+        /// <param name="InstrumentId">Indentification of instrument in the form of EXCHANGE:TRADINGSYMBOL (eg: NSE:INFY) or InstrumentToken (eg: 408065)</param>
         /// <returns>Json response in the form of nested string dictionary.</returns>
-        public Dictionary<string, OHLC> GetOHLC(string[] ExchangeTradingSymbol)
+        public Dictionary<string, OHLC> GetOHLC(string[] InstrumentId)
         {
             var param = new Dictionary<string, dynamic>();
-            param.Add("i", ExchangeTradingSymbol);
+            param.Add("i", InstrumentId);
             var ohlcdata = Get("market.ohlc", param);
 
             Dictionary<string, OHLC> ohlcs = new Dictionary<string, OHLC>();
-            foreach (string item in ExchangeTradingSymbol)
+            foreach (string item in ohlcdata["data"].Keys)
                 ohlcs.Add(item, new OHLC(ohlcdata["data"][item]));
 
             return ohlcs;
@@ -526,17 +525,16 @@ namespace KiteConnect
         /// <summary>
         /// Retrieve LTP of upto 200 instruments
         /// </summary>
-        /// <param name="Exchange">Name of the exchange</param>
-        /// <param name="TradingSymbol">Tradingsymbol of the instrument</param>
+        /// <param name="InstrumentId">Indentification of instrument in the form of EXCHANGE:TRADINGSYMBOL (eg: NSE:INFY) or InstrumentToken (eg: 408065)</param>
         /// <returns>Json response in the form of nested string dictionary.</returns>
-        public Dictionary<string, LTP> GetLTP(string[] ExchangeTradingSymbol)
+        public Dictionary<string, LTP> GetLTP(string[] InstrumentId)
         {
             var param = new Dictionary<string, dynamic>();
-            param.Add("i", ExchangeTradingSymbol);
+            param.Add("i", InstrumentId);
             var ltpdata = Get("market.ltp", param);
 
             Dictionary<string, LTP> ltps = new Dictionary<string, LTP>();
-            foreach (string item in ExchangeTradingSymbol)
+            foreach (string item in ltpdata["data"].Keys)
                 ltps.Add(item, new LTP(ltpdata["data"][item]));
 
             return ltps;
