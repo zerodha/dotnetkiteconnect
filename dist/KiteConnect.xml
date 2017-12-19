@@ -291,16 +291,14 @@
             <summary>
             Retrieve LTP and OHLC of upto 200 instruments
             </summary>
-            <param name="Exchange">Name of the exchange</param>
-            <param name="TradingSymbol">Tradingsymbol of the instrument</param>
+            <param name="InstrumentId">Indentification of instrument in the form of EXCHANGE:TRADINGSYMBOL (eg: NSE:INFY) or InstrumentToken (eg: 408065)</param>
             <returns>Json response in the form of nested string dictionary.</returns>
         </member>
         <member name="M:KiteConnect.Kite.GetLTP(System.String[])">
             <summary>
             Retrieve LTP of upto 200 instruments
             </summary>
-            <param name="Exchange">Name of the exchange</param>
-            <param name="TradingSymbol">Tradingsymbol of the instrument</param>
+            <param name="InstrumentId">Indentification of instrument in the form of EXCHANGE:TRADINGSYMBOL (eg: NSE:INFY) or InstrumentToken (eg: 408065)</param>
             <returns>Json response in the form of nested string dictionary.</returns>
         </member>
         <member name="M:KiteConnect.Kite.GetHistorical(System.String,System.String,System.String,System.String,System.Boolean)">
