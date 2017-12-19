@@ -45,7 +45,7 @@ namespace KiteConnectSample
             kite.SetAccessToken(MyAccessToken);
 
             // Initialize ticker
-            
+
             initTicker();
 
             // Positions
@@ -98,6 +98,39 @@ namespace KiteConnectSample
 
             List<OrderInfo> orderinfo = kite.GetOrder("1234");
             Console.WriteLine(JsonSerialize(orderinfo[0]));
+
+
+            //BO LIMIT order placing
+
+            kite.PlaceOrder("NSE", "ASHOKLEY", "BUY", Quantity: "1", Price: "115", Product: "MIS", OrderType: "LIMIT", Validity: "DAY", SquareOffValue: "2", StoplossValue: "2", Variety: "bo");
+
+            // BO LIMIT exiting
+
+            kite.CancelOrder("1234", "bo", "5678"); // 1234 is order id and 5678 is parent order id
+
+            // BO SL order placing
+
+            kite.PlaceOrder("NSE", "ASHOKLEY", "BUY", Quantity: "1", Price: "117", Product: "MIS", OrderType: "SL", Validity: "DAY", SquareOffValue: "2", StoplossValue: "2", TriggerPrice: "117.5", Variety: "bo");
+
+            // BO SL exiting
+
+            kite.CancelOrder("1234", "bo", "5678"); // 1234 is order id and 5678 is parent order id
+
+            // CO LIMIT order placing
+
+            kite.PlaceOrder("NSE", "ASHOKLEY", "BUY", Quantity: "1", Price: "115.5", Product: "MIS", OrderType: "LIMIT", Validity: "DAY", TriggerPrice: "116.5", Variety: "co");
+
+            // CO LIMIT exiting
+
+            kite.CancelOrder("1234", "co", "5678"); // 1234 is order id and 5678 is parent order id
+
+            // CO MARKET order placing
+
+            kite.PlaceOrder("NSE", "ASHOKLEY", "BUY", Quantity: "1", Product: "MIS", OrderType: "MARKET", Validity: "DAY", TriggerPrice: "116.5", Variety: "co");
+
+            // CO MARKET exiting
+
+            kite.CancelOrder("1234", "co", "5678"); // 1234 is order id and 5678 is parent order id
 
             // Trades
 
