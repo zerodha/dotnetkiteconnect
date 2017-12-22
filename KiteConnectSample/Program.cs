@@ -90,7 +90,7 @@ namespace KiteConnectSample
             // Trigger Range
 
             TrigerRange triggerRange = kite.GetTriggerRange(
-                Exchange: Constants.EXCHANGE_NSE, 
+                Exchange: Constants.EXCHANGE_NSE,
                 TradingSymbol: "INFY",
                 TrasactionType: Constants.TRANSACTION_TYPE_BUY
             );
@@ -109,12 +109,12 @@ namespace KiteConnectSample
             // Place sell order
 
             Dictionary<string, dynamic> response = kite.PlaceOrder(
-                Exchange: Constants.EXCHANGE_CDS, 
-                TradingSymbol: "USDINR17AUGFUT", 
+                Exchange: Constants.EXCHANGE_CDS,
+                TradingSymbol: "USDINR17AUGFUT",
                 TransactionType: Constants.TRANSACTION_TYPE_SELL,
-                Quantity: 1, 
-                Price: 64.0000m, 
-                OrderType: Constants.ORDER_TYPE_MARKET, 
+                Quantity: 1,
+                Price: 64.0000m,
+                OrderType: Constants.ORDER_TYPE_MARKET,
                 Product: Constants.PRODUCT_MIS
             );
             Console.WriteLine("Order Id: " + response["data"]["order_id"]);
@@ -122,12 +122,12 @@ namespace KiteConnectSample
             // Place buy order
 
             kite.PlaceOrder(
-                Exchange: Constants.EXCHANGE_CDS, 
+                Exchange: Constants.EXCHANGE_CDS,
                 TradingSymbol: "USDINR17AUGFUT",
-                TransactionType: Constants.TRANSACTION_TYPE_BUY, 
-                Quantity: 1, 
-                Price: 63.9000m, 
-                OrderType: Constants.ORDER_TYPE_LIMIT, 
+                TransactionType: Constants.TRANSACTION_TYPE_BUY,
+                Quantity: 1,
+                Price: 63.9000m,
+                OrderType: Constants.ORDER_TYPE_LIMIT,
                 Product: Constants.PRODUCT_MIS
             );
 
@@ -139,13 +139,13 @@ namespace KiteConnectSample
 
             kite.PlaceOrder(
                 Exchange: Constants.EXCHANGE_NSE,
-                TradingSymbol: "ASHOKLEY", 
-                TransactionType: Constants.TRANSACTION_TYPE_BUY, 
-                Quantity: 1, 
+                TradingSymbol: "ASHOKLEY",
+                TransactionType: Constants.TRANSACTION_TYPE_BUY,
+                Quantity: 1,
                 Price: 115,
-                Product: Constants.PRODUCT_MIS, 
-                OrderType: Constants.ORDER_TYPE_LIMIT, 
-                Validity: Constants.VALIDITY_DAY, 
+                Product: Constants.PRODUCT_MIS,
+                OrderType: Constants.ORDER_TYPE_LIMIT,
+                Validity: Constants.VALIDITY_DAY,
                 SquareOffValue: 2,
                 StoplossValue: 2,
                 Variety: Constants.VARIETY_BO
@@ -154,25 +154,25 @@ namespace KiteConnectSample
             // BO LIMIT exiting
 
             kite.CancelOrder(
-                OrderId: "1234", 
-                Variety: Constants.VARIETY_BO, 
+                OrderId: "1234",
+                Variety: Constants.VARIETY_BO,
                 ParentOrderId: "5678"
             );
 
             // BO SL order placing
 
             kite.PlaceOrder(
-                Exchange: Constants.EXCHANGE_NSE, 
-                TradingSymbol: "ASHOKLEY", 
+                Exchange: Constants.EXCHANGE_NSE,
+                TradingSymbol: "ASHOKLEY",
                 TransactionType: Constants.TRANSACTION_TYPE_BUY,
                 Quantity: 1,
                 Price: 117,
-                Product: Constants.PRODUCT_MIS, 
+                Product: Constants.PRODUCT_MIS,
                 OrderType: Constants.ORDER_TYPE_SL,
-                Validity: Constants.VALIDITY_DAY, 
+                Validity: Constants.VALIDITY_DAY,
                 SquareOffValue: 2,
                 StoplossValue: 2,
-                TriggerPrice: 117.5m, 
+                TriggerPrice: 117.5m,
                 Variety: Constants.VARIETY_BO
             );
 
@@ -187,15 +187,15 @@ namespace KiteConnectSample
             // CO LIMIT order placing
 
             kite.PlaceOrder(
-                Exchange: Constants.EXCHANGE_NSE, 
+                Exchange: Constants.EXCHANGE_NSE,
                 TradingSymbol: "ASHOKLEY",
-                TransactionType: Constants.TRANSACTION_TYPE_BUY, 
-                Quantity: 1, 
+                TransactionType: Constants.TRANSACTION_TYPE_BUY,
+                Quantity: 1,
                 Price: 115.5m,
                 Product: Constants.PRODUCT_MIS,
-                OrderType: Constants.ORDER_TYPE_LIMIT, 
-                Validity: Constants.VALIDITY_DAY, 
-                TriggerPrice: 116.5m, 
+                OrderType: Constants.ORDER_TYPE_LIMIT,
+                Validity: Constants.VALIDITY_DAY,
+                TriggerPrice: 116.5m,
                 Variety: Constants.VARIETY_CO
             );
 
@@ -210,10 +210,10 @@ namespace KiteConnectSample
             // CO MARKET order placing
 
             kite.PlaceOrder(
-                Exchange: Constants.EXCHANGE_NSE, 
-                TradingSymbol: "ASHOKLEY", 
-                TransactionType: Constants.TRANSACTION_TYPE_BUY, 
-                Quantity: 1, 
+                Exchange: Constants.EXCHANGE_NSE,
+                TradingSymbol: "ASHOKLEY",
+                TransactionType: Constants.TRANSACTION_TYPE_BUY,
+                Quantity: 1,
                 Product: Constants.PRODUCT_MIS,
                 OrderType: Constants.ORDER_TYPE_MARKET,
                 Validity: Constants.VALIDITY_DAY,
@@ -242,7 +242,7 @@ namespace KiteConnectSample
             // Historical Data With Dates
 
             List<Historical> historical = kite.GetHistorical(
-                InstrumentToken: "5633", 
+                InstrumentToken: "5633",
                 FromDate: new DateTime(2016, 1, 1, 12, 50, 0),   // 2016-01-01 12:50:00 AM
                 ToDate: new DateTime(2016, 1, 1, 13, 10, 0),    // 2016-01-01 01:10:00 PM
                 Interval: Constants.INTERVAL_MINUTE,
@@ -259,7 +259,7 @@ namespace KiteConnectSample
 
             List<MFOrder> mforders = kite.GetMFOrders();
             Console.WriteLine(Utils.JsonSerialize(mforders[0]));
-            
+
             // Mutual funds get order by id
 
             MFOrder mforder = kite.GetMFOrder(OrderId: "1234");
@@ -268,8 +268,8 @@ namespace KiteConnectSample
             // Mutual funds place order
 
             kite.PlaceMFOrder(
-                TradingSymbol: "INF174K01LS2", 
-                TransactionType: Constants.TRANSACTION_TYPE_BUY, 
+                TradingSymbol: "INF174K01LS2",
+                TransactionType: Constants.TRANSACTION_TYPE_BUY,
                 Amount: 20000
             );
 
@@ -290,22 +290,22 @@ namespace KiteConnectSample
             // Mutual Funds place SIP order
 
             kite.PlaceMFSIP(
-                TradingSymbol: "INF174K01LS2", 
+                TradingSymbol: "INF174K01LS2",
                 Amount: 1000,
-                InitialAmount: 5000, 
-                Frequency: "monthly", 
-                InstalmentDay: 1, 
+                InitialAmount: 5000,
+                Frequency: "monthly",
+                InstalmentDay: 1,
                 Instalments: -1 // -1 means infinite
             );
 
             // Mutual Funds modify SIP order
 
             kite.ModifyMFSIP(
-                SIPId: "1234", 
-                Amount: 1000, 
-                Frequency: "monthly", 
+                SIPId: "1234",
+                Amount: 1000,
+                Frequency: "monthly",
                 InstalmentDay: 1,
-                Instalments: 10, 
+                Instalments: 10,
                 Status: "paused"
             );
 
@@ -338,7 +338,7 @@ namespace KiteConnectSample
 
         private static void initTicker()
         {
-            ticker = new Ticker(MyAPIKey, MyUserId, MyPublicToken);
+            ticker = new Ticker(MyAPIKey, MyUserId, MyAccessToken);
 
             ticker.OnTick += onTick;
             ticker.OnReconnect += onReconnect;

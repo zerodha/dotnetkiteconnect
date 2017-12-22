@@ -572,7 +572,7 @@ namespace KiteConnect
         public void EnableReconnect(int Interval = 5, int Retries = 50)
         {
             _isReconnect = true;
-            _interval = Interval;
+            _interval = Math.Max(Interval, 5);
             _retries = Retries;
 
             _timerTick = _interval;
