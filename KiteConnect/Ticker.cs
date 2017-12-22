@@ -17,7 +17,7 @@ namespace KiteConnect
         private bool _debug = true;
 
         // Root domain for ticker. Can be changed with Root parameter in the constructor.
-        private string _root = "wss://websocket.kite.trade/v3";
+        private string _root = "wss://websocket.kite.trade/";
 
         // Configurations to create ticker connection
         private string _apiKey;
