@@ -1,0 +1,24 @@
+{
+  "status": "success",
+  "data": [
+    {
+      "tradingsymbol": "GFLFIN",
+      "exchange": "BSE",
+      "instrument_token": 135950084,
+      "isin": "INE764K01038",
+      "product": "CNC",
+      "price": 0,
+      "quantity": 1,
+      "t1_quantity": 0,
+      "realised_quantity": 1,
+      "collateral_quantity": 0,
+      "collateral_type": "",
+      "average_price": 0,
+      "last_price": 3.67,
+      "close_price": 0,
+      "pnl": 3.67,
+      "day_change": 0,
+      "day_change_percentage": 0
+    }
+  ]
+}

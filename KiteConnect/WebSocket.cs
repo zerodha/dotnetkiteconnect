@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Net.WebSockets;
 using System.Threading;
+using System.Net;
 
 namespace KiteConnect
 {
@@ -56,13 +57,32 @@ namespace KiteConnect
         /// <summary>
         /// Connect to WebSocket
         /// </summary>
-        public void Connect()
+        public void Connect(Dictionary<string, string> headers = null)
         {
             try
             {
                 // Initialize ClientWebSocket instance and connect with Url
                 _ws = new ClientWebSocket();
+                if(headers != null)
+                {
+                    foreach(string key in headers.Keys)
+                    {
+                        _ws.Options.SetRequestHeader(key, headers[key]);
+                    }
+                }
                 _ws.ConnectAsync(new Uri(_url), CancellationToken.None).Wait();
+            }
+            catch (AggregateException e)
+            {
+                foreach (string ie in e.InnerException.Messages())
+                {
+                    OnError?.Invoke("Error while connecting. Message: " + ie);
+                    if(ie.Contains("Forbidden") && ie.Contains("403"))
+                    {
+                        OnClose?.Invoke();
+                    }
+                }
+                return;
             }
             catch (Exception e)
             {
@@ -76,8 +96,9 @@ namespace KiteConnect
 
             try
             {
-                // Callback for receiving data
-                callback = t =>
+               //Callback for receiving data
+
+               callback = t =>
                 {
                     try
                     {

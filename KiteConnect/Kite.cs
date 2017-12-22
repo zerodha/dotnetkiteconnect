@@ -3,14 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web;
-using System.Web.Script.Serialization;
-using System.Security.Cryptography;
 using System.Collections;
-using Microsoft.VisualBasic.FileIO;
-
+using System.Reflection;
 
 namespace KiteConnect
 {
@@ -26,7 +20,7 @@ namespace KiteConnect
 
         private string _apiKey;
         private string _accessToken;
-        private bool _debug;
+        private bool _enableLogging;
         private WebProxy _proxy;
         private int _timeout;
 
@@ -39,7 +33,11 @@ namespace KiteConnect
             ["parameters"] = "/parameters",
             ["api.validate"] = "/session/token",
             ["api.invalidate"] = "/session/token",
-            ["user.margins"] = "/user/margins/{segment}",
+
+            ["instrument_margins"] = "/margins/{segment}",
+
+            ["user.margins"] = "/user/margins",
+            ["user.segment_margins"] = "/user/margins/{segment}",
 
             ["orders"] = "/orders",
             ["trades"] = "/trades",
@@ -94,12 +92,21 @@ namespace KiteConnect
             _accessToken = AccessToken;
             _apiKey = APIKey;
             if (!String.IsNullOrEmpty(Root)) this._root = Root;
-            _debug = Debug;
+            _enableLogging = Debug;
 
             _timeout = Timeout;
             _proxy = Proxy;
 
             ServicePointManager.DefaultConnectionLimit = Pool;
+        }
+
+        /// <summary>
+        /// Enabling logging prints HTTP request and response summaries to console
+        /// </summary>
+        /// <param name="enableLogging">Set to true to enable logging</param>
+        public void EnableLogging(bool enableLogging)
+        {
+            _enableLogging = enableLogging;
         }
 
         /// <summary>
@@ -114,7 +121,7 @@ namespace KiteConnect
 		/// clear session cookies, or initiate a fresh login.
         /// </summary>
         /// <param name="Method">Action to be invoked when session becomes invalid.</param>
-        public void SetSessionHook(Action Method)
+        public void SetSessionExpiryHook(Action Method)
         {
             _sessionHook = Method;
         }
@@ -148,7 +155,7 @@ namespace KiteConnect
         /// <returns>Json response in the form of nested string dictionary.</returns>
         public User RequestAccessToken(string RequestToken, string AppSecret)
         {
-            string checksum = SHA256(this._apiKey + RequestToken + AppSecret);
+            string checksum = Utils.SHA256(this._apiKey + RequestToken + AppSecret);
 
             var param = new Dictionary<string, dynamic>
             {
@@ -156,9 +163,9 @@ namespace KiteConnect
                 {"checksum", checksum}
             };
 
-            var userdata = Post("api.validate", param);
+            var userData = Post("api.validate", param);
 
-            return new User(userdata);
+            return new User(userData);
         }
 
         /// <summary>
@@ -166,13 +173,39 @@ namespace KiteConnect
         /// </summary>
         /// <param name="AccessToken">Access token to invalidate. Default is the active access token.</param>
         /// <returns>Json response in the form of nested string dictionary.</returns>
-        public Dictionary<string, dynamic> InvalidateToken(string AccessToken = null)
+        public Dictionary<string, dynamic> InvalidateAccessToken(string AccessToken = null)
         {
             var param = new Dictionary<string, dynamic>();
 
-            AddIfNotNull(param, "access_token", AccessToken);
+            Utils.AddIfNotNull(param, "access_token", AccessToken);
 
             return Delete("api.invalidate", param);
+        }
+
+        /// <summary>
+        /// Margin data for intraday trading
+        /// </summary>
+        /// <param name="Segment">Tradingsymbols under this segment will be returned</param>
+        /// <returns>List of margins of intruments</returns>
+        public List<InstrumentMargin> GetInstrumentsMargins(string Segment)
+        {
+            var instrumentsMarginsData = Get("instrument_margins", new Dictionary<string, dynamic> { { "segment", Segment } });
+
+            List<InstrumentMargin> instrumentsMargins = new List<InstrumentMargin>();
+            foreach (Dictionary<string, dynamic> item in instrumentsMarginsData["data"])
+                instrumentsMargins.Add(new InstrumentMargin(item));
+
+            return instrumentsMargins;
+        }
+
+        /// <summary>
+        /// Get account balance and cash margin details for all segments.
+        /// </summary>
+        /// <returns>Json response in the form of nested string dictionary.</returns>
+        public UserMarginsResponse GetMargins()
+        {
+            var marginsData = Get("user.margins");
+            return new UserMarginsResponse(marginsData["data"]);
         }
 
         /// <summary>
@@ -180,9 +213,10 @@ namespace KiteConnect
         /// </summary>
         /// <param name="Segment">Trading segment (eg: equity or commodity)</param>
         /// <returns>Json response in the form of nested string dictionary.</returns>
-        public Dictionary<string, dynamic> Margins(string Segment)
+        public UserMargin GetMargins(string Segment)
         {
-            return Get("user.margins", new Dictionary<string, dynamic> { { "segment", Segment } });
+            var userMarginData = Get("user.segment_margins", new Dictionary<string, dynamic> { { "segment", Segment } });
+            return new UserMargin(userMarginData["data"]);
         }
 
         /// <summary>
@@ -205,39 +239,39 @@ namespace KiteConnect
         /// <param name="Tag">An optional tag to apply to an order to identify it (alphanumeric, max 8 chars)</param>
         /// <returns>Json response in the form of nested string dictionary.</returns>
         public Dictionary<string, dynamic> PlaceOrder(
-            string Exchange, 
-            string TradingSymbol, 
+            string Exchange,
+            string TradingSymbol,
             string TransactionType,
-            string Quantity,
-            string Price = null, 
+            int Quantity,
+            decimal? Price = null,
             string Product = null,
-            string OrderType = null, 
-            string Validity = null,            
-            string DisclosedQuantity = null, 
-            string TriggerPrice = null,
-            string SquareOffValue = null,
-            string StoplossValue = null,
-            string TrailingStoploss = null,
-            string Variety = "regular",
+            string OrderType = null,
+            string Validity = null,
+            int? DisclosedQuantity = null,
+            decimal? TriggerPrice = null,
+            decimal? SquareOffValue = null,
+            decimal? StoplossValue = null,
+            decimal? TrailingStoploss = null,
+            string Variety = Constants.VARIETY_REGULAR,
             string Tag = "")
         {
             var param = new Dictionary<string, dynamic>();
 
-            AddIfNotNull(param, "exchange", Exchange);
-            AddIfNotNull(param, "tradingsymbol", TradingSymbol);
-            AddIfNotNull(param, "transaction_type", TransactionType);
-            AddIfNotNull(param, "quantity", Quantity);
-            AddIfNotNull(param, "price", Price);
-            AddIfNotNull(param, "product", Product);
-            AddIfNotNull(param, "order_type", OrderType);
-            AddIfNotNull(param, "validity", Validity);
-            AddIfNotNull(param, "disclosed_quantity", DisclosedQuantity);
-            AddIfNotNull(param, "trigger_price", TriggerPrice);
-            AddIfNotNull(param, "squareoff_value", SquareOffValue);
-            AddIfNotNull(param, "stoploss_value", StoplossValue);
-            AddIfNotNull(param, "trailing_stoploss", TrailingStoploss);
-            AddIfNotNull(param, "variety", Variety);
-            AddIfNotNull(param, "tag", Tag);
+            Utils.AddIfNotNull(param, "exchange", Exchange);
+            Utils.AddIfNotNull(param, "tradingsymbol", TradingSymbol);
+            Utils.AddIfNotNull(param, "transaction_type", TransactionType);
+            Utils.AddIfNotNull(param, "quantity", Quantity.ToString());
+            Utils.AddIfNotNull(param, "price", Price.ToString());
+            Utils.AddIfNotNull(param, "product", Product);
+            Utils.AddIfNotNull(param, "order_type", OrderType);
+            Utils.AddIfNotNull(param, "validity", Validity);
+            Utils.AddIfNotNull(param, "disclosed_quantity", DisclosedQuantity.ToString());
+            Utils.AddIfNotNull(param, "trigger_price", TriggerPrice.ToString());
+            Utils.AddIfNotNull(param, "squareoff_value", SquareOffValue.ToString());
+            Utils.AddIfNotNull(param, "stoploss_value", StoplossValue.ToString());
+            Utils.AddIfNotNull(param, "trailing_stoploss", TrailingStoploss.ToString());
+            Utils.AddIfNotNull(param, "variety", Variety);
+            Utils.AddIfNotNull(param, "tag", Tag);
 
             return Post("orders.place", param);
         }
@@ -266,41 +300,44 @@ namespace KiteConnect
             string TradingSymbol = null,
             string TransactionType = null,
             string Quantity = null,
-            string Price = null,
+            decimal? Price = null,
             string Product = null,
             string OrderType = null,
-            string Validity = "DAY",
-            string DisclosedQuantity = "0",
-            string TriggerPrice = "0",
-            string Variety = "regular")
+            string Validity = Constants.VALIDITY_DAY,
+            int? DisclosedQuantity = null,
+            decimal? TriggerPrice = null,
+            string Variety = Constants.VARIETY_REGULAR)
         {
             var param = new Dictionary<string, dynamic>();
 
-            if ((Product.ToLower() == "bo" || Product.ToLower() == "co") && Variety.ToLower() != Product.ToLower())           
-                throw new Exception(String.Format("Invalid variety. It should be: {}", Product.ToLower()));
+            string VarietyString = Variety;
+            string ProductString = Product;
 
-            AddIfNotNull(param, "order_id", OrderId);
-            AddIfNotNull(param, "parent_order_id", ParentOrderId);
-            AddIfNotNull(param, "trigger_price", TriggerPrice);
-            AddIfNotNull(param, "variety", Variety);
+            if ((ProductString == "bo" || ProductString == "co") && VarietyString != ProductString)
+                throw new Exception(String.Format("Invalid variety. It should be: {}", ProductString));
 
-            if (Variety.ToLower() == "bo" && Product.ToLower() == "bo")
+            Utils.AddIfNotNull(param, "order_id", OrderId);
+            Utils.AddIfNotNull(param, "parent_order_id", ParentOrderId);
+            Utils.AddIfNotNull(param, "trigger_price", TriggerPrice.ToString());
+            Utils.AddIfNotNull(param, "variety", Variety);
+
+            if (VarietyString == "bo" && ProductString == "bo")
             {
-                AddIfNotNull(param, "quantity", Quantity);
-                AddIfNotNull(param, "price", Price);
-                AddIfNotNull(param, "disclosed_quantity", DisclosedQuantity);
+                Utils.AddIfNotNull(param, "quantity", Quantity);
+                Utils.AddIfNotNull(param, "price", Price.ToString());
+                Utils.AddIfNotNull(param, "disclosed_quantity", DisclosedQuantity.ToString());
             }
-            else if(Variety.ToLower() != "co" && Product.ToLower() != "co")
+            else if (VarietyString != "co" && ProductString != "co")
             {
-                AddIfNotNull(param, "exchange", Exchange);
-                AddIfNotNull(param, "tradingsymbol", TradingSymbol);
-                AddIfNotNull(param, "transaction_type", TransactionType);
-                AddIfNotNull(param, "quantity", Quantity);
-                AddIfNotNull(param, "price", Price);
-                AddIfNotNull(param, "product", Product);
-                AddIfNotNull(param, "order_type", OrderType);
-                AddIfNotNull(param, "validity", Validity);
-                AddIfNotNull(param, "disclosed_quantity", DisclosedQuantity);
+                Utils.AddIfNotNull(param, "exchange", Exchange);
+                Utils.AddIfNotNull(param, "tradingsymbol", TradingSymbol);
+                Utils.AddIfNotNull(param, "transaction_type", TransactionType);
+                Utils.AddIfNotNull(param, "quantity", Quantity);
+                Utils.AddIfNotNull(param, "price", Price.ToString());
+                Utils.AddIfNotNull(param, "product", Product);
+                Utils.AddIfNotNull(param, "order_type", OrderType);
+                Utils.AddIfNotNull(param, "validity", Validity);
+                Utils.AddIfNotNull(param, "disclosed_quantity", DisclosedQuantity.ToString());
             }
 
             return Put("orders.modify", param);
@@ -313,13 +350,13 @@ namespace KiteConnect
         /// <param name="Variety">You can place orders of varieties; regular orders, after market orders, cover orders etc. </param>
         /// <param name="ParentOrderId">Id of the parent order (obtained from the /orders call) as BO is a multi-legged order</param>
         /// <returns>Json response in the form of nested string dictionary.</returns>
-        public Dictionary<string, dynamic> CancelOrder(string OrderId, string Variety = "regular", string ParentOrderId = null)
+        public Dictionary<string, dynamic> CancelOrder(string OrderId, string Variety = Constants.VARIETY_REGULAR, string ParentOrderId = null)
         {
             var param = new Dictionary<string, dynamic>();
 
-            AddIfNotNull(param, "order_id", OrderId);
-            AddIfNotNull(param, "parent_order_id", ParentOrderId);
-            AddIfNotNull(param, "variety", Variety);
+            Utils.AddIfNotNull(param, "order_id", OrderId);
+            Utils.AddIfNotNull(param, "parent_order_id", ParentOrderId);
+            Utils.AddIfNotNull(param, "variety", Variety);
 
             return Delete("orders.cancel", param);
         }
@@ -330,11 +367,11 @@ namespace KiteConnect
         /// <returns>Json response in the form of nested string dictionary.</returns>
         public List<Order> GetOrders()
         {
-            var ordersdata = Get("orders");
+            var ordersData = Get("orders");
 
             List<Order> orders = new List<Order>();
 
-            foreach (Dictionary<string, dynamic> item in ordersdata["data"])
+            foreach (Dictionary<string, dynamic> item in ordersData["data"])
                 orders.Add(new Order(item));
 
             return orders;
@@ -345,16 +382,16 @@ namespace KiteConnect
         /// </summary>
         /// <param name="OrderId">Unique order id</param>
         /// <returns>Json response in the form of nested string dictionary.</returns>
-        public List<OrderInfo> GetOrder(string OrderId)
+        public List<OrderInfo> GetOrders(string OrderId)
         {
             var param = new Dictionary<string, dynamic>();
             param.Add("order_id", OrderId);
 
-            var orderdata = Get("orders.info", param);
+            var orderData = Get("orders.info", param);
 
             List<OrderInfo> orderinfo = new List<OrderInfo>();
 
-            foreach (Dictionary<string, dynamic> item in orderdata["data"])
+            foreach (Dictionary<string, dynamic> item in orderData["data"])
                 orderinfo.Add(new OrderInfo(item));
 
             return orderinfo;
@@ -394,18 +431,7 @@ namespace KiteConnect
         public PositionResponse GetPositions()
         {
             var positionsdata = Get("portfolio.positions");
-
-            List<Position> daypositions = new List<Position>();
-            List<Position> netpositions = new List<Position>();
-
-            foreach (Dictionary<string, dynamic> item in positionsdata["data"]["day"])
-                daypositions.Add(new Position(item));
-            foreach (Dictionary<string, dynamic> item in positionsdata["data"]["net"])
-                netpositions.Add(new Position(item));
-
-            PositionResponse response = new PositionResponse(daypositions, netpositions);
-
-            return response;
+            return new PositionResponse(positionsdata["data"]);
         }
 
         /// <summary>
@@ -414,11 +440,11 @@ namespace KiteConnect
         /// <returns>Json response in the form of nested string dictionary.</returns>
         public List<Holding> GetHoldings()
         {
-            var holdingsdata = Get("portfolio.holdings");
+            var holdingsData = Get("portfolio.holdings");
 
             List<Holding> holdings = new List<Holding>();
 
-            foreach (Dictionary<string, dynamic> item in holdingsdata["data"])
+            foreach (Dictionary<string, dynamic> item in holdingsData["data"])
                 holdings.Add(new Holding(item));
 
             return holdings;
@@ -440,19 +466,19 @@ namespace KiteConnect
             string TradingSymbol,
             string TransactionType,
             string PositionType,
-            string Quantity,
+            int? Quantity,
             string OldProduct,
             string NewProduct)
         {
             var param = new Dictionary<string, dynamic>();
 
-            AddIfNotNull(param, "exchange", Exchange);
-            AddIfNotNull(param, "tradingsymbol", TradingSymbol);
-            AddIfNotNull(param, "transaction_type", TransactionType);
-            AddIfNotNull(param, "position_type", PositionType);
-            AddIfNotNull(param, "quantity", Quantity);
-            AddIfNotNull(param, "old_product", OldProduct);
-            AddIfNotNull(param, "new_product", NewProduct);
+            Utils.AddIfNotNull(param, "exchange", Exchange);
+            Utils.AddIfNotNull(param, "tradingsymbol", TradingSymbol);
+            Utils.AddIfNotNull(param, "transaction_type", TransactionType);
+            Utils.AddIfNotNull(param, "position_type", PositionType);
+            Utils.AddIfNotNull(param, "quantity", Quantity.ToString());
+            Utils.AddIfNotNull(param, "old_product", OldProduct);
+            Utils.AddIfNotNull(param, "new_product", NewProduct);
 
             return Put("portfolio.positions.modify", param);
         }
@@ -471,7 +497,7 @@ namespace KiteConnect
             List<Dictionary<string, dynamic>> instrumentsData;
 
             if (String.IsNullOrEmpty(Exchange))
-               instrumentsData = Get("market.instruments.all", param);
+                instrumentsData = Get("market.instruments.all", param);
             else
             {
                 param.Add("exchange", Exchange);
@@ -508,16 +534,16 @@ namespace KiteConnect
         /// Retrieve LTP and OHLC of upto 200 instruments
         /// </summary>
         /// <param name="InstrumentId">Indentification of instrument in the form of EXCHANGE:TRADINGSYMBOL (eg: NSE:INFY) or InstrumentToken (eg: 408065)</param>
-        /// <returns>Json response in the form of nested string dictionary.</returns>
+        /// <returns>Dictionary of all OHLC objects with keys as in InstrumentId</returns>
         public Dictionary<string, OHLC> GetOHLC(string[] InstrumentId)
         {
             var param = new Dictionary<string, dynamic>();
             param.Add("i", InstrumentId);
-            var ohlcdata = Get("market.ohlc", param);
+            Dictionary<string, dynamic> ohlcData = Get("market.ohlc", param)["data"];
 
             Dictionary<string, OHLC> ohlcs = new Dictionary<string, OHLC>();
-            foreach (string item in ohlcdata["data"].Keys)
-                ohlcs.Add(item, new OHLC(ohlcdata["data"][item]));
+            foreach (string item in ohlcData.Keys)
+                ohlcs.Add(item, new OHLC(ohlcData[item]));
 
             return ohlcs;
         }
@@ -531,11 +557,11 @@ namespace KiteConnect
         {
             var param = new Dictionary<string, dynamic>();
             param.Add("i", InstrumentId);
-            var ltpdata = Get("market.ltp", param);
+            Dictionary<string, dynamic> ltpData = Get("market.ltp", param)["data"];
 
             Dictionary<string, LTP> ltps = new Dictionary<string, LTP>();
-            foreach (string item in ltpdata["data"].Keys)
-                ltps.Add(item, new LTP(ltpdata["data"][item]));
+            foreach (string item in ltpData.Keys)
+                ltps.Add(item, new LTP(ltpData[item]));
 
             return ltps;
         }
@@ -551,24 +577,24 @@ namespace KiteConnect
         /// <returns>Json response in the form of nested string dictionary.</returns>
         public List<Historical> GetHistorical(
             string InstrumentToken,
-            string FromDate,
-            string ToDate,
+            DateTime FromDate,
+            DateTime ToDate,
             string Interval,
             bool Continuous = false)
         {
             var param = new Dictionary<string, dynamic>();
 
             param.Add("instrument_token", InstrumentToken);
-            param.Add("from", FromDate);
-            param.Add("to", ToDate);
+            param.Add("from", FromDate.ToString("yyyy-MM-dd HH:mm:ss"));
+            param.Add("to", ToDate.ToString("yyyy-MM-dd HH:mm:ss"));
             param.Add("interval", Interval);
             param.Add("continuous", Continuous ? "1" : "0");
 
-            var historicaldata = Get("market.historical", param);
+            var historicalData = Get("market.historical", param);
 
             List<Historical> historicals = new List<Historical>();
 
-            foreach (ArrayList item in historicaldata["data"]["candles"])
+            foreach (ArrayList item in historicalData["data"]["candles"])
                 historicals.Add(new Historical(item));
 
             return historicals;
@@ -594,23 +620,26 @@ namespace KiteConnect
             return new TrigerRange(triggerdata["data"]);
         }
 
+        #region MF Calls
+
         /// <summary>
         /// Gets the Mutual funds Instruments.
         /// </summary>
         /// <returns>The Mutual funds Instruments.</returns>
-        public List<MFInstrument> GetMFInstruments(){
-			var param = new Dictionary<string, dynamic>();
+        public List<MFInstrument> GetMFInstruments()
+        {
+            var param = new Dictionary<string, dynamic>();
 
-			List<Dictionary<string, dynamic>> instrumentsData;
-			
-			instrumentsData = Get("mutualfunds.instruments", param);
+            List<Dictionary<string, dynamic>> instrumentsData;
+
+            instrumentsData = Get("mutualfunds.instruments", param);
 
             List<MFInstrument> instruments = new List<MFInstrument>();
 
-			foreach (Dictionary<string, dynamic> item in instrumentsData)
-				instruments.Add(new MFInstrument(item));
+            foreach (Dictionary<string, dynamic> item in instrumentsData)
+                instruments.Add(new MFInstrument(item));
 
-			return instruments;
+            return instruments;
         }
 
         /// <summary>
@@ -618,19 +647,19 @@ namespace KiteConnect
         /// </summary>
         /// <returns>The Mutual funds orders.</returns>
         public List<MFOrder> GetMFOrders()
-		{
-			var param = new Dictionary<string, dynamic>();
+        {
+            var param = new Dictionary<string, dynamic>();
 
-			Dictionary<string, dynamic> ordersData;
-			ordersData = Get("mutualfunds.orders", param);
+            Dictionary<string, dynamic> ordersData;
+            ordersData = Get("mutualfunds.orders", param);
 
             List<MFOrder> orderlist = new List<MFOrder>();
 
-			foreach (Dictionary<string, dynamic> item in ordersData["data"])
+            foreach (Dictionary<string, dynamic> item in ordersData["data"])
                 orderlist.Add(new MFOrder(item));
 
-			return orderlist;
-		}
+            return orderlist;
+        }
 
         /// <summary>
         /// Gets the Mutual funds order by OrderId.
@@ -638,134 +667,153 @@ namespace KiteConnect
         /// <returns>The Mutual funds order.</returns>
         /// <param name="OrderId">Order id.</param>
         public MFOrder GetMFOrder(String OrderId)
-		{
-			var param = new Dictionary<string, dynamic>();
+        {
+            var param = new Dictionary<string, dynamic>();
             param.Add("order_id", OrderId);
 
-			Dictionary<string, dynamic> orderData;
-			orderData = Get("mutualfunds.order", param);
+            Dictionary<string, dynamic> orderData;
+            orderData = Get("mutualfunds.order", param);
 
             return new MFOrder(orderData["data"]);
-		}
-
-		/// <summary>
-		/// Places a Mutual funds order.
-		/// </summary>
-		/// <returns>JSON response as nested string dictionary.</returns>
-		/// <param name="TradingSymbol">Tradingsymbol (ISIN) of the fund.</param>
-		/// <param name="TransactionType">BUY or SELL.</param>
-		/// <param name="Amount">Amount worth of units to purchase. Not applicable on SELLs.</param>
-		/// <param name="Quantity">Quantity to SELL. Not applicable on BUYs. If the holding is less than minimum_redemption_quantity, all the units have to be sold.</param>
-		/// <param name="Tag">An optional tag to apply to an order to identify it (alphanumeric, max 8 chars).</param>
-		public Dictionary<string, dynamic> PlaceMFOrder(string TradingSymbol, string TransactionType, string Amount, string Quantity = "", string Tag = ""){
-			var param = new Dictionary<string, dynamic>();
-			
-            AddIfNotNull(param, "tradingsymbol", TradingSymbol);
-            AddIfNotNull(param, "transaction_type", TransactionType);
-            AddIfNotNull(param, "amount", Amount);
-            AddIfNotNull(param, "quantity", Quantity);
-            AddIfNotNull(param, "tag", Tag);
-
-			return Post("mutualfunds.orders.place", param);
         }
 
-		/// <summary>
-		/// Cancels the Mutual funds order.
-		/// </summary>
-		/// <returns>JSON response as nested string dictionary.</returns>
-		/// <param name="OrderId">Unique order id.</param>
-		public Dictionary<string, dynamic> CancelMFOrder(String OrderId)
-		{
-			var param = new Dictionary<string, dynamic>();
+        /// <summary>
+        /// Places a Mutual funds order.
+        /// </summary>
+        /// <returns>JSON response as nested string dictionary.</returns>
+        /// <param name="TradingSymbol">Tradingsymbol (ISIN) of the fund.</param>
+        /// <param name="TransactionType">BUY or SELL.</param>
+        /// <param name="Amount">Amount worth of units to purchase. Not applicable on SELLs.</param>
+        /// <param name="Quantity">Quantity to SELL. Not applicable on BUYs. If the holding is less than minimum_redemption_quantity, all the units have to be sold.</param>
+        /// <param name="Tag">An optional tag to apply to an order to identify it (alphanumeric, max 8 chars).</param>
+        public Dictionary<string, dynamic> PlaceMFOrder (
+            string TradingSymbol,
+            string TransactionType, 
+            decimal? Amount, 
+            decimal? Quantity = null,
+            string Tag = "")
+        {
+            var param = new Dictionary<string, dynamic>();
 
-			AddIfNotNull(param, "order_id", OrderId);
+            Utils.AddIfNotNull(param, "tradingsymbol", TradingSymbol);
+            Utils.AddIfNotNull(param, "transaction_type", TransactionType);
+            Utils.AddIfNotNull(param, "amount", Amount.ToString());
+            Utils.AddIfNotNull(param, "quantity", Quantity.ToString());
+            Utils.AddIfNotNull(param, "tag", Tag);
 
-			return Delete("mutualfunds.cancel_order", param);
-		}
+            return Post("mutualfunds.orders.place", param);
+        }
 
-		/// <summary>
-		/// Gets all Mutual funds SIPs.
-		/// </summary>
-		/// <returns>The list of all Mutual funds SIPs.</returns>
-		public List<MFSIP> GetMFSIPs()
-		{
-			var param = new Dictionary<string, dynamic>();
+        /// <summary>
+        /// Cancels the Mutual funds order.
+        /// </summary>
+        /// <returns>JSON response as nested string dictionary.</returns>
+        /// <param name="OrderId">Unique order id.</param>
+        public Dictionary<string, dynamic> CancelMFOrder(String OrderId)
+        {
+            var param = new Dictionary<string, dynamic>();
 
-			Dictionary<string, dynamic> sipData;
-			sipData = Get("mutualfunds.sips", param);
+            Utils.AddIfNotNull(param, "order_id", OrderId);
 
-			List<MFSIP> siplist = new List<MFSIP>();
+            return Delete("mutualfunds.cancel_order", param);
+        }
 
-			foreach (Dictionary<string, dynamic> item in sipData["data"])
-				siplist.Add(new MFSIP(item));
+        /// <summary>
+        /// Gets all Mutual funds SIPs.
+        /// </summary>
+        /// <returns>The list of all Mutual funds SIPs.</returns>
+        public List<MFSIP> GetMFSIPs()
+        {
+            var param = new Dictionary<string, dynamic>();
 
-			return siplist;
-		}
+            Dictionary<string, dynamic> sipData;
+            sipData = Get("mutualfunds.sips", param);
 
-		/// <summary>
-		/// Gets a single Mutual funds SIP by SIP id.
-		/// </summary>
-		/// <returns>The Mutual funds SIP.</returns>
-		/// <param name="SIPID">SIP id.</param>
-		public MFSIP GetMFSIP(String SIPID)
-		{
-			var param = new Dictionary<string, dynamic>();
-			param.Add("sip_id", SIPID);
+            List<MFSIP> siplist = new List<MFSIP>();
 
-			Dictionary<string, dynamic> sipData;
-			sipData = Get("mutualfunds.sip", param);
+            foreach (Dictionary<string, dynamic> item in sipData["data"])
+                siplist.Add(new MFSIP(item));
 
-			return new MFSIP(sipData["data"]);
-		}
+            return siplist;
+        }
 
-		/// <summary>
-		/// Places a Mutual funds SIP order.
-		/// </summary>
-		/// <returns>JSON response as nested string dictionary.</returns>
-		/// <param name="TradingSymbol">ISIN of the fund.</param>
-		/// <param name="Amount">Amount worth of units to purchase. It should be equal to or greated than minimum_additional_purchase_amount and in multiple of purchase_amount_multiplier in the instrument master.</param>
-		/// <param name="InitialAmount">Amount worth of units to purchase before the SIP starts. Should be equal to or greater than minimum_purchase_amount and in multiple of purchase_amount_multiplier. This is only considered if there have been no prior investments in the target fund.</param>
-		/// <param name="Frequency">weekly, monthly, or quarterly.</param>
-		/// <param name="InstalmentDay">If Frequency is monthly, the day of the month (1, 5, 10, 15, 20, 25) to trigger the order on.</param>
-		/// <param name="Instalments">Number of instalments to trigger. If set to -1, instalments are triggered at fixed intervals until the SIP is cancelled.</param>
-		/// <param name="Tag">An optional tag to apply to an order to identify it (alphanumeric, max 8 chars).</param>
-		public Dictionary<string, dynamic> PlaceMFSIP(string TradingSymbol, string Amount, string InitialAmount, string Frequency, string InstalmentDay, string Instalments, string Tag = "")
-		{
-			var param = new Dictionary<string, dynamic>();
+        /// <summary>
+        /// Gets a single Mutual funds SIP by SIP id.
+        /// </summary>
+        /// <returns>The Mutual funds SIP.</returns>
+        /// <param name="SIPID">SIP id.</param>
+        public MFSIP GetMFSIP(String SIPID)
+        {
+            var param = new Dictionary<string, dynamic>();
+            param.Add("sip_id", SIPID);
 
-			AddIfNotNull(param, "tradingsymbol", TradingSymbol);
-			AddIfNotNull(param, "initial_amount", InitialAmount);
-			AddIfNotNull(param, "amount", Amount);
-            AddIfNotNull(param, "frequency", Frequency);
-			AddIfNotNull(param, "instalment_day", InstalmentDay);
-            AddIfNotNull(param, "instalments", Instalments);
+            Dictionary<string, dynamic> sipData;
+            sipData = Get("mutualfunds.sip", param);
 
-			return Post("mutualfunds.sips.place", param);
-		}
+            return new MFSIP(sipData["data"]);
+        }
 
-		/// <summary>
-		/// Modifies the Mutual funds SIP.
-		/// </summary>
-		/// <returns>JSON response as nested string dictionary.</returns>
-		/// <param name="SIPId">SIP id.</param>
-		/// <param name="Amount">Amount worth of units to purchase. It should be equal to or greated than minimum_additional_purchase_amount and in multiple of purchase_amount_multiplier in the instrument master.</param>
-		/// <param name="Frequency">weekly, monthly, or quarterly.</param>
-		/// <param name="InstalmentDay">If Frequency is monthly, the day of the month (1, 5, 10, 15, 20, 25) to trigger the order on.</param>
-		/// <param name="Instalments">Number of instalments to trigger. If set to -1, instalments are triggered idefinitely until the SIP is cancelled.</param>
-		/// <param name="Status">Pause or unpause an SIP (active or paused).</param>
-		public Dictionary<string, dynamic> ModifyMFSIP(string SIPId, string Amount, string Frequency, string InstalmentDay, string Instalments, string Status)
-		{
-			var param = new Dictionary<string, dynamic>();
+        /// <summary>
+        /// Places a Mutual funds SIP order.
+        /// </summary>
+        /// <returns>JSON response as nested string dictionary.</returns>
+        /// <param name="TradingSymbol">ISIN of the fund.</param>
+        /// <param name="Amount">Amount worth of units to purchase. It should be equal to or greated than minimum_additional_purchase_amount and in multiple of purchase_amount_multiplier in the instrument master.</param>
+        /// <param name="InitialAmount">Amount worth of units to purchase before the SIP starts. Should be equal to or greater than minimum_purchase_amount and in multiple of purchase_amount_multiplier. This is only considered if there have been no prior investments in the target fund.</param>
+        /// <param name="Frequency">weekly, monthly, or quarterly.</param>
+        /// <param name="InstalmentDay">If Frequency is monthly, the day of the month (1, 5, 10, 15, 20, 25) to trigger the order on.</param>
+        /// <param name="Instalments">Number of instalments to trigger. If set to -1, instalments are triggered at fixed intervals until the SIP is cancelled.</param>
+        /// <param name="Tag">An optional tag to apply to an order to identify it (alphanumeric, max 8 chars).</param>
+        public Dictionary<string, dynamic> PlaceMFSIP(
+            string TradingSymbol,
+            decimal? Amount,
+            decimal? InitialAmount,
+            string Frequency, 
+            int? InstalmentDay, 
+            int? Instalments, 
+            string Tag = "")
+        {
+            var param = new Dictionary<string, dynamic>();
 
-			AddIfNotNull(param, "status", Status);
-			AddIfNotNull(param, "sip_id", SIPId);
-			AddIfNotNull(param, "amount", Amount);
-			AddIfNotNull(param, "frequency", Frequency);
-			AddIfNotNull(param, "instalment_day", InstalmentDay);
-			AddIfNotNull(param, "instalments", Instalments);
+            Utils.AddIfNotNull(param, "tradingsymbol", TradingSymbol);
+            Utils.AddIfNotNull(param, "initial_amount", InitialAmount.ToString());
+            Utils.AddIfNotNull(param, "amount", Amount.ToString());
+            Utils.AddIfNotNull(param, "frequency", Frequency);
+            Utils.AddIfNotNull(param, "instalment_day", InstalmentDay.ToString());
+            Utils.AddIfNotNull(param, "instalments", Instalments.ToString());
 
-			return Put("mutualfunds.sips.modify", param);
-		}
+            return Post("mutualfunds.sips.place", param);
+        }
+
+        /// <summary>
+        /// Modifies the Mutual funds SIP.
+        /// </summary>
+        /// <returns>JSON response as nested string dictionary.</returns>
+        /// <param name="SIPId">SIP id.</param>
+        /// <param name="Amount">Amount worth of units to purchase. It should be equal to or greated than minimum_additional_purchase_amount and in multiple of purchase_amount_multiplier in the instrument master.</param>
+        /// <param name="Frequency">weekly, monthly, or quarterly.</param>
+        /// <param name="InstalmentDay">If Frequency is monthly, the day of the month (1, 5, 10, 15, 20, 25) to trigger the order on.</param>
+        /// <param name="Instalments">Number of instalments to trigger. If set to -1, instalments are triggered idefinitely until the SIP is cancelled.</param>
+        /// <param name="Status">Pause or unpause an SIP (active or paused).</param>
+        public Dictionary<string, dynamic> ModifyMFSIP(
+            string SIPId, 
+            decimal? Amount,
+            string Frequency, 
+            int? InstalmentDay, 
+            int? Instalments,
+            string Status)
+        {
+            var param = new Dictionary<string, dynamic>();
+
+            Utils.AddIfNotNull(param, "status", Status);
+            Utils.AddIfNotNull(param, "sip_id", SIPId);
+            Utils.AddIfNotNull(param, "amount", Amount.ToString());
+            Utils.AddIfNotNull(param, "frequency", Frequency.ToString());
+            Utils.AddIfNotNull(param, "instalment_day", InstalmentDay.ToString());
+            Utils.AddIfNotNull(param, "instalments", Instalments.ToString());
+
+            return Put("mutualfunds.sips.modify", param);
+        }
 
         /// <summary>
         /// Cancels the Mutual funds SIP.
@@ -773,32 +821,36 @@ namespace KiteConnect
         /// <returns>JSON response as nested string dictionary.</returns>
         /// <param name="SIPId">SIP id.</param>
 		public Dictionary<string, dynamic> CancelMFSIP(String SIPId)
-		{
-			var param = new Dictionary<string, dynamic>();
+        {
+            var param = new Dictionary<string, dynamic>();
 
-			AddIfNotNull(param, "sip_id", SIPId);
+            Utils.AddIfNotNull(param, "sip_id", SIPId);
 
-			return Delete("mutualfunds.cancel_sips", param);
-		}
+            return Delete("mutualfunds.cancel_sips", param);
+        }
 
         /// <summary>
         /// Gets the Mutual funds holdings.
         /// </summary>
         /// <returns>The list of all Mutual funds holdings.</returns>
         public List<MFHolding> GetMFHoldings()
-		{
-			var param = new Dictionary<string, dynamic>();
+        {
+            var param = new Dictionary<string, dynamic>();
 
-			Dictionary<string, dynamic> holdingsData;
-			holdingsData = Get("mutualfunds.holdings", param);
+            Dictionary<string, dynamic> holdingsData;
+            holdingsData = Get("mutualfunds.holdings", param);
 
-			List<MFHolding> holdingslist = new List<MFHolding>();
+            List<MFHolding> holdingslist = new List<MFHolding>();
 
-			foreach (Dictionary<string, dynamic> item in holdingsData["data"])
-				holdingslist.Add(new MFHolding(item));
+            foreach (Dictionary<string, dynamic> item in holdingsData["data"])
+                holdingslist.Add(new MFHolding(item));
 
-			return holdingslist;
-		}
+            return holdingslist;
+        }
+
+        #endregion
+
+        #region HTTP Functions
 
         /// <summary>
         /// Alias for sending a GET request.
@@ -844,18 +896,6 @@ namespace KiteConnect
             return Request(Route, "DELETE", Params);
         }
 
-        private string BuildParam(string Key, dynamic Value)
-        {
-            if(Value is string)
-            {
-                return HttpUtility.UrlEncode(Key) + "=" + HttpUtility.UrlEncode((string)Value);
-            }
-            else
-            {
-                string[] values = (string[])Value;
-                return String.Join("&", values.Select(x => HttpUtility.UrlEncode(Key) + "=" + HttpUtility.UrlEncode(x)));
-            }
-        }
         /// <summary>
         /// Make an HTTP request.
         /// </summary>
@@ -889,33 +929,38 @@ namespace KiteConnect
                 Params.Add("access_token", _accessToken);
 
             HttpWebRequest request;
-            string paramString = String.Join("&", Params.Select(x => BuildParam(x.Key, x.Value)));
+            string paramString = String.Join("&", Params.Select(x => Utils.BuildParam(x.Key, x.Value)));
 
-            
+
             if (Method == "POST" || Method == "PUT")
             {
                 request = (HttpWebRequest)WebRequest.Create(url);
                 request.Method = Method;
                 request.ContentType = "application/x-www-form-urlencoded";
                 request.ContentLength = paramString.Length;
-                if (_debug) Console.WriteLine("DEBUG: " + Method + " " + url + "\n" + paramString + "\n");
+                if (_enableLogging) Console.WriteLine("DEBUG: " + Method + " " + url + "\n" + paramString + "\n");
 
                 using (Stream webStream = request.GetRequestStream())
-                    using (StreamWriter requestWriter = new StreamWriter(webStream))
-                        requestWriter.Write(paramString);
+                using (StreamWriter requestWriter = new StreamWriter(webStream))
+                    requestWriter.Write(paramString);
             }
             else
             {
                 request = (HttpWebRequest)WebRequest.Create(url + "?" + paramString);
                 request.Method = Method;
-                if (_debug) Console.WriteLine("DEBUG: " + Method + " " + url + "?" + paramString + "\n");
+                if (_enableLogging) Console.WriteLine("DEBUG: " + Method + " " + url + "?" + paramString + "\n");
             }
 
-            //request.Headers.Add("X-Kite-Version: 3");
+            if (Assembly.GetEntryAssembly() != null)
+                request.UserAgent = "KiteConnect.Net/" + Assembly.GetEntryAssembly().GetName().Version;
+
+            request.Headers.Add("X-Kite-Version: 3");
+            
             //if(request.Method == "GET" && cache.IsCached(request.RequestUri.AbsoluteUri))
             //{
             //    request.Headers.Add("If-None-Match: " + cache.GetETag(request.RequestUri.AbsoluteUri));
             //}
+
             request.Timeout = _timeout;
             if (_proxy != null) request.Proxy = _proxy;
 
@@ -924,139 +969,69 @@ namespace KiteConnect
             {
                 webResponse = request.GetResponse();
             }
-            catch(WebException e)
+            catch (WebException e)
             {
                 if (e.Response is null)
                     throw e;
-                
+
                 webResponse = e.Response;
             }
-            
+
             using (Stream webStream = webResponse.GetResponseStream())
             {
                 using (StreamReader responseReader = new StreamReader(webStream))
                 {
-                    string response = responseReader.ReadToEnd();                    
-                    if (_debug) Console.WriteLine("DEBUG: " + (int)((HttpWebResponse)webResponse).StatusCode + " " + response + "\n");
+                    string response = responseReader.ReadToEnd();
+                    if (_enableLogging) Console.WriteLine("DEBUG: " + (int)((HttpWebResponse)webResponse).StatusCode + " " + response + "\n");
 
-                    if (((HttpWebResponse)webResponse).StatusCode == HttpStatusCode.Forbidden)
-                        _sessionHook?.Invoke();
+                    HttpStatusCode status = ((HttpWebResponse)webResponse).StatusCode;
 
-                    //if (request.Method == "GET" && webResponse.Headers[HttpResponseHeader.ETag] != null)
-                    //{
-
-                    //}
                     if (webResponse.ContentType == "application/json")
                     {
-                        Dictionary<string, dynamic> responseDictionary = JsonDeserialize(response);
+                        Dictionary<string, dynamic> responseDictionary = Utils.JsonDeserialize(response);
+
+                        if (status != HttpStatusCode.OK)
+                        {
+                            string errorType = "GeneralException";
+                            string message = "";
+
+                            if (responseDictionary.ContainsKey("error_type"))
+                                errorType = responseDictionary["error_type"];
+
+                            if (responseDictionary.ContainsKey("message"))
+                                message = responseDictionary["message"];
+
+                            switch (errorType)
+                            {
+                                case "GeneralException": throw new GeneralException(message, status);
+                                case "TokenException":
+                                    {
+                                        if (_sessionHook == null)
+                                            throw new TokenException(message, status);
+                                        else
+                                            _sessionHook.Invoke();
+                                        break;
+                                    }
+                                case "PermissionException": throw new PermissionException(message, status);
+                                case "OrderException": throw new OrderException(message, status);
+                                case "InputException": throw new InputException(message, status);
+                                case "DataException": throw new DataException(message, status);
+                                case "NetworkException": throw new NetworkException(message, status);
+                                default: throw new GeneralException(message, status);
+                            }
+                        }
+
                         return responseDictionary;
                     }
                     else if (webResponse.ContentType == "text/csv")
-                        return ParseCSV(response);
+                        return Utils.ParseCSV(response);
                     else
-                        throw new Exception("Unexpected content type");
+                        throw new DataException("Unexpected content type " + webResponse.ContentType + " " + response);
                 }
             }
         }
 
-        /// <summary>
-        /// Deserialize Json string to nested string dictionary.
-        /// </summary>
-        /// <param name="Json">Json string to deserialize.</param>
-        /// <returns>Json in the form of nested string dictionary.</returns>
-        private Dictionary<string, dynamic> JsonDeserialize(string Json)
-        {
-            var jss = new JavaScriptSerializer();
-            Dictionary<string, dynamic> dict = jss.Deserialize<Dictionary<string, dynamic>>(Json);
-            return dict;
-        }
+        #endregion
 
-        /// <summary>
-        /// Parse instruments API's CSV response.
-        /// </summary>
-        /// <param name="Data">Response of instruments API.</param>
-        /// <returns>CSV data as array of nested string dictionary.</returns>
-        private List<Dictionary<string, dynamic>> ParseCSV(string Data)
-        {
-            string[] lines = Data.Split('\n');
-
-            List<Dictionary<string, dynamic>> instruments = new List<Dictionary<string, dynamic>>();
-
-            using (TextFieldParser parser = new TextFieldParser(StreamFromString(Data)))
-            {
-                // parser.CommentTokens = new string[] { "#" };
-                parser.SetDelimiters(new string[] { "," });
-                parser.HasFieldsEnclosedInQuotes = true;
-
-                // Skip over header line.
-                string[] headers = parser.ReadLine().Split(',');
-
-                while (!parser.EndOfData)
-                {
-                    string[] fields = parser.ReadFields();
-                    Dictionary<string, dynamic> item = new Dictionary<string, dynamic>();
-
-                    for (var i = 0; i < headers.Length; i++)
-                        item.Add(headers[i], fields[i]);
-
-                    //item.Add("instrument_token", fields[0]);
-                    //item.Add("exchange_token", fields[1]);
-                    //item.Add("tradingsymbol", fields[2]);
-                    //item.Add("name", fields[3]);
-                    //item.Add("last_price", fields[4]);
-                    //item.Add("expiry", fields[5]);
-                    //item.Add("strike", fields[6]);
-                    //item.Add("tick_size", fields[7]);
-                    //item.Add("lot_size", fields[8]);
-                    //item.Add("instrument_type", fields[9]);
-                    //item.Add("segment", fields[10]);
-                    //item.Add("exchange", fields[11]);
-
-                    instruments.Add(item);
-                }
-            }
-
-            return instruments;
-        }
-
-        /// <summary>
-        /// Wraps a string inside a stream
-        /// </summary>
-        /// <param name="value">string data</param>
-        /// <returns>Stream that reads input string</returns>
-        private MemoryStream StreamFromString(string value)
-        {
-            return new MemoryStream(Encoding.UTF8.GetBytes(value ?? ""));
-        }
-
-        /// <summary>
-        /// Helper function to add parameter to the request only if it is not null or empty
-        /// </summary>
-        /// <param name="Params">Dictionary to add the key-value pair</param>
-        /// <param name="Key">Key of the parameter</param>
-        /// <param name="Value">Value of the parameter</param>
-        private void AddIfNotNull(Dictionary<string, dynamic> Params, string Key, string Value)
-        {
-            if (!String.IsNullOrEmpty(Value))
-                Params.Add(Key, Value);
-        }
-
-        /// <summary>
-        /// Generates SHA256 checksum for login.
-        /// </summary>
-        /// <param name="Data">Input data to generate checksum for.</param>
-        /// <returns>SHA256 checksum in hex format.</returns>
-        private string SHA256(string Data)
-        {
-            Console.WriteLine(Data);
-            SHA256Managed sha256 = new SHA256Managed();
-            StringBuilder hexhash = new StringBuilder();
-            byte[] hash = sha256.ComputeHash(Encoding.UTF8.GetBytes(Data), 0, Encoding.UTF8.GetByteCount(Data));
-            foreach (byte b in hash)
-            {
-                hexhash.Append(b.ToString("x2"));
-            }
-            return hexhash.ToString();
-        }
     }
 }

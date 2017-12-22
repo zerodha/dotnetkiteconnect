@@ -1,0 +1,76 @@
+﻿{
+  "status": "success",
+  "data": {
+    "last_price": 989.45,
+    "volume": 1325896,
+    "sell_quantity": 359685,
+    "open_interest": 0.0,
+    "last_quantity": 32,
+    "change": -9.3,
+    "ohlc": {
+      "high": 999.9,
+      "close": 998.75,
+      "open": 994.4,
+      "low": 987.2
+    },
+    "last_time": "2017-11-28 13:53:48",
+    "change_percent": -0.93,
+    "depth": {
+      "sell": [
+        {
+          "price": 989.45,
+          "orders": 7,
+          "quantity": 989
+        },
+        {
+          "price": 989.5,
+          "orders": 7,
+          "quantity": 602
+        },
+        {
+          "price": 989.55,
+          "orders": 3,
+          "quantity": 154
+        },
+        {
+          "price": 989.6,
+          "orders": 3,
+          "quantity": 515
+        },
+        {
+          "price": 989.65,
+          "orders": 3,
+          "quantity": 447
+        }
+      ],
+      "buy": [
+        {
+          "price": 989.1,
+          "orders": 4,
+          "quantity": 91
+        },
+        {
+          "price": 989.0,
+          "orders": 1,
+          "quantity": 24
+        },
+        {
+          "price": 988.95,
+          "orders": 7,
+          "quantity": 247
+        },
+        {
+          "price": 988.8,
+          "orders": 3,
+          "quantity": 405
+        },
+        {
+          "price": 988.75,
+          "orders": 4,
+          "quantity": 402
+        }
+      ]
+    },
+    "buy_quantity": 237103
+  }
+}
