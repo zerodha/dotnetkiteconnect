@@ -461,7 +461,7 @@ namespace KiteConnect
         /// <param name="OldProduct">Existing margin product of the position</param>
         /// <param name="NewProduct">Margin product to convert to</param>
         /// <returns>Json response in the form of nested string dictionary.</returns>
-        public Dictionary<string, dynamic> ModifyProduct(
+        public Dictionary<string, dynamic> ConvertPosition(
             string Exchange,
             string TradingSymbol,
             string TransactionType,
@@ -575,7 +575,7 @@ namespace KiteConnect
         /// <param name="Interval">The candle record interval. Possible values are: minute, day, 3minute, 5minute, 10minute, 15minute, 30minute, 60minute</param>
         /// <param name="Continuous">Pass true to get continous data of expired instruments.</param>
         /// <returns>Json response in the form of nested string dictionary.</returns>
-        public List<Historical> GetHistorical(
+        public List<Historical> GetHistoricalData(
             string InstrumentToken,
             DateTime FromDate,
             DateTime ToDate,
@@ -666,7 +666,7 @@ namespace KiteConnect
         /// </summary>
         /// <returns>The Mutual funds order.</returns>
         /// <param name="OrderId">Order id.</param>
-        public MFOrder GetMFOrder(String OrderId)
+        public MFOrder GetMFOrders(String OrderId)
         {
             var param = new Dictionary<string, dynamic>();
             param.Add("order_id", OrderId);
@@ -742,7 +742,7 @@ namespace KiteConnect
         /// </summary>
         /// <returns>The Mutual funds SIP.</returns>
         /// <param name="SIPID">SIP id.</param>
-        public MFSIP GetMFSIP(String SIPID)
+        public MFSIP GetMFSIPs(String SIPID)
         {
             var param = new Dictionary<string, dynamic>();
             param.Add("sip_id", SIPID);
@@ -897,6 +897,35 @@ namespace KiteConnect
         }
 
         /// <summary>
+        /// Adds extra headers to request
+        /// </summary>
+        /// <param name="Req">Request object to add headers</param>
+        private void AddExtraHeaders(ref HttpWebRequest Req)
+        {
+            if (Assembly.GetEntryAssembly() != null)
+                Req.UserAgent = "KiteConnect.Net/" + Assembly.GetEntryAssembly().GetName().Version;
+
+            Req.Headers.Add("X-Kite-Version", "3");
+
+            //if(Req.Method == "GET" && cache.IsCached(Req.RequestUri.AbsoluteUri))
+            //{
+            //    Req.Headers.Add("If-None-Match: " + cache.GetETag(Req.RequestUri.AbsoluteUri));
+            //}
+
+            Req.Timeout = _timeout;
+            if (_proxy != null) Req.Proxy = _proxy;
+
+            if (_enableLogging)
+            {
+                foreach (string header in Req.Headers.Keys)
+                {
+                    Console.WriteLine(header + ": " + Req.Headers.GetValues(header)[0]);
+                }
+            }
+
+        }
+
+        /// <summary>
         /// Make an HTTP request.
         /// </summary>
         /// <param name="Route">URL route of API</param>
@@ -931,7 +960,6 @@ namespace KiteConnect
             HttpWebRequest request;
             string paramString = String.Join("&", Params.Select(x => Utils.BuildParam(x.Key, x.Value)));
 
-
             if (Method == "POST" || Method == "PUT")
             {
                 request = (HttpWebRequest)WebRequest.Create(url);
@@ -939,6 +967,7 @@ namespace KiteConnect
                 request.ContentType = "application/x-www-form-urlencoded";
                 request.ContentLength = paramString.Length;
                 if (_enableLogging) Console.WriteLine("DEBUG: " + Method + " " + url + "\n" + paramString + "\n");
+                AddExtraHeaders(ref request);
 
                 using (Stream webStream = request.GetRequestStream())
                 using (StreamWriter requestWriter = new StreamWriter(webStream))
@@ -948,21 +977,10 @@ namespace KiteConnect
             {
                 request = (HttpWebRequest)WebRequest.Create(url + "?" + paramString);
                 request.Method = Method;
+                AddExtraHeaders(ref request);
+
                 if (_enableLogging) Console.WriteLine("DEBUG: " + Method + " " + url + "?" + paramString + "\n");
             }
-
-            if (Assembly.GetEntryAssembly() != null)
-                request.UserAgent = "KiteConnect.Net/" + Assembly.GetEntryAssembly().GetName().Version;
-
-            request.Headers.Add("X-Kite-Version: 3");
-            
-            //if(request.Method == "GET" && cache.IsCached(request.RequestUri.AbsoluteUri))
-            //{
-            //    request.Headers.Add("If-None-Match: " + cache.GetETag(request.RequestUri.AbsoluteUri));
-            //}
-
-            request.Timeout = _timeout;
-            if (_proxy != null) request.Proxy = _proxy;
 
             WebResponse webResponse;
             try

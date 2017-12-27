@@ -14,7 +14,7 @@ namespace KiteConnect
     public class Ticker
     {
         // If set to true will print extra debug information
-        private bool _debug = true;
+        private bool _debug = false;
 
         // Root domain for ticker. Can be changed with Root parameter in the constructor.
         private string _root = "wss://websocket.kite.trade/";
@@ -58,6 +58,12 @@ namespace KiteConnect
         public delegate void OnTickHandler(Tick TickData);
 
         /// <summary>
+        /// Delegate for OnOrderUpdate event
+        /// </summary>
+        /// <param name="OrderData">Order data</param>
+        public delegate void OnOrderUpdateHandler(Order OrderData);
+
+        /// <summary>
         /// Delegate for OnError event
         /// </summary>
         /// <param name="Message">Error message</param>
@@ -90,6 +96,11 @@ namespace KiteConnect
         public event OnTickHandler OnTick;
 
         /// <summary>
+        /// Event triggered when ticker receives an order update
+        /// </summary>
+        public event OnOrderUpdateHandler OnOrderUpdate;
+
+        /// <summary>
         /// Event triggered when ticker encounters an error
         /// </summary>
         public event OnErrorHandler OnError;
@@ -119,8 +130,9 @@ namespace KiteConnect
         /// <param name="Reconnect">Enables WebSocket autreconnect in case of network failure/disconnection.</param>
         /// <param name="ReconnectInterval">Interval (in seconds) between auto reconnection attemptes. Defaults to 5 seconds.</param>
         /// <param name="ReconnectTries">Maximum number reconnection attempts. Defaults to 50 attempts.</param>
-        public Ticker(string APIKey, string UserID, string AccessToken, string Root = null, bool Reconnect = false, int ReconnectInterval = 5, int ReconnectTries = 50)
+        public Ticker(string APIKey, string UserID, string AccessToken, string Root = null, bool Reconnect = false, int ReconnectInterval = 5, int ReconnectTries = 50, bool Debug = false)
         {
+            _debug = Debug;
             _apiKey = APIKey;
             _userID = UserID;
             _accessToken = AccessToken;
@@ -264,56 +276,6 @@ namespace KiteConnect
         /// <summary>
         /// Reads a full mode tick from raw binary data
         /// </summary>
-        private Tick ReadExtended(byte[] b, ref int offset)
-        {
-            Tick tick = new Tick();
-            tick.Mode = Constants.MODE_EXTENDED;
-            tick.InstrumentToken = ReadInt(b, ref offset);
-
-            decimal divisor = (tick.InstrumentToken & 0xff) == 3 ? 10000000.0m : 100.0m;
-
-            tick.Tradable = (tick.InstrumentToken & 0xff) != 9;
-            tick.LastPrice = ReadInt(b, ref offset) / divisor;
-            tick.LastQuantity = ReadInt(b, ref offset);
-            tick.AveragePrice = ReadInt(b, ref offset) / divisor;
-            tick.Volume = ReadInt(b, ref offset);
-            tick.BuyQuantity = ReadInt(b, ref offset);
-            tick.SellQuantity = ReadInt(b, ref offset);
-            tick.Open = ReadInt(b, ref offset) / divisor;
-            tick.High = ReadInt(b, ref offset) / divisor;
-            tick.Low = ReadInt(b, ref offset) / divisor;
-            tick.Close = ReadInt(b, ref offset) / divisor;
-
-            // KiteConnect 3 fields
-            tick.LastTradeTime = Utils.UnixToDateTime(ReadInt(b, ref offset));
-            tick.OpenInterest = ReadInt(b, ref offset);
-            tick.DayHighOpenInterest = ReadInt(b, ref offset);
-            tick.DayLowOpenInterest = ReadInt(b, ref offset);
-            //tick.Timestamp = null;
-
-            tick.Bids = new DepthItem[5];
-            for (int i = 0; i < 5; i++)
-            {
-                tick.Bids[i].Quantity = ReadInt(b, ref offset);
-                tick.Bids[i].Price = ReadInt(b, ref offset) / divisor;
-                tick.Bids[i].Orders = ReadShort(b, ref offset);
-                offset += 2;
-            }
-
-            tick.Offers = new DepthItem[5];
-            for (int i = 0; i < 5; i++)
-            {
-                tick.Offers[i].Quantity = ReadInt(b, ref offset);
-                tick.Offers[i].Price = ReadInt(b, ref offset) / divisor;
-                tick.Offers[i].Orders = ReadShort(b, ref offset);
-                offset += 2;
-            }
-            return tick;
-
-        }
-        /// <summary>
-        /// Reads a full mode tick from raw binary data
-        /// </summary>
         private Tick ReadFull(byte[] b, ref int offset)
         {
             Tick tick = new Tick();
@@ -391,8 +353,6 @@ namespace KiteConnect
                             tick = ReadIndexFull(Data, ref offset);
                         else if (length == 44) // quote
                             tick = ReadQuote(Data, ref offset);
-                        else if (length == 180) // extended with marketdepth
-                            tick = ReadExtended(Data, ref offset);
                         else if (length == 184) // full with marketdepth and timestamp
                             tick = ReadFull(Data, ref offset);
                         // If the number of bytes got from stream is less that that is required
@@ -406,7 +366,14 @@ namespace KiteConnect
             }
             else if (MessageType == WebSocketMessageType.Text)
             {
-                if (_debug) Console.WriteLine("WS Message: " + (Encoding.UTF8.GetString(Data.Take(Count).ToArray())));
+                string message = Encoding.UTF8.GetString(Data.Take(Count).ToArray());
+                if (_debug) Console.WriteLine("WebSocket Message: " + message);
+
+                Dictionary<string, dynamic> messageDict = Utils.JsonDeserialize(message);
+                if(messageDict["type"] == "order")
+                {
+                    OnOrderUpdate?.Invoke(new Order(messageDict["data"]));
+                }
             }
             else if (MessageType == WebSocketMessageType.Close)
             {

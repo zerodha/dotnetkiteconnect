@@ -179,7 +179,7 @@ namespace KiteConnectTest
             string json = File.ReadAllText(@"responses\mf_sip.json", Encoding.UTF8);
             MockServer ms = new MockServer("http://localhost:8080/", "application/json", json);
             Kite kite = new Kite("apikey", Root: "http://localhost:8080");
-            MFSIP sip = kite.GetMFSIP("1234");
+            MFSIP sip = kite.GetMFSIPs("1234");
 
             Assert.AreEqual(sip.SIPId, "1234");
         }
@@ -201,7 +201,7 @@ namespace KiteConnectTest
             string json = File.ReadAllText(@"responses\mf_order.json", Encoding.UTF8);
             MockServer ms = new MockServer("http://localhost:8080/", "application/json", json);
             Kite kite = new Kite("apikey", Root: "http://localhost:8080");
-            MFOrder order = kite.GetMFOrder("123123");
+            MFOrder order = kite.GetMFOrders("123123");
 
             Assert.AreEqual(order.OrderId, "123123");
         }

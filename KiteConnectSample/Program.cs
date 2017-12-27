@@ -25,7 +25,7 @@ namespace KiteConnectSample
 
             // For handling 403 errors
 
-            kite.SetSessionExpiryHook(onTokenExpire);
+            kite.SetSessionExpiryHook(OnTokenExpire);
 
             // Initializes the login flow
 
@@ -52,7 +52,7 @@ namespace KiteConnectSample
             PositionResponse positions = kite.GetPositions();
             Console.WriteLine(Utils.JsonSerialize(positions.Net[0]));
 
-            kite.ModifyProduct(
+            kite.ConvertPosition(
                 Exchange: Constants.EXCHANGE_NSE,
                 TradingSymbol: "ASHOKLEY",
                 TransactionType: Constants.TRANSACTION_TYPE_BUY,
@@ -241,7 +241,7 @@ namespace KiteConnectSample
 
             // Historical Data With Dates
 
-            List<Historical> historical = kite.GetHistorical(
+            List<Historical> historical = kite.GetHistoricalData(
                 InstrumentToken: "5633",
                 FromDate: new DateTime(2016, 1, 1, 12, 50, 0),   // 2016-01-01 12:50:00 AM
                 ToDate: new DateTime(2016, 1, 1, 13, 10, 0),    // 2016-01-01 01:10:00 PM
@@ -262,7 +262,7 @@ namespace KiteConnectSample
 
             // Mutual funds get order by id
 
-            MFOrder mforder = kite.GetMFOrder(OrderId: "1234");
+            MFOrder mforder = kite.GetMFOrders(OrderId: "1234");
             Console.WriteLine(Utils.JsonSerialize(mforder));
 
             // Mutual funds place order
@@ -284,7 +284,7 @@ namespace KiteConnectSample
 
             // Mutual Funds get SIP by id
 
-            MFSIP sip = kite.GetMFSIP("63429");
+            MFSIP sip = kite.GetMFSIPs("63429");
             Console.WriteLine(Utils.JsonSerialize(sip));
 
             // Mutual Funds place SIP order
@@ -338,56 +338,62 @@ namespace KiteConnectSample
 
         private static void initTicker()
         {
-            ticker = new Ticker(MyAPIKey, MyUserId, MyAccessToken);
+            ticker = new Ticker(MyAPIKey, MyUserId, MyAccessToken, Root: "wss://websocket.kite.trade/v3");
 
-            ticker.OnTick += onTick;
-            ticker.OnReconnect += onReconnect;
-            ticker.OnNoReconnect += oNoReconnect;
-            ticker.OnError += onError;
-            ticker.OnClose += onClose;
-            ticker.OnConnect += onConnect;
+            ticker.OnTick += OnTick;
+            ticker.OnReconnect += OnReconnect;
+            ticker.OnNoReconnect += OnNoReconnect;
+            ticker.OnError += OnError;
+            ticker.OnClose += OnClose;
+            ticker.OnConnect += OnConnect;
+            ticker.OnOrderUpdate += OnOrderUpdate;
 
             ticker.EnableReconnect(Interval: 5, Retries: 50);
             ticker.Connect();
 
             // Subscribing to NIFTY50 and setting mode to LTP
             ticker.Subscribe(Tokens: new string[] { "256265" });
-            ticker.SetMode(Tokens: new string[] { "256265" }, Mode: "ltp");
+            ticker.SetMode(Tokens: new string[] { "256265" }, Mode: Constants.MODE_LTP);
         }
 
-        private static void onTokenExpire()
+        private static void OnTokenExpire()
         {
             Console.WriteLine("Need to login again");
         }
 
-        private static void onConnect()
+        private static void OnConnect()
         {
             Console.WriteLine("Connected ticker");
         }
 
-        private static void onClose()
+        private static void OnClose()
         {
             Console.WriteLine("Closed ticker");
         }
 
-        private static void onError(string Message)
+        private static void OnError(string Message)
         {
             Console.WriteLine("Error: " + Message);
         }
 
-        private static void oNoReconnect()
+        private static void OnNoReconnect()
         {
             Console.WriteLine("Not reconnecting");
         }
 
-        private static void onReconnect()
+        private static void OnReconnect()
         {
             Console.WriteLine("Reconnecting");
         }
 
-        private static void onTick(Tick TickData)
+        private static void OnTick(Tick TickData)
         {
             Console.WriteLine("Tick " + Utils.JsonSerialize(TickData));
+        }
+
+        private static void OnOrderUpdate(Order OrderData)
+        {
+            Console.WriteLine("OrderUpdate " + Utils.JsonSerialize(OrderData));
         }
     }
 }

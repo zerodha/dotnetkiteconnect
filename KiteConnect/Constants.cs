@@ -47,7 +47,6 @@ namespace KiteConnect
         public const string MARGIN_COMMODITY = "commodity";
 
         // Ticker modes
-        public const string MODE_EXTENDED = "ext";
         public const string MODE_FULL = "full";
         public const string MODE_QUOTE = "quote";
         public const string MODE_LTP = "ltp";

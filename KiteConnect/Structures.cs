@@ -615,7 +615,7 @@ namespace KiteConnect
                 Broker = data["data"]["broker"];
                 AccessToken = data["data"]["access_token"];
                 PublicToken = data["data"]["public_token"];
-                RefreshToken = data["data"]["refresh_token"];
+                //RefreshToken = data["data"]["refresh_token"];
                 UserType = data["data"]["user_type"];
                 UserId = data["data"]["user_id"];
                 LoginTime = data["data"]["login_time"];
@@ -636,7 +636,7 @@ namespace KiteConnect
         public string Broker { get; }
         public string AccessToken { get; }
         public string PublicToken { get; }
-        public string RefreshToken { get; }
+        // public string RefreshToken { get; }
         public string UserType { get; }
         public string UserId { get; }
         public string LoginTime { get; }
