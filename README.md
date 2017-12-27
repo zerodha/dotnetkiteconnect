@@ -93,6 +93,7 @@ Ticker ticker = new Ticker(MyAPIKey, MyUserId, MyAccessToken);
 
 // Add handlers to events
 ticker.OnTick += onTick;
+ticker.OnOrderUpdate += OnOrderUpdate;
 ticker.OnReconnect += onReconnect;
 ticker.OnNoReconnect += oNoReconnect;
 ticker.OnError += onError;
@@ -105,12 +106,17 @@ ticker.Connect();
 
 // Subscribing to NIFTY50 and setting mode to LTP
 ticker.Subscribe(Tokens: new string[] { "256265" });
-ticker.SetMode(Tokens: new string[] { "256265" }, Mode: "ltp");
+ticker.SetMode(Tokens: new string[] { "256265" }, Mode: Constants.MODE_LTP);
 
 // Example onTick handler
 private static void onTick(Tick TickData)
 {
     Console.WriteLine("LTP: " + TickData.LastPrice);
+}
+
+private static void OnOrderUpdate(Order OrderData)
+{
+    Console.WriteLine("OrderUpdate " + Utils.JsonSerialize(OrderData));
 }
 
 // Disconnect ticker before closing the application
