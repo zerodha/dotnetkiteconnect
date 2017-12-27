@@ -25,9 +25,8 @@ namespace KiteConnect
             MatchCollection mc = Regex.Matches(json, @"\\/Date\((\d*?)\)\\/");
             foreach (Match m in mc)
             {
-                string unix = m.Groups[1].Value;
-                UInt32 unixInt = UInt32.Parse(unix.Substring(0, unix.Length - 3));
-                json = json.Replace(m.Groups[0].Value, UnixToDateTime(unixInt).ToString());
+                UInt32 unix = (UInt32) (UInt64.Parse(m.Groups[1].Value) / 3);
+                json = json.Replace(m.Groups[0].Value, UnixToDateTime(unix).ToString());
             }
             return json;
         }
