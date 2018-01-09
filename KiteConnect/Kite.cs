@@ -54,7 +54,7 @@ namespace KiteConnect
 
             ["market.instruments.all"] = "/instruments",
             ["market.instruments"] = "/instruments/{exchange}",
-            ["market.quote"] = "/instruments/{exchange}/{tradingsymbol}",
+            ["market.quote"] = "/quote",
             ["market.ohlc"] = "/quote/ohlc",
             ["market.ltp"] = "/quote/ltp",
             ["market.historical"] = "/instruments/historical/{instrument_token}/{interval}",
@@ -267,8 +267,8 @@ namespace KiteConnect
             Utils.AddIfNotNull(param, "validity", Validity);
             Utils.AddIfNotNull(param, "disclosed_quantity", DisclosedQuantity.ToString());
             Utils.AddIfNotNull(param, "trigger_price", TriggerPrice.ToString());
-            Utils.AddIfNotNull(param, "squareoff_value", SquareOffValue.ToString());
-            Utils.AddIfNotNull(param, "stoploss_value", StoplossValue.ToString());
+            Utils.AddIfNotNull(param, "squareoff", SquareOffValue.ToString());
+            Utils.AddIfNotNull(param, "stoploss", StoplossValue.ToString());
             Utils.AddIfNotNull(param, "trailing_stoploss", TrailingStoploss.ToString());
             Utils.AddIfNotNull(param, "variety", Variety);
             Utils.AddIfNotNull(param, "tag", Tag);
@@ -513,21 +513,21 @@ namespace KiteConnect
         }
 
         /// <summary>
-        /// Retrieve quote and market depth for an instrument.
+        /// Retrieve quote and market depth of upto 200 instruments
         /// </summary>
-        /// <param name="Exchange">Name of the exchange</param>
-        /// <param name="TradingSymbol">Tradingsymbol of the instrument</param>
-        /// <returns>Json response in the form of nested string dictionary.</returns>
-        public Quote GetQuote(string Exchange, string TradingSymbol)
+        /// <param name="InstrumentId">Indentification of instrument in the form of EXCHANGE:TRADINGSYMBOL (eg: NSE:INFY) or InstrumentToken (eg: 408065)</param>
+        /// <returns>Dictionary of all OHLC objects with keys as in InstrumentId</returns>
+        public Dictionary<string, Quote> GetQuote(string[] InstrumentId)
         {
             var param = new Dictionary<string, dynamic>();
+            param.Add("i", InstrumentId);
+            Dictionary<string, dynamic> quoteData = Get("market.quote", param)["data"];
 
-            param.Add("exchange", Exchange);
-            param.Add("tradingsymbol", TradingSymbol);
+            Dictionary<string, Quote> quotes = new Dictionary<string, Quote>();
+            foreach (string item in quoteData.Keys)
+                quotes.Add(item, new Quote(quoteData[item]));
 
-            var quotedata = Get("market.quote", param);
-
-            return new Quote(quotedata["data"]);
+            return quotes;
         }
 
         /// <summary>
@@ -919,10 +919,9 @@ namespace KiteConnect
             {
                 foreach (string header in Req.Headers.Keys)
                 {
-                    Console.WriteLine(header + ": " + Req.Headers.GetValues(header)[0]);
+                    Console.WriteLine("DEBUG: " + header + ": " + Req.Headers.GetValues(header)[0]);
                 }
             }
-
         }
 
         /// <summary>
@@ -966,7 +965,7 @@ namespace KiteConnect
                 request.Method = Method;
                 request.ContentType = "application/x-www-form-urlencoded";
                 request.ContentLength = paramString.Length;
-                if (_enableLogging) Console.WriteLine("DEBUG: " + Method + " " + url + "\n" + paramString + "\n");
+                if (_enableLogging) Console.WriteLine("DEBUG: " + Method + " " + url + "\n" + paramString);
                 AddExtraHeaders(ref request);
 
                 using (Stream webStream = request.GetRequestStream())
@@ -977,9 +976,8 @@ namespace KiteConnect
             {
                 request = (HttpWebRequest)WebRequest.Create(url + "?" + paramString);
                 request.Method = Method;
+                if (_enableLogging) Console.WriteLine("DEBUG: " + Method + " " + url + "?" + paramString);
                 AddExtraHeaders(ref request);
-
-                if (_enableLogging) Console.WriteLine("DEBUG: " + Method + " " + url + "?" + paramString + "\n");
             }
 
             WebResponse webResponse;

@@ -243,7 +243,8 @@ namespace KiteConnect
             tick.Open = ReadInt(b, ref offset) / divisor;
             tick.Close = ReadInt(b, ref offset) / divisor;
             tick.Change = ReadInt(b, ref offset) / divisor;
-            tick.Timestamp = Utils.UnixToDateTime(ReadInt(b, ref offset));
+            uint time = ReadInt(b, ref offset);
+            tick.Timestamp = Utils.UnixToDateTime(time);
             return tick;
         }
 

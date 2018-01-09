@@ -654,20 +654,28 @@ namespace KiteConnect
         {
             try
             {
-                Volume = data["volume"];
-                LastQuantity = data["last_quantity"];
-                LastTime = data["last_time"];
-                Change = data["change"];
-                OpenInterest = data["open_interest"];
-                SellQuantity = data["sell_quantity"];
-                ChangePercent = data["change_percent"];
+                InstrumentToken = Convert.ToUInt32(data["instrument_token"]);
+                Timestamp = DateTime.ParseExact(data["timestamp"], "yyyy-MM-dd HH:mm:ss", null);
                 LastPrice = data["last_price"];
-                BuyQuantity = data["buy_quantity"];
+                LastQuantity = Convert.ToUInt32(data["last_quantity"]);
+                LastTradeTime = DateTime.ParseExact(data["last_trade_time"], "yyyy-MM-dd HH:mm:ss", null);
+                AveragePrice = data["average_price"];
+                Volume = Convert.ToUInt32(data["volume"]);
+
+                BuyQuantity = Convert.ToUInt32(data["buy_quantity"]);
+                SellQuantity = Convert.ToUInt32(data["sell_quantity"]);
 
                 Open = data["ohlc"]["open"];
                 Close = data["ohlc"]["close"];
                 Low = data["ohlc"]["low"];
                 High = data["ohlc"]["high"];
+
+                Change = data["net_change"];
+                
+                OpenInterest = Convert.ToUInt32(data["open_interest"]);
+                
+                DayHighOpenInterest = Convert.ToUInt32(data["day_high_oi"]);
+                DayLowOpenInterest = Convert.ToUInt32(data["day_low_oi"]);
 
                 Bids = new List<DepthItem>();
                 Offers = new List<DepthItem>();
@@ -685,21 +693,28 @@ namespace KiteConnect
 
         }
 
-        public int Volume { get; }
-        public int LastQuantity { get; }
-        public string LastTime { get; }
-        public decimal Change { get; }
-        public decimal OpenInterest { get; }
-        public int SellQuantity { get; }
-        public decimal ChangePercent { get; }
-        public decimal LastPrice { get; }
-        public int BuyQuantity { get; }
-        public decimal Open { get; }
-        public decimal Close { get; }
-        public decimal High { get; }
-        public decimal Low { get; }
-        public List<DepthItem> Bids { get; }
-        public List<DepthItem> Offers { get; }
+        public UInt32 InstrumentToken { get; set; }
+        public decimal LastPrice { get; set; }
+        public UInt32 LastQuantity { get; set; }
+        public decimal AveragePrice { get; set; }
+        public UInt32 Volume { get; set; }
+        public UInt32 BuyQuantity { get; set; }
+        public UInt32 SellQuantity { get; set; }
+        public decimal Open { get; set; }
+        public decimal High { get; set; }
+        public decimal Low { get; set; }
+        public decimal Close { get; set; }
+        public decimal Change { get; set; }
+        public List<DepthItem> Bids { get; set; }
+        public List<DepthItem> Offers { get; set; }
+
+        // KiteConnect 3 Fields
+
+        public DateTime? LastTradeTime { get; set; }
+        public UInt32 OpenInterest { get; set; }
+        public UInt32 DayHighOpenInterest { get; set; }
+        public UInt32 DayLowOpenInterest { get; set; }
+        public DateTime? Timestamp { get; set; }
     }
 
     /// <summary>

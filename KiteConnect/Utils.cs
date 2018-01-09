@@ -25,7 +25,7 @@ namespace KiteConnect
             MatchCollection mc = Regex.Matches(json, @"\\/Date\((\d*?)\)\\/");
             foreach (Match m in mc)
             {
-                UInt32 unix = (UInt32) (UInt64.Parse(m.Groups[1].Value) / 3);
+                UInt64 unix = UInt64.Parse(m.Groups[1].Value) / 1000;
                 json = json.Replace(m.Groups[0].Value, UnixToDateTime(unix).ToString());
             }
             return json;
@@ -137,11 +137,11 @@ namespace KiteConnect
             }
         }
 
-        public static DateTime UnixToDateTime(UInt32 unixTimeStamp)
+        public static DateTime UnixToDateTime(UInt64 unixTimeStamp)
         {
             // Unix timestamp is seconds past epoch
-            DateTime dateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
-            dateTime = dateTime.AddSeconds(unixTimeStamp).ToLocalTime();
+            DateTime dateTime = new DateTime(1970, 1, 1, 5, 30, 0, 0, DateTimeKind.Unspecified);
+            dateTime = dateTime.AddSeconds(unixTimeStamp);
             return dateTime;
         }
     }

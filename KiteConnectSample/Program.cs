@@ -72,10 +72,10 @@ namespace KiteConnectSample
             List<Instrument> instruments = kite.GetInstruments();
             Console.WriteLine(Utils.JsonSerialize(instruments[0]));
 
-            // Quote
+            // Get quotes of upto 200 scrips
 
-            Quote quote = kite.GetQuote(Exchange: Constants.EXCHANGE_NSE, TradingSymbol: "INFY");
-            Console.WriteLine(Utils.JsonSerialize(quote));
+            Dictionary<string, Quote> quotes = kite.GetQuote(InstrumentId: new string[] { "NSE:INFY", "NSE:ASHOKLEY" });
+            Console.WriteLine(Utils.JsonSerialize(quotes));
 
             // Get OHLC and LTP of upto 200 scrips
 
