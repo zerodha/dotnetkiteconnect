@@ -380,7 +380,6 @@ namespace KiteConnect
                 ExchangeTimestamp = data["exchange_timestamp"];
                 FilledQuantity = data["filled_quantity"];
                 InstrumentToken = Convert.ToUInt32(data["instrument_token"]);
-                MarketProtection = data["market_protection"];
                 OrderId = data["order_id"];
                 OrderTimestamp = data["order_timestamp"];
                 OrderType = data["order_type"];
@@ -414,7 +413,6 @@ namespace KiteConnect
         public string ExchangeTimestamp { get; set; }
         public int FilledQuantity { get; set; }
         public UInt32 InstrumentToken { get; set; }
-        public int MarketProtection { get; set; }
         public string OrderId { get; set; }
         public string OrderTimestamp { get; set; }
         public string OrderType { get; set; }
