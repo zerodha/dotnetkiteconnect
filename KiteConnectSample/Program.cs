@@ -103,7 +103,7 @@ namespace KiteConnectSample
 
             // Get order by id
 
-            List<OrderInfo> orderinfo = kite.GetOrders("1234");
+            List<Order> orderinfo = kite.GetOrderHistory("1234");
             Console.WriteLine(Utils.JsonSerialize(orderinfo[0]));
 
             // Place sell order
@@ -231,7 +231,7 @@ namespace KiteConnectSample
 
             // Trades
 
-            List<Trade> trades = kite.GetTrades("1234");
+            List<Trade> trades = kite.GetOrderTrades("1234");
             Console.WriteLine(Utils.JsonSerialize(trades[0]));
 
             // Margins

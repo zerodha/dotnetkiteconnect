@@ -433,57 +433,6 @@ namespace KiteConnect
     }
 
     /// <summary>
-    /// Order Info structure
-    /// </summary>
-    public struct OrderInfo
-    {
-        public OrderInfo(Dictionary<string, dynamic> data)
-        {
-            try
-            {
-                AveragePrice = data["average_price"];
-                DisclosedQuantity = data["disclosed_quantity"];
-                Exchange = data["exchange"];
-                ExchangeOrderId = data["exchange_order_id"];
-                OrderId = data["order_id"];
-                OrderTimestamp = data["order_timestamp"];
-                OrderType = data["order_type"];
-                PendingQuantity = data["pending_quantity"];
-                Price = data["price"];
-                Product = data["product"];
-                Quantity = data["quantity"];
-                Status = data["status"];
-                StatusMessage = data["status_message"];
-                TransactionType = data["transaction_type"];
-                TriggerPrice = data["trigger_price"];
-                Validity = data["validity"];
-            }
-            catch (Exception)
-            {
-                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data));
-            }
-
-        }
-
-        public decimal AveragePrice { get; set; }
-        public int DisclosedQuantity { get; set; }
-        public string Exchange { get; set; }
-        public string ExchangeOrderId { get; set; }
-        public string OrderId { get; set; }
-        public string OrderTimestamp { get; set; }
-        public string OrderType { get; set; }
-        public int PendingQuantity { get; set; }
-        public decimal Price { get; set; }
-        public string Product { get; set; }
-        public int Quantity { get; set; }
-        public string Status { get; set; }
-        public string StatusMessage { get; set; }
-        public string TransactionType { get; set; }
-        public decimal TriggerPrice { get; set; }
-        public string Validity { get; set; }
-    }
-
-    /// <summary>
     /// Instrument structure
     /// </summary>
     public struct Instrument

@@ -41,7 +41,7 @@ namespace KiteConnect
 
             ["orders"] = "/orders",
             ["trades"] = "/trades",
-            ["orders.info"] = "/orders/{order_id}",
+            ["orders.history"] = "/orders/{order_id}",
 
             ["orders.place"] = "/orders/{variety}",
             ["orders.modify"] = "/orders/{variety}/{order_id}",
@@ -382,19 +382,19 @@ namespace KiteConnect
         /// </summary>
         /// <param name="OrderId">Unique order id</param>
         /// <returns>Json response in the form of nested string dictionary.</returns>
-        public List<OrderInfo> GetOrders(string OrderId)
+        public List<Order> GetOrderHistory(string OrderId)
         {
             var param = new Dictionary<string, dynamic>();
             param.Add("order_id", OrderId);
 
-            var orderData = Get("orders.info", param);
+            var orderData = Get("orders.history", param);
 
-            List<OrderInfo> orderinfo = new List<OrderInfo>();
+            List<Order> orderhistory = new List<Order>();
 
             foreach (Dictionary<string, dynamic> item in orderData["data"])
-                orderinfo.Add(new OrderInfo(item));
+                orderhistory.Add(new Order(item));
 
-            return orderinfo;
+            return orderhistory;
         }
 
         /// <summary>
@@ -404,7 +404,7 @@ namespace KiteConnect
         /// </summary>
         /// <param name="OrderId">is the ID of the order (optional) whose trades are to be retrieved. If no `order_id` is specified, all trades for the day are returned.</param>
         /// <returns>Json response in the form of nested string dictionary.</returns>
-        public List<Trade> GetTrades(string OrderId = null)
+        public List<Trade> GetOrderTrades(string OrderId = null)
         {
             Dictionary<string, dynamic> tradesdata;
             if (!String.IsNullOrEmpty(OrderId))

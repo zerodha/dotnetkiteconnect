@@ -124,9 +124,9 @@ namespace KiteConnectTest
             string json = File.ReadAllText(@"responses\orderinfo.json", Encoding.UTF8);
             MockServer ms = new MockServer("http://localhost:8080/", "application/json", json);
             Kite kite = new Kite("apikey", Root: "http://localhost:8080");
-            List<OrderInfo> orderinfo = kite.GetOrders("171124000819854");
+            List<Order> orderhistory = kite.GetOrderHistory("171124000819854");
 
-            Assert.AreEqual(orderinfo[0].PendingQuantity, 100);
+            Assert.AreEqual(orderhistory[0].PendingQuantity, 100);
         }
 
         [TestMethod]
@@ -157,7 +157,7 @@ namespace KiteConnectTest
             string json = File.ReadAllText(@"responses\trades.json", Encoding.UTF8);
             MockServer ms = new MockServer("http://localhost:8080/", "application/json", json);
             Kite kite = new Kite("apikey", Root: "http://localhost:8080");
-            List<Trade> trades = kite.GetTrades("151220000000000");
+            List<Trade> trades = kite.GetOrderTrades("151220000000000");
 
             Assert.AreEqual(trades[0].TradeId, "159918");
         }
