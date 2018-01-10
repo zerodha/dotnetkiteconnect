@@ -1,11 +1,19 @@
 # The Kite Connect API .Net client
 The official .Net client for communicating with [Kite Connect API](https://kite.trade).
 
-Minimum required .Net Framework version: `4.5`
-
 Kite Connect is a set of REST-like APIs that expose many capabilities required to build a complete investment and trading platform. Execute orders in real time, manage user portfolio, stream live market data (WebSockets), and more, with the simple HTTP API collection.
 
-[Rainmatter](http://rainmatter.com) (c) 2017. Licensed under the MIT License.
+[Zerodha Technologies](http://zerodha.com) &copy; 2018. Licensed under the MIT License.
+
+## Requirements
+
+**.Net Framework**: 4.5
+
+**Visual Studio**: Visual Studio 2012 and onwards
+
+**Windows**: Limited support on Windows 7. Full support on Windows 8 and onwards.
+
+*Note: Ticker will not work in Windows 7 due to absense of support for WebSockets in .Net framework.*
 
 ## Documentation
 
@@ -31,7 +39,7 @@ dotnet add package Tech.Zerodha.KiteConnect
 - Download [KiteConnect.dll](https://github.com/rainmattertech/dotnetkiteconnect/blob/master/dist/KiteConnect.dll?raw=true)
 - Right click on your project &raquo; **Add** &raquo; **Reference** &raquo; Click **Browse** &raquo; Select **KiteConnect.dll**
 
-## API usage
+## Getting started
 ```csharp
 // Import library
 using KiteConnect;
@@ -57,7 +65,6 @@ kite.SetAccessToken(MyAccessToken);
 kite.SetSessionExpiryHook(() => Console.WriteLine("Need to login again"));
 
 // Example call for functions like "PlaceOrder" that returns Dictionary
-
 Dictionary<string, dynamic> response = kite.PlaceOrder(
     Exchange: Constants.EXCHANGE_CDS,
     TradingSymbol: "USDINR17AUGFUT",
@@ -71,17 +78,16 @@ Console.WriteLine("Order Id: " + response["data"]["order_id"]);
 
 // Example call for functions like "GetHoldings" that returns a data structure
 List<Holding> holdings = kite.GetHoldings();
-Console.WriteLine(Utils.JsonSerialize(holdings[0]));
+Console.WriteLine(holdings[0].AveragePrice);
 
 ```
-For more details and examples, take a look at [Program.cs](https://github.com/rainmattertech/dotnetkiteconnect/blob/master/KiteConnect%20Sample/Program.cs) of `KiteConnect Sample` project in this repository.
+For more examples, take a look at [Program.cs](https://github.com/rainmattertech/dotnetkiteconnect/blob/master/KiteConnect%20Sample/Program.cs) of **KiteConnect Sample** project in this repository.
 
 ## WebSocket live streaming data
 
 This library uses Events to get ticks. These events are non blocking and can be used without additional threads. Create event handlers and attach it to Ticker instance as shown in the example below.
 
 ```csharp
-
 /* 
 To get live price use KiteTicker websocket connection. 
 It is recommended to use only one websocket connection at any point of time and make sure you stop connection, 
@@ -89,7 +95,7 @@ once user goes out of app.
 */
 
 // Create a new Ticker instance
-Ticker ticker = new Ticker(MyAPIKey, MyUserId, MyAccessToken);
+Ticker ticker = new Ticker(MyAPIKey, MyUserId, MyAccessToken, Root: "wss://websocket.kite.trade/v3");
 
 // Add handlers to events
 ticker.OnTick += onTick;
@@ -123,4 +129,4 @@ private static void OnOrderUpdate(Order OrderData)
 ticker.Close();
 ```
 
-For more details about different mode of quotes and subscribing for them, take a look at `KiteConnect Sample` project in this repository and [Kite Connect HTTP API documentation](https://kite.trade/docs/connect/v1).
+For more details about different mode of quotes and subscribing for them, take a look at **KiteConnect Sample** project in this repository and [Kite Connect HTTP API documentation](https://kite.trade/docs/connect/v1).

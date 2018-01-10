@@ -299,10 +299,10 @@ namespace KiteConnect
                 ClosePrice = data["close_price"];
                 Quantity = data["quantity"];
                 DayBuyQuantity = data["day_buy_quantity"];
-                DayBuyValue = data["day_buy_value"];
+                // DayBuyValue = data["day_buy_value"];
                 DayBuyPrice = data["day_buy_price"];
                 DaySellQuantity = data["day_sell_quantity"];
-                DaySellValue = data["day_sell_value"];
+                // DaySellValue = data["day_sell_value"];
                 DaySellPrice = data["day_sell_price"];
             }
             catch (Exception)
@@ -337,10 +337,10 @@ namespace KiteConnect
         public int Quantity { get; }
         public int DayBuyQuantity { get; }
         public decimal DayBuyPrice { get; }
-        public decimal DayBuyValue { get; }
+        //public decimal DayBuyValue { get; }
         public int DaySellQuantity { get; }
         public decimal DaySellPrice { get; }
-        public decimal DaySellValue { get; }
+        //public decimal DaySellValue { get; }
     }
 
     /// <summary>
