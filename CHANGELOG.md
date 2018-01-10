@@ -11,6 +11,17 @@
 ### Changes in Ticker
 
 * Use Access Token to authenticate instead of Public Token
+
+```csharp
+Ticker ticker = new Ticker(MyAPIKey, MyUserId, MyPublicToken);
+```
+
+becomes,
+
+```csharp
+Ticker ticker = new Ticker(MyAPIKey, MyUserId, MyAccessToken, Root: "wss://websocket.kite.trade/v3");
+```
+
 * Ticker now streams order updates
 * New fields in Ticks
 

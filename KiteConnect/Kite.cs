@@ -906,6 +906,7 @@ namespace KiteConnect
                 Req.UserAgent = "KiteConnect.Net/" + Assembly.GetEntryAssembly().GetName().Version;
 
             Req.Headers.Add("X-Kite-Version", "3");
+            Req.Headers.Add("Authorization", "token " + _apiKey + ":" + _accessToken);
 
             //if(Req.Method == "GET" && cache.IsCached(Req.RequestUri.AbsoluteUri))
             //{
@@ -950,11 +951,11 @@ namespace KiteConnect
                     }
             }
 
-            if (!Params.ContainsKey("api_key"))
-                Params.Add("api_key", _apiKey);
+            //if (!Params.ContainsKey("api_key"))
+            //    Params.Add("api_key", _apiKey);
 
-            if (!Params.ContainsKey("access_token") && !String.IsNullOrEmpty(_accessToken))
-                Params.Add("access_token", _accessToken);
+            //if (!Params.ContainsKey("access_token") && !String.IsNullOrEmpty(_accessToken))
+            //    Params.Add("access_token", _accessToken);
 
             HttpWebRequest request;
             string paramString = String.Join("&", Params.Select(x => Utils.BuildParam(x.Key, x.Value)));
