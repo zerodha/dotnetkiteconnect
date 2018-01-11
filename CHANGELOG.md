@@ -7,6 +7,7 @@
 * GetOHLC
 * GetLTP
 * GetHistoricalData with timestamps
+* GetProfile
 
 ### Changes in Ticker
 

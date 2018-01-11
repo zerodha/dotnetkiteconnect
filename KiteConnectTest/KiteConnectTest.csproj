@@ -102,6 +102,9 @@
     <None Include="responses\orders.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="responses\profile.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="responses\quote.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

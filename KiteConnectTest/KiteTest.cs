@@ -19,6 +19,17 @@ namespace KiteConnectTest
             Assert.ThrowsException<TokenException>(() => kite.GetPositions());
         }
 
+
+        [TestMethod]
+        public void TestProfile()
+        {
+            string json = File.ReadAllText(@"responses\profile.json", Encoding.UTF8);
+            MockServer ms = new MockServer("http://localhost:8080/", "application/json", json);
+            Kite kite = new Kite("apikey", Root: "http://localhost:8080");
+            Profile profile = kite.GetProfile();
+            Assert.AreEqual(profile.Email, "xxxyyy@gmail.com");
+        }
+
         [TestMethod]
         public void TestPositions()
         {
@@ -26,8 +37,8 @@ namespace KiteConnectTest
             MockServer ms = new MockServer("http://localhost:8080/", "application/json", json);
             Kite kite = new Kite("apikey", Root: "http://localhost:8080");
             PositionResponse positionResponse = kite.GetPositions();
-            Assert.AreEqual(positionResponse.Day.Count, 0);
-            Assert.AreEqual(positionResponse.Net.Count, 0);
+            Assert.AreEqual(positionResponse.Net[0].TradingSymbol, "LEADMINI17DECFUT");
+            Assert.AreEqual(positionResponse.Day[0].TradingSymbol, "GOLDGUINEA17DECFUT");
         }
 
         [TestMethod]
