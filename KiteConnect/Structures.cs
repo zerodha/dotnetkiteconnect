@@ -556,16 +556,17 @@ namespace KiteConnect
         {
             try
             {
-                APIKey = data["data"]["api_key"];
+                APIKey = data["data"]["api_key"]; //
                 Products = (string[])data["data"]["products"].ToArray(typeof(string));
                 UserName = data["data"]["user_name"];
+                UserShortName = data["data"]["user_shortname"];
                 Broker = data["data"]["broker"];
-                AccessToken = data["data"]["access_token"];
-                PublicToken = data["data"]["public_token"];
+                AccessToken = data["data"]["access_token"]; //
+                PublicToken = data["data"]["public_token"]; //
                 //RefreshToken = data["data"]["refresh_token"];
                 UserType = data["data"]["user_type"];
-                UserId = data["data"]["user_id"];
-                LoginTime = data["data"]["login_time"];
+                UserId = data["data"]["user_id"]; //
+                LoginTime = data["data"]["login_time"]; //
                 Exchanges = (string[])data["data"]["exchanges"].ToArray(typeof(string));
                 OrderTypes = (string[])data["data"]["order_types"].ToArray(typeof(string));
                 Email = data["data"]["email"];
@@ -580,6 +581,7 @@ namespace KiteConnect
         public string APIKey { get; }
         public string[] Products { get; }
         public string UserName { get; }
+        public string UserShortName { get; }
         public string Broker { get; }
         public string AccessToken { get; }
         public string PublicToken { get; }
@@ -587,6 +589,42 @@ namespace KiteConnect
         public string UserType { get; }
         public string UserId { get; }
         public string LoginTime { get; }
+        public string[] Exchanges { get; }
+        public string[] OrderTypes { get; }
+        public string Email { get; }
+    }
+
+    /// <summary>
+    /// User structure
+    /// </summary>
+    public struct Profile
+    {
+        public Profile(Dictionary<string, dynamic> data)
+        {
+            try
+            {
+                Products = (string[])data["data"]["products"].ToArray(typeof(string));
+                UserName = data["data"]["user_name"];
+                UserShortName = data["data"]["user_shortname"];
+                Broker = data["data"]["broker"];
+                UserType = data["data"]["user_type"];
+                Exchanges = (string[])data["data"]["exchanges"].ToArray(typeof(string));
+                OrderTypes = (string[])data["data"]["order_types"].ToArray(typeof(string));
+                Email = data["data"]["email"];
+            }
+            catch (Exception)
+            {
+                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data));
+            }
+
+        }
+
+
+        public string[] Products { get; }
+        public string UserName { get; }
+        public string UserShortName { get; }
+        public string Broker { get; }
+        public string UserType { get; }
         public string[] Exchanges { get; }
         public string[] OrderTypes { get; }
         public string Email { get; }

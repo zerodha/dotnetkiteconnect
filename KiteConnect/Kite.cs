@@ -34,8 +34,9 @@ namespace KiteConnect
             ["api.validate"] = "/session/token",
             ["api.invalidate"] = "/session/token",
 
-            ["instrument_margins"] = "/margins/{segment}",
+            ["instrument.margins"] = "/margins/{segment}",
 
+            ["user.profile"] = "/user/profile",
             ["user.margins"] = "/user/margins",
             ["user.segment_margins"] = "/user/margins/{segment}",
 
@@ -141,7 +142,7 @@ namespace KiteConnect
         /// <returns>Login url to authenticate the user.</returns>
         public string GetLoginURL()
         {
-            return String.Format("{0}?api_key={1}", this._login, this._apiKey);
+            return String.Format("{0}?api_key={1}", _login, _apiKey);
         }
 
         /// <summary>
@@ -155,10 +156,11 @@ namespace KiteConnect
         /// <returns>Json response in the form of nested string dictionary.</returns>
         public User RequestAccessToken(string RequestToken, string AppSecret)
         {
-            string checksum = Utils.SHA256(this._apiKey + RequestToken + AppSecret);
+            string checksum = Utils.SHA256(_apiKey + RequestToken + AppSecret);
 
             var param = new Dictionary<string, dynamic>
             {
+                {"api_key", _apiKey},
                 {"request_token", RequestToken},
                 {"checksum", checksum}
             };
@@ -183,13 +185,24 @@ namespace KiteConnect
         }
 
         /// <summary>
+        /// Gets currently logged in user details
+        /// </summary>
+        /// <returns>User profile</returns>
+        public Profile GetProfile()
+        {
+            var profileData = Get("user.profile");
+
+            return new Profile(profileData);
+        }
+
+        /// <summary>
         /// Margin data for intraday trading
         /// </summary>
         /// <param name="Segment">Tradingsymbols under this segment will be returned</param>
         /// <returns>List of margins of intruments</returns>
         public List<InstrumentMargin> GetInstrumentsMargins(string Segment)
         {
-            var instrumentsMarginsData = Get("instrument_margins", new Dictionary<string, dynamic> { { "segment", Segment } });
+            var instrumentsMarginsData = Get("instrument.margins", new Dictionary<string, dynamic> { { "segment", Segment } });
 
             List<InstrumentMargin> instrumentsMargins = new List<InstrumentMargin>();
             foreach (Dictionary<string, dynamic> item in instrumentsMarginsData["data"])
