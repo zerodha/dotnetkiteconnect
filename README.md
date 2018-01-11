@@ -38,7 +38,7 @@ dotnet add package Tech.Zerodha.KiteConnect
 -->
 ### Manual Install
 
-- Download [KiteConnect.dll](https://github.com/zerodhatech/dotnetkiteconnect/blob/kite3/dist/KiteConnect.dll?raw=true)
+- Download [KiteConnect 3.0.0 beta](https://github.com/zerodhatech/dotnetkiteconnect/releases/tag/3.0.0-beta) dll
 - Right click on your project &raquo; **Add** &raquo; **Reference** &raquo; Click **Browse** &raquo; Select **KiteConnect.dll**
 
 ## Getting started
