@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace System
 {
-    public static partial class ExceptionExtensions
+    internal static partial class ExceptionExtensions
     {
 
         /// <summary>

@@ -22,6 +22,7 @@ Kite Connect is a set of REST-like APIs that expose many capabilities required t
 
 ## Install Client Library
 
+<!--
 ### Using NuGet
 
 Execute in **Tools** &raquo; **NuGet Package Manager** &raquo; **Package Manager Console**
@@ -34,9 +35,10 @@ Install-Package Tech.Zerodha.KiteConnect
 ```
 dotnet add package Tech.Zerodha.KiteConnect
 ```
+-->
 ### Manual Install
 
-- Download [KiteConnect.dll](https://github.com/rainmattertech/dotnetkiteconnect/blob/master/dist/KiteConnect.dll?raw=true)
+- Download [KiteConnect.dll](https://github.com/zerodhatech/dotnetkiteconnect/blob/kite3/dist/KiteConnect.dll?raw=true)
 - Right click on your project &raquo; **Add** &raquo; **Reference** &raquo; Click **Browse** &raquo; Select **KiteConnect.dll**
 
 ## Getting started

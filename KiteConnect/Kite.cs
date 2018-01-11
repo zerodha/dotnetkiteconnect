@@ -111,7 +111,7 @@ namespace KiteConnect
         }
 
         /// <summary>
-        /// Set a callback hook for session (`TokenError` -- timeout, expiry etc.) errors.
+        /// Set a callback hook for session (`TokenException` -- timeout, expiry etc.) errors.
 		/// An `AccessToken` (login session) can become invalid for a number of
         /// reasons, but it doesn't make sense for the client to
 		/// try and catch it during every API call.
@@ -245,8 +245,8 @@ namespace KiteConnect
         /// <param name="Validity">Order validity</param>
         /// <param name="DisclosedQuantity">Quantity to disclose publicly (for equity trades)</param>
         /// <param name="TriggerPrice">For SL, SL-M etc.</param>
-        /// <param name="SquareOffValue">Price difference at which the order should be squared off and profit booked (eg: Order price is 100. Profit target is 102. So squareoff_value = 2)</param>
-        /// <param name="StoplossValue">Stoploss difference at which the order should be squared off (eg: Order price is 100. Stoploss target is 98. So stoploss_value = 2)</param>
+        /// <param name="SquareOffValue">Price difference at which the order should be squared off and profit booked (eg: Order price is 100. Profit target is 102. So squareoff = 2)</param>
+        /// <param name="StoplossValue">Stoploss difference at which the order should be squared off (eg: Order price is 100. Stoploss target is 98. So stoploss = 2)</param>
         /// <param name="TrailingStoploss">Incremental value by which stoploss price changes when market moves in your favor by the same incremental value from the entry price (optional)</param>
         /// <param name="Variety">You can place orders of varieties; regular orders, after market orders, cover orders etc. </param>
         /// <param name="Tag">An optional tag to apply to an order to identify it (alphanumeric, max 8 chars)</param>
@@ -415,7 +415,7 @@ namespace KiteConnect
         /// An order can be executed in tranches based on market conditions.
         /// These trades are individually recorded under an order.
         /// </summary>
-        /// <param name="OrderId">is the ID of the order (optional) whose trades are to be retrieved. If no `order_id` is specified, all trades for the day are returned.</param>
+        /// <param name="OrderId">is the ID of the order (optional) whose trades are to be retrieved. If no `OrderId` is specified, all trades for the day are returned.</param>
         /// <returns>Json response in the form of nested string dictionary.</returns>
         public List<Trade> GetOrderTrades(string OrderId = null)
         {
@@ -976,6 +976,7 @@ namespace KiteConnect
             if (Method == "POST" || Method == "PUT")
             {
                 request = (HttpWebRequest)WebRequest.Create(url);
+                request.AllowAutoRedirect = true;
                 request.Method = Method;
                 request.ContentType = "application/x-www-form-urlencoded";
                 request.ContentLength = paramString.Length;
@@ -989,6 +990,7 @@ namespace KiteConnect
             else
             {
                 request = (HttpWebRequest)WebRequest.Create(url + "?" + paramString);
+                request.AllowAutoRedirect = true;
                 request.Method = Method;
                 if (_enableLogging) Console.WriteLine("DEBUG: " + Method + " " + url + "?" + paramString);
                 AddExtraHeaders(ref request);
