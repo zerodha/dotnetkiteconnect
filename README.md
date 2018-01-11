@@ -83,7 +83,7 @@ List<Holding> holdings = kite.GetHoldings();
 Console.WriteLine(holdings[0].AveragePrice);
 
 ```
-For more examples, take a look at [Program.cs](https://github.com/rainmattertech/dotnetkiteconnect/blob/master/KiteConnect%20Sample/Program.cs) of **KiteConnect Sample** project in this repository.
+For more examples, take a look at [Program.cs](https://github.com/zerodhatech/dotnetkiteconnect/blob/kite3/KiteConnectSample/Program.cs) of **KiteConnect Sample** project in this repository.
 
 ## WebSocket live streaming data
 

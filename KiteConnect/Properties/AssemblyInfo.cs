@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("KiteConnect")]
 [assembly: AssemblyDescription("Official .Net client library for Kite Connect APIs")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Zerodha")]
+[assembly: AssemblyCompany("Zerodha Technology Pvt. Ltd.")]
 [assembly: AssemblyProduct("KiteConnect")]
 [assembly: AssemblyCopyright("Copyright ©  2018")]
 [assembly: AssemblyTrademark("")]
