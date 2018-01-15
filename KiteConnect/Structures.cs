@@ -31,7 +31,7 @@ namespace KiteConnect
         // KiteConnect 3 Fields
 
         public DateTime? LastTradeTime { get; set; }
-        public UInt32 OpenInterest { get; set; }
+        public UInt32 OI { get; set; }
         public UInt32 OIDayHigh { get; set; }
         public UInt32 OIDayLow { get; set; }
         public DateTime? Timestamp { get; set; }
@@ -61,7 +61,7 @@ namespace KiteConnect
     {
         public Historical(ArrayList data)
         {
-            TimeStamp = Convert.ToString(data[0]);
+            TimeStamp = Convert.ToDateTime(data[0]);
             Open = Convert.ToDecimal(data[1]);
             High = Convert.ToDecimal(data[2]);
             Low = Convert.ToDecimal(data[3]);
@@ -69,7 +69,7 @@ namespace KiteConnect
             Volume = Convert.ToUInt32(data[5]);
         }
 
-        public string TimeStamp { get; }
+        public DateTime TimeStamp { get; }
         public decimal Open { get; }
         public decimal High { get; }
         public decimal Low { get; }
@@ -677,7 +677,7 @@ namespace KiteConnect
 
                 Change = data["net_change"];
                 
-                OpenInterest = Convert.ToUInt32(data["open_interest"]);
+                OI = Convert.ToUInt32(data["oi"]);
                 
                 OIDayHigh = Convert.ToUInt32(data["day_high_oi"]);
                 OIDayLow = Convert.ToUInt32(data["day_low_oi"]);
@@ -716,7 +716,7 @@ namespace KiteConnect
         // KiteConnect 3 Fields
 
         public DateTime? LastTradeTime { get; set; }
-        public UInt32 OpenInterest { get; set; }
+        public UInt32 OI { get; set; }
         public UInt32 OIDayHigh { get; set; }
         public UInt32 OIDayLow { get; set; }
         public DateTime? Timestamp { get; set; }

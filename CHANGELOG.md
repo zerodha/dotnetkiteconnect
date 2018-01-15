@@ -112,6 +112,7 @@ Ticker ticker = new Ticker(MyAPIKey, MyUserId, MyAccessToken, Root: "wss://webso
 | _ | OIDayLow |
 | ChangePercent | _ |
 | LastTime | LastTradeTime |
+| OpenInterest | OI |
 
 <!-- **Added**
 * InstrumentToken
@@ -131,7 +132,7 @@ Ticker ticker = new Ticker(MyAPIKey, MyUserId, MyAccessToken, Root: "wss://webso
 | Verion 2 | Version 3 |
 | :---: | :---: |
 | _ | LastTradeTime |
-| _ | OpenInterest |
+| _ | OI |
 | _ | OIDayHigh |
 | _ | OIDayLow |
 | _ | Timestamp |
