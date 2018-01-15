@@ -54,7 +54,7 @@ Kite kite = new Kite(MyAPIKey, Debug: true);
 kite.GetLoginURL();
 
 // Collect tokens and user details using the request token
-User user = kite.RequestAccessToken(RequestToken, MySecret);
+User user = kite.GenerateSession(RequestToken, MySecret);
 
 // Persist these tokens in database or settings
 string MyAccessToken = user.AccessToken;

@@ -328,7 +328,7 @@ namespace KiteConnectSample
             Console.WriteLine("Goto " + kite.GetLoginURL());
             Console.WriteLine("Enter request token: ");
             string requestToken = Console.ReadLine();
-            User user = kite.RequestAccessToken(requestToken, MySecret);
+            User user = kite.GenerateSession(requestToken, MySecret);
 
             Console.WriteLine(Utils.JsonSerialize(user));
 

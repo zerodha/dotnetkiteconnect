@@ -31,6 +31,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <RunPostBuildEvent>Always</RunPostBuildEvent>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="System" />
@@ -57,4 +60,7 @@
     <Compile Include="WebSocket.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>"C:\Users\Zero\Desktop\MarkdownDocNet\MarkdownDocNet\bin\Debug\MarkdownDocNet.exe" "C:\Users\Zero\Desktop\.Net Client\KiteConnect\bin\Debug\KiteConnect.xml" "C:\Users\Zero\Desktop\.Net Client\KiteConnect\bin\Debug\KiteConnect.dll"  "C:\Users\Zero\Desktop\dotnetdocs\docs\reference.md"</PostBuildEvent>
+  </PropertyGroup>
 </Project>

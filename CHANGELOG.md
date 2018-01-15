@@ -8,6 +8,8 @@
 * GetLTP
 * GetHistoricalData with timestamps
 * GetProfile
+* InvalidateRefreshToken
+* RenewAccessToken
 
 ### Changes in Ticker
 
@@ -30,6 +32,7 @@ Ticker ticker = new Ticker(MyAPIKey, MyUserId, MyAccessToken, Root: "wss://webso
 
 | Verion 2 | Version 3 |
 | :---: | :---: |
+| RequestAccessToken | GenerateSession |
 | SetSessionHook | SetSessionExpiryHook |
 | InvalidateToken | InvalidateAccessToken |
 | Margins | GetMargins |
@@ -105,8 +108,8 @@ Ticker ticker = new Ticker(MyAPIKey, MyUserId, MyAccessToken, Root: "wss://webso
 | _ | InstrumentToken |
 | _ | Timestamp |
 | _ | AveragePrice |
-| _ | DayHighOpenInterest |
-| _ | DayLowOpenInterest |
+| _ | OIDayHigh |
+| _ | OIDayLow |
 | ChangePercent | _ |
 | LastTime | LastTradeTime |
 
@@ -114,8 +117,8 @@ Ticker ticker = new Ticker(MyAPIKey, MyUserId, MyAccessToken, Root: "wss://webso
 * InstrumentToken
 * Timestamp
 * AveragePrice
-* DayHighOpenInterest
-* DayLowOpenInterest
+* OIDayHigh
+* OIDayLow
     
 **Removed**
 * ChangePercent
@@ -129,14 +132,14 @@ Ticker ticker = new Ticker(MyAPIKey, MyUserId, MyAccessToken, Root: "wss://webso
 | :---: | :---: |
 | _ | LastTradeTime |
 | _ | OpenInterest |
-| _ | DayHighOpenInterest |
-| _ | DayLowOpenInterest |
+| _ | OIDayHigh |
+| _ | OIDayLow |
 | _ | Timestamp |
 
 <!-- **Added**
 
 * LastTradeTime
 * OpenInterest
-* DayHighOpenInterest
-* DayLowOpenInterest
+* OIDayHigh
+* OIDayLow
 * Timestamp -->

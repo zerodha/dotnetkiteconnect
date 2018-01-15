@@ -31,8 +31,8 @@ namespace KiteConnect
         private readonly Dictionary<string, string> _routes = new Dictionary<string, string>
         {
             ["parameters"] = "/parameters",
-            ["api.validate"] = "/session/token",
-            ["api.invalidate"] = "/session/token",
+            ["api.token"] = "/session/token",
+            ["api.refresh"] = "/session/refresh_token",
 
             ["instrument.margins"] = "/margins/{segment}",
 
@@ -142,7 +142,7 @@ namespace KiteConnect
         /// <returns>Login url to authenticate the user.</returns>
         public string GetLoginURL()
         {
-            return String.Format("{0}?api_key={1}", _login, _apiKey);
+            return String.Format("{0}?api_key={1}&v=3", _login, _apiKey);
         }
 
         /// <summary>
@@ -153,8 +153,8 @@ namespace KiteConnect
         /// </summary>
         /// <param name="RequestToken">Token obtained from the GET paramers after a successful login redirect.</param>
         /// <param name="AppSecret">API secret issued with the API key.</param>
-        /// <returns>Json response in the form of nested string dictionary.</returns>
-        public User RequestAccessToken(string RequestToken, string AppSecret)
+        /// <returns>User structure with tokens and profile data</returns>
+        public User GenerateSession(string RequestToken, string AppSecret)
         {
             string checksum = Utils.SHA256(_apiKey + RequestToken + AppSecret);
 
@@ -165,7 +165,7 @@ namespace KiteConnect
                 {"checksum", checksum}
             };
 
-            var userData = Post("api.validate", param);
+            var userData = Post("api.token", param);
 
             return new User(userData);
         }
@@ -179,9 +179,44 @@ namespace KiteConnect
         {
             var param = new Dictionary<string, dynamic>();
 
+            Utils.AddIfNotNull(param, "api_key", _apiKey);
             Utils.AddIfNotNull(param, "access_token", AccessToken);
 
-            return Delete("api.invalidate", param);
+            return Delete("api.token", param);
+        }
+
+        /// <summary>
+        /// Invalidates RefreshToken
+        /// </summary>
+        /// <param name="RefreshToken">RefreshToken to invalidate</param>
+        /// <returns>Json response in the form of nested string dictionary.</returns>
+        public Dictionary<string, dynamic> InvalidateRefreshToken(string RefreshToken)
+        {
+            var param = new Dictionary<string, dynamic>();
+
+            Utils.AddIfNotNull(param, "api_key", _apiKey);
+            Utils.AddIfNotNull(param, "refresh_token", RefreshToken);
+
+            return Delete("api.token", param);
+        }
+
+        /// <summary>
+        /// Renew AccessToken using RefreshToken
+        /// </summary>
+        /// <param name="RefreshToken">RefreshToken to renew the AccessToken.</param>
+        /// <param name="AppSecret">API secret issued with the API key.</param>
+        /// <returns>TokenRenewResponse that contains new AccessToken and RefreshToken.</returns>
+        public TokenSet RenewAccessToken(string RefreshToken, string AppSecret)
+        {
+            var param = new Dictionary<string, dynamic>();
+
+            string checksum = Utils.SHA256(_apiKey + RefreshToken + AppSecret);
+
+            Utils.AddIfNotNull(param, "api_key", _apiKey);
+            Utils.AddIfNotNull(param, "refresh_token", RefreshToken);
+            Utils.AddIfNotNull(param, "checksum", checksum);
+
+            return new TokenSet(Post("api.refresh", param));
         }
 
         /// <summary>
@@ -214,7 +249,7 @@ namespace KiteConnect
         /// <summary>
         /// Get account balance and cash margin details for all segments.
         /// </summary>
-        /// <returns>Json response in the form of nested string dictionary.</returns>
+        /// <returns>User margin response with both equity and commodity margins.</returns>
         public UserMarginsResponse GetMargins()
         {
             var marginsData = Get("user.margins");
@@ -225,7 +260,7 @@ namespace KiteConnect
         /// Get account balance and cash margin details for a particular segment.
         /// </summary>
         /// <param name="Segment">Trading segment (eg: equity or commodity)</param>
-        /// <returns>Json response in the form of nested string dictionary.</returns>
+        /// <returns>Margins for specified segment.</returns>
         public UserMargin GetMargins(string Segment)
         {
             var userMarginData = Get("user.segment_margins", new Dictionary<string, dynamic> { { "segment", Segment } });
@@ -377,7 +412,7 @@ namespace KiteConnect
         /// <summary>
         /// Gets the collection of orders from the orderbook.
         /// </summary>
-        /// <returns>Json response in the form of nested string dictionary.</returns>
+        /// <returns>List of orders.</returns>
         public List<Order> GetOrders()
         {
             var ordersData = Get("orders");
@@ -394,7 +429,7 @@ namespace KiteConnect
         /// Gets information about given OrderId.
         /// </summary>
         /// <param name="OrderId">Unique order id</param>
-        /// <returns>Json response in the form of nested string dictionary.</returns>
+        /// <returns>List of order objects.</returns>
         public List<Order> GetOrderHistory(string OrderId)
         {
             var param = new Dictionary<string, dynamic>();
@@ -416,7 +451,7 @@ namespace KiteConnect
         /// These trades are individually recorded under an order.
         /// </summary>
         /// <param name="OrderId">is the ID of the order (optional) whose trades are to be retrieved. If no `OrderId` is specified, all trades for the day are returned.</param>
-        /// <returns>Json response in the form of nested string dictionary.</returns>
+        /// <returns>List of trades of given order.</returns>
         public List<Trade> GetOrderTrades(string OrderId = null)
         {
             Dictionary<string, dynamic> tradesdata;
@@ -440,7 +475,7 @@ namespace KiteConnect
         /// <summary>
         /// Retrieve the list of positions.
         /// </summary>
-        /// <returns>Json response in the form of nested string dictionary.</returns>
+        /// <returns>Day and net positions.</returns>
         public PositionResponse GetPositions()
         {
             var positionsdata = Get("portfolio.positions");
@@ -450,7 +485,7 @@ namespace KiteConnect
         /// <summary>
         /// Retrieve the list of equity holdings.
         /// </summary>
-        /// <returns>Json response in the form of nested string dictionary.</returns>
+        /// <returns>List of holdings.</returns>
         public List<Holding> GetHoldings()
         {
             var holdingsData = Get("portfolio.holdings");
@@ -502,7 +537,7 @@ namespace KiteConnect
 		/// with tens of thousands of entries in the list.
         /// </summary>
         /// <param name="Exchange">Name of the exchange</param>
-        /// <returns>Json response in the form of array of nested string dictionary.</returns>
+        /// <returns>List of instruments.</returns>
         public List<Instrument> GetInstruments(string Exchange = null)
         {
             var param = new Dictionary<string, dynamic>();
@@ -529,7 +564,7 @@ namespace KiteConnect
         /// Retrieve quote and market depth of upto 200 instruments
         /// </summary>
         /// <param name="InstrumentId">Indentification of instrument in the form of EXCHANGE:TRADINGSYMBOL (eg: NSE:INFY) or InstrumentToken (eg: 408065)</param>
-        /// <returns>Dictionary of all OHLC objects with keys as in InstrumentId</returns>
+        /// <returns>Dictionary of all Quote objects with keys as in InstrumentId</returns>
         public Dictionary<string, Quote> GetQuote(string[] InstrumentId)
         {
             var param = new Dictionary<string, dynamic>();
@@ -565,7 +600,7 @@ namespace KiteConnect
         /// Retrieve LTP of upto 200 instruments
         /// </summary>
         /// <param name="InstrumentId">Indentification of instrument in the form of EXCHANGE:TRADINGSYMBOL (eg: NSE:INFY) or InstrumentToken (eg: 408065)</param>
-        /// <returns>Json response in the form of nested string dictionary.</returns>
+        /// <returns>Dictionary with InstrumentId as key and LTP as value.</returns>
         public Dictionary<string, LTP> GetLTP(string[] InstrumentId)
         {
             var param = new Dictionary<string, dynamic>();
@@ -583,11 +618,11 @@ namespace KiteConnect
         /// Retrieve historical data (candles) for an instrument.
         /// </summary>
         /// <param name="InstrumentToken">Identifier for the instrument whose historical records you want to fetch. This is obtained with the instrument list API.</param>
-        /// <param name="FromDate">Date in format yyyy-mm-dd for fetching candles between two days. Date in format yyyy-mm-dd hh:mm:ss for fetching candles between two timestamps.</param>
-        /// <param name="ToDate">Date in format yyyy-mm-dd for fetching candles between two days. Date in format yyyy-mm-dd hh:mm:ss for fetching candles between two timestamps.</param>
+        /// <param name="FromDate">Date in format yyyy-MM-dd for fetching candles between two days. Date in format yyyy-MM-dd hh:mm:ss for fetching candles between two timestamps.</param>
+        /// <param name="ToDate">Date in format yyyy-MM-dd for fetching candles between two days. Date in format yyyy-MM-dd hh:mm:ss for fetching candles between two timestamps.</param>
         /// <param name="Interval">The candle record interval. Possible values are: minute, day, 3minute, 5minute, 10minute, 15minute, 30minute, 60minute</param>
         /// <param name="Continuous">Pass true to get continous data of expired instruments.</param>
-        /// <returns>Json response in the form of nested string dictionary.</returns>
+        /// <returns>List of Historical objects.</returns>
         public List<Historical> GetHistoricalData(
             string InstrumentToken,
             DateTime FromDate,
@@ -619,7 +654,7 @@ namespace KiteConnect
         /// <param name="Exchange">Name of the exchange</param>
         /// <param name="TradingSymbol">Tradingsymbol of the instrument</param>
         /// <param name="TrasactionType">BUY or SELL</param>
-        /// <returns>Json response in the form of nested string dictionary.</returns>
+        /// <returns>Trigger range for given instrument for given transaction type.</returns>
         public TrigerRange GetTriggerRange(string Exchange, string TradingSymbol, string TrasactionType)
         {
             var param = new Dictionary<string, dynamic>();

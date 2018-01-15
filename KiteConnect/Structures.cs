@@ -32,8 +32,8 @@ namespace KiteConnect
 
         public DateTime? LastTradeTime { get; set; }
         public UInt32 OpenInterest { get; set; }
-        public UInt32 DayHighOpenInterest { get; set; }
-        public UInt32 DayLowOpenInterest { get; set; }
+        public UInt32 OIDayHigh { get; set; }
+        public UInt32 OIDayLow { get; set; }
         public DateTime? Timestamp { get; set; }
     }
 
@@ -556,17 +556,17 @@ namespace KiteConnect
         {
             try
             {
-                APIKey = data["data"]["api_key"]; //
+                APIKey = data["data"]["api_key"];
                 Products = (string[])data["data"]["products"].ToArray(typeof(string));
                 UserName = data["data"]["user_name"];
                 UserShortName = data["data"]["user_shortname"];
                 Broker = data["data"]["broker"];
-                AccessToken = data["data"]["access_token"]; //
-                PublicToken = data["data"]["public_token"]; //
-                //RefreshToken = data["data"]["refresh_token"];
+                AccessToken = data["data"]["access_token"];
+                PublicToken = data["data"]["public_token"];
+                RefreshToken = data["data"]["refresh_token"];
                 UserType = data["data"]["user_type"];
-                UserId = data["data"]["user_id"]; //
-                LoginTime = data["data"]["login_time"]; //
+                UserId = data["data"]["user_id"];
+                LoginTime = data["data"]["login_time"];
                 Exchanges = (string[])data["data"]["exchanges"].ToArray(typeof(string));
                 OrderTypes = (string[])data["data"]["order_types"].ToArray(typeof(string));
                 Email = data["data"]["email"];
@@ -585,13 +585,33 @@ namespace KiteConnect
         public string Broker { get; }
         public string AccessToken { get; }
         public string PublicToken { get; }
-        // public string RefreshToken { get; }
+        public string RefreshToken { get; }
         public string UserType { get; }
         public string UserId { get; }
         public string LoginTime { get; }
         public string[] Exchanges { get; }
         public string[] OrderTypes { get; }
         public string Email { get; }
+    }
+
+    public struct TokenSet
+    {
+        public TokenSet(Dictionary<string, dynamic> data)
+        {
+            try
+            {
+                UserId = data["data"]["user_id"];
+                AccessToken = data["data"]["access_token"];
+                RefreshToken = data["data"]["refresh_token"];
+            }
+            catch (Exception)
+            {
+                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data));
+            }
+        }
+        public string UserId { get; }
+        public string AccessToken { get; }
+        public string RefreshToken { get; }
     }
 
     /// <summary>
@@ -659,8 +679,8 @@ namespace KiteConnect
                 
                 OpenInterest = Convert.ToUInt32(data["open_interest"]);
                 
-                DayHighOpenInterest = Convert.ToUInt32(data["day_high_oi"]);
-                DayLowOpenInterest = Convert.ToUInt32(data["day_low_oi"]);
+                OIDayHigh = Convert.ToUInt32(data["day_high_oi"]);
+                OIDayLow = Convert.ToUInt32(data["day_low_oi"]);
 
                 Bids = new List<DepthItem>();
                 Offers = new List<DepthItem>();
@@ -697,8 +717,8 @@ namespace KiteConnect
 
         public DateTime? LastTradeTime { get; set; }
         public UInt32 OpenInterest { get; set; }
-        public UInt32 DayHighOpenInterest { get; set; }
-        public UInt32 DayLowOpenInterest { get; set; }
+        public UInt32 OIDayHigh { get; set; }
+        public UInt32 OIDayLow { get; set; }
         public DateTime? Timestamp { get; set; }
     }
 

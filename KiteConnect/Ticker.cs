@@ -300,8 +300,8 @@ namespace KiteConnect
             // KiteConnect 3 fields
             tick.LastTradeTime = Utils.UnixToDateTime(ReadInt(b, ref offset));
             tick.OpenInterest = ReadInt(b, ref offset);
-            tick.DayHighOpenInterest = ReadInt(b, ref offset);
-            tick.DayLowOpenInterest = ReadInt(b, ref offset);
+            tick.OIDayHigh = ReadInt(b, ref offset);
+            tick.OIDayLow = ReadInt(b, ref offset);
             tick.Timestamp = Utils.UnixToDateTime(ReadInt(b, ref offset));
 
 
