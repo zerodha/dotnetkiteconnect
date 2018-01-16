@@ -230,21 +230,21 @@ namespace KiteConnect
             return new Profile(profileData);
         }
 
-        /// <summary>
-        /// Margin data for intraday trading
-        /// </summary>
-        /// <param name="Segment">Tradingsymbols under this segment will be returned</param>
-        /// <returns>List of margins of intruments</returns>
-        public List<InstrumentMargin> GetInstrumentsMargins(string Segment)
-        {
-            var instrumentsMarginsData = Get("instrument.margins", new Dictionary<string, dynamic> { { "segment", Segment } });
+        ///// <summary>
+        ///// Margin data for intraday trading
+        ///// </summary>
+        ///// <param name="Segment">Tradingsymbols under this segment will be returned</param>
+        ///// <returns>List of margins of intruments</returns>
+        //public List<InstrumentMargin> GetInstrumentsMargins(string Segment)
+        //{
+        //    var instrumentsMarginsData = Get("instrument.margins", new Dictionary<string, dynamic> { { "segment", Segment } });
 
-            List<InstrumentMargin> instrumentsMargins = new List<InstrumentMargin>();
-            foreach (Dictionary<string, dynamic> item in instrumentsMarginsData["data"])
-                instrumentsMargins.Add(new InstrumentMargin(item));
+        //    List<InstrumentMargin> instrumentsMargins = new List<InstrumentMargin>();
+        //    foreach (Dictionary<string, dynamic> item in instrumentsMarginsData["data"])
+        //        instrumentsMargins.Add(new InstrumentMargin(item));
 
-            return instrumentsMargins;
-        }
+        //    return instrumentsMargins;
+        //}
 
         /// <summary>
         /// Get account balance and cash margin details for all segments.

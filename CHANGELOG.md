@@ -2,7 +2,7 @@
 
 ### New APIs
 
-* GetInstrumentsMargins
+<!-- * GetInstrumentsMargins -->
 * GetQuote
 * GetOHLC
 * GetLTP
