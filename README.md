@@ -5,7 +5,7 @@ Minimum required .Net Framework version: `4.5`
 
 Kite Connect is a set of REST-like APIs that expose many capabilities required to build a complete investment and trading platform. Execute orders in real time, manage user portfolio, stream live market data (WebSockets), and more, with the simple HTTP API collection.
 
-[Rainmatter](http://rainmatter.com) (c) 2017. Licensed under the MIT License.
+[Zerodha Technology Pvt. Ltd.](http://zerodha.com) (c) 2018. Licensed under the MIT License.
 
 ## Documentation
 
@@ -13,6 +13,8 @@ Kite Connect is a set of REST-like APIs that expose many capabilities required t
 - [.Net library documentation](https://kite.trade/docs/kiteconnectdotnet/)
 
 ## Install Client Library
+
+> This version will be deprecated soon. Please refer to the [kite3 branch](https://github.com/zerodhatech/dotnetkiteconnect/tree/kite3) for the Kite Connect 3 API and use the DLL in the [releases](https://github.com/zerodhatech/dotnetkiteconnect/releases/tag/3.0.0-beta1) section.
 
 ### Using NuGet
 
