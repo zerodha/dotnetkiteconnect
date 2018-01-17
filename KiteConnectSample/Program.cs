@@ -338,7 +338,7 @@ namespace KiteConnectSample
 
         private static void initTicker()
         {
-            ticker = new Ticker(MyAPIKey, MyUserId, MyAccessToken, Root: "wss://websocket.kite.trade/v3");
+            ticker = new Ticker(MyAPIKey, MyUserId, MyAccessToken);
 
             ticker.OnTick += OnTick;
             ticker.OnReconnect += OnReconnect;

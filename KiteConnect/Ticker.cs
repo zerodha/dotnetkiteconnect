@@ -17,7 +17,7 @@ namespace KiteConnect
         private bool _debug = false;
 
         // Root domain for ticker. Can be changed with Root parameter in the constructor.
-        private string _root = "wss://websocket.kite.trade/";
+        private string _root = "wss://ws.kite.trade/";
 
         // Configurations to create ticker connection
         private string _apiKey;
@@ -374,6 +374,9 @@ namespace KiteConnect
                 if(messageDict["type"] == "order")
                 {
                     OnOrderUpdate?.Invoke(new Order(messageDict["data"]));
+                } else if (messageDict["type"] == "error")
+                {
+                    OnError?.Invoke(messageDict["data"]);
                 }
             }
             else if (MessageType == WebSocketMessageType.Close)
@@ -470,7 +473,7 @@ namespace KiteConnect
         public void Subscribe(UInt32[] Tokens)
         {
             string msg = "{\"a\":\"subscribe\",\"v\":[" + String.Join(",", Tokens) + "]}";
-            if (_debug) Console.WriteLine(msg);
+            if (_debug) Console.WriteLine(msg.Length);
 
             if (IsConnected)
                 _ws.Send(msg);

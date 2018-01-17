@@ -36,7 +36,7 @@ namespace KiteConnect
         /// </summary>
         /// <param name="Url">Url to the WebSocket.</param>
         /// <param name="BufferLength">Size of buffer to keep byte stream chunk.</param>
-        public WebSocket(string Url, int BufferLength = 10240)
+        public WebSocket(string Url, int BufferLength = 2000000)
         {
             _url = Url;
             _bufferLength = BufferLength;

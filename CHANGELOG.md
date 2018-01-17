@@ -26,7 +26,7 @@ Ticker ticker = new Ticker(MyAPIKey, MyUserId, MyPublicToken);
 becomes,
 
 ```csharp
-Ticker ticker = new Ticker(MyAPIKey, MyUserId, MyAccessToken, Root: "wss://websocket.kite.trade/v3");
+Ticker ticker = new Ticker(MyAPIKey, MyUserId, MyAccessToken);
 ```
 
 * Ticker now streams order updates
