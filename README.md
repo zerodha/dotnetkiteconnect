@@ -17,7 +17,7 @@ Kite Connect is a set of REST-like APIs that expose many capabilities required t
 
 ## Documentation
 
-- [Kite Connect HTTP API documentation](https://kite.trade/docs/connect/v1)
+- [Kite Connect HTTP API documentation](https://kite.trade/docs/connect/v3)
 - [.Net library documentation](https://kite.trade/docs/kiteconnectdotnet/)
 
 ## Install Client Library
@@ -38,7 +38,7 @@ dotnet add package Tech.Zerodha.KiteConnect
 -->
 ### Manual Install
 
-- Download [KiteConnect 3.0.0 beta](https://github.com/zerodhatech/dotnetkiteconnect/releases/tag/3.0.0-beta) dll
+- Download [KiteConnect 3.0.0 beta1](https://github.com/zerodhatech/dotnetkiteconnect/releases/tag/3.0.0-beta1) dll
 - Right click on your project &raquo; **Add** &raquo; **Reference** &raquo; Click **Browse** &raquo; Select **KiteConnect.dll**
 
 ## Getting started
