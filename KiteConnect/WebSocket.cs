@@ -110,7 +110,7 @@ namespace KiteConnect
                         if(IsConnected())
                             OnError?.Invoke("Error while recieving data. Message:  " + e.Message);
                         else
-                            OnError?.Invoke("Lost ticker connection");
+                            OnError?.Invoke("Lost ticker connection. " + e.ToString());
                     }
                 };
 

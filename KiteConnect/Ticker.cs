@@ -37,7 +37,7 @@ namespace KiteConnect
         private WebSocket _ws;
 
         // Dictionary that keeps instrument_token -> mode data
-        private Dictionary<string, string> _subscribedTokens;
+        private Dictionary<UInt32, string> _subscribedTokens;
 
         // Delegates for callbacks
 
@@ -136,7 +136,7 @@ namespace KiteConnect
             _apiKey = APIKey;
             _userID = UserID;
             _accessToken = AccessToken;
-            _subscribedTokens = new Dictionary<string, string>();
+            _subscribedTokens = new Dictionary<UInt32, string>();
             _interval = ReconnectInterval;
             _timerTick = ReconnectInterval;
             _retries = ReconnectTries;
@@ -467,14 +467,14 @@ namespace KiteConnect
         /// Subscribe to a list of instrument_tokens.
         /// </summary>
         /// <param name="Tokens">List of instrument instrument_tokens to subscribe</param>
-        public void Subscribe(string[] Tokens)
+        public void Subscribe(UInt32[] Tokens)
         {
             string msg = "{\"a\":\"subscribe\",\"v\":[" + String.Join(",", Tokens) + "]}";
             if (_debug) Console.WriteLine(msg);
 
             if (IsConnected)
                 _ws.Send(msg);
-            foreach (string token in Tokens)
+            foreach (UInt32 token in Tokens)
                 if (!_subscribedTokens.ContainsKey(token))
                     _subscribedTokens.Add(token, "quote");
         }
@@ -483,14 +483,14 @@ namespace KiteConnect
         /// Unsubscribe the given list of instrument_tokens.
         /// </summary>
         /// <param name="Tokens">List of instrument instrument_tokens to unsubscribe</param>
-        public void UnSubscribe(string[] Tokens)
+        public void UnSubscribe(UInt32[] Tokens)
         {
             string msg = "{\"a\":\"unsubscribe\",\"v\":[" + String.Join(",", Tokens) + "]}";
             if (_debug) Console.WriteLine(msg);
 
             if (IsConnected)
                 _ws.Send(msg);
-            foreach (string token in Tokens)
+            foreach (UInt32 token in Tokens)
                 if (_subscribedTokens.ContainsKey(token))
                     _subscribedTokens.Remove(token);
         }
@@ -500,14 +500,14 @@ namespace KiteConnect
         /// </summary>
         /// <param name="Tokens">List of instrument tokens on which the mode should be applied</param>
         /// <param name="Mode">Mode to set. It can be one of the following: ltp, quote, full.</param>
-        public void SetMode(string[] Tokens, string Mode)
+        public void SetMode(UInt32[] Tokens, string Mode)
         {
             string msg = "{\"a\":\"mode\",\"v\":[\"" + Mode + "\", [" + String.Join(",", Tokens) + "]]}";
             if (_debug) Console.WriteLine(msg);
 
             if (IsConnected)
                 _ws.Send(msg);
-            foreach (string token in Tokens)
+            foreach (UInt32 token in Tokens)
                 if (_subscribedTokens.ContainsKey(token))
                     _subscribedTokens[token] = Mode;
         }
@@ -518,11 +518,11 @@ namespace KiteConnect
         public void ReSubscribe()
         {
             if (_debug) Console.WriteLine("Resubscribing");
-            string[] all_tokens = _subscribedTokens.Keys.ToArray();
+            UInt32[] all_tokens = _subscribedTokens.Keys.ToArray();
 
-            string[] ltp_tokens = all_tokens.Where(key => _subscribedTokens[key] == "ltp").ToArray();
-            string[] quote_tokens = all_tokens.Where(key => _subscribedTokens[key] == "quote").ToArray();
-            string[] full_tokens = all_tokens.Where(key => _subscribedTokens[key] == "full").ToArray();
+            UInt32[] ltp_tokens = all_tokens.Where(key => _subscribedTokens[key] == "ltp").ToArray();
+            UInt32[] quote_tokens = all_tokens.Where(key => _subscribedTokens[key] == "quote").ToArray();
+            UInt32[] full_tokens = all_tokens.Where(key => _subscribedTokens[key] == "full").ToArray();
 
             UnSubscribe(all_tokens);
             Subscribe(all_tokens);

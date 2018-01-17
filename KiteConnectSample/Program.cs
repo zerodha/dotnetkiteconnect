@@ -352,8 +352,8 @@ namespace KiteConnectSample
             ticker.Connect();
 
             // Subscribing to NIFTY50 and setting mode to LTP
-            ticker.Subscribe(Tokens: new string[] { "256265" });
-            ticker.SetMode(Tokens: new string[] { "256265" }, Mode: Constants.MODE_LTP);
+            ticker.Subscribe(Tokens: new UInt32[] { 256265 });
+            ticker.SetMode(Tokens: new UInt32[] { 256265 }, Mode: Constants.MODE_LTP);
         }
 
         private static void OnTokenExpire()

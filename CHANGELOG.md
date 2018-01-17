@@ -1,6 +1,10 @@
 ## Migrating from Kite Connect v2 to v3
 
-### New APIs
+### Changes in Kite
+
+* All timestamps in string are now DateTime objects
+
+New APIs added:
 
 <!-- * GetInstrumentsMargins -->
 * GetQuote
@@ -27,6 +31,7 @@ Ticker ticker = new Ticker(MyAPIKey, MyUserId, MyAccessToken, Root: "wss://webso
 
 * Ticker now streams order updates
 * New fields in Ticks
+* Changed type of instrument token to UInt32
 
 ### Changes in function names:
 
@@ -136,6 +141,12 @@ Ticker ticker = new Ticker(MyAPIKey, MyUserId, MyAccessToken, Root: "wss://webso
 | _ | OIDayHigh |
 | _ | OIDayLow |
 | _ | Timestamp |
+
+### Changes in Trade structure
+
+| Verion 2 | Version 3 |
+| :---: | :---: |
+| OrderTimestamp | FillTimestamp |
 
 <!-- **Added**
 

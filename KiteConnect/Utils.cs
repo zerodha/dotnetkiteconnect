@@ -14,6 +14,22 @@ namespace KiteConnect
     public class Utils
     {
         /// <summary>
+        /// Convert string to Date object
+        /// </summary>
+        /// <param name="obj">Date string.</param>
+        /// <returns>Date object/</returns>
+        public static DateTime? StringToDate(string DateString)
+        {
+            try
+            {
+                return DateTime.ParseExact(DateString, "yyyy-MM-dd HH:mm:ss", null);
+            }catch (Exception e)
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
         /// Serialize C# object to JSON string.
         /// </summary>
         /// <param name="obj">C# object to serialize.</param>

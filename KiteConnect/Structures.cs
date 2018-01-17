@@ -377,11 +377,11 @@ namespace KiteConnect
                 DisclosedQuantity = data["disclosed_quantity"];
                 Exchange = data["exchange"];
                 ExchangeOrderId = data["exchange_order_id"];
-                ExchangeTimestamp = data["exchange_timestamp"];
+                ExchangeTimestamp =  Utils.StringToDate(data["exchange_timestamp"]);
                 FilledQuantity = data["filled_quantity"];
                 InstrumentToken = Convert.ToUInt32(data["instrument_token"]);
                 OrderId = data["order_id"];
-                OrderTimestamp = data["order_timestamp"];
+                OrderTimestamp =  Utils.StringToDate(data["order_timestamp"]);
                 OrderType = data["order_type"];
                 ParentOrderId = data["parent_order_id"];
                 PendingQuantity = data["pending_quantity"];
@@ -410,11 +410,11 @@ namespace KiteConnect
         public int DisclosedQuantity { get; set; }
         public string Exchange { get; set; }
         public string ExchangeOrderId { get; set; }
-        public string ExchangeTimestamp { get; set; }
+        public DateTime? ExchangeTimestamp { get; set; }
         public int FilledQuantity { get; set; }
         public UInt32 InstrumentToken { get; set; }
         public string OrderId { get; set; }
-        public string OrderTimestamp { get; set; }
+        public DateTime? OrderTimestamp { get; set; }
         public string OrderType { get; set; }
         public string ParentOrderId { get; set; }
         public int PendingQuantity { get; set; }
@@ -499,8 +499,8 @@ namespace KiteConnect
                 Product = data["product"];
                 AveragePrice = data["average_price"];
                 Quantity = data["quantity"];
-                OrderTimestamp = data["order_timestamp"];
-                ExchangeTimestamp = data["exchange_timestamp"];
+                FillTimestamp =  Utils.StringToDate(data["fill_timestamp"]);
+                ExchangeTimestamp =  Utils.StringToDate(data["exchange_timestamp"]);
             }
             catch (Exception)
             {
@@ -519,8 +519,8 @@ namespace KiteConnect
         public string Product { get; }
         public decimal AveragePrice { get; }
         public int Quantity { get; }
-        public string OrderTimestamp { get; }
-        public string ExchangeTimestamp { get; }
+        public DateTime? FillTimestamp { get; }
+        public DateTime? ExchangeTimestamp { get; }
     }
 
     /// <summary>
@@ -566,7 +566,7 @@ namespace KiteConnect
                 RefreshToken = data["data"]["refresh_token"];
                 UserType = data["data"]["user_type"];
                 UserId = data["data"]["user_id"];
-                LoginTime = data["data"]["login_time"];
+                LoginTime = Utils.StringToDate(data["data"]["login_time"]);
                 Exchanges = (string[])data["data"]["exchanges"].ToArray(typeof(string));
                 OrderTypes = (string[])data["data"]["order_types"].ToArray(typeof(string));
                 Email = data["data"]["email"];
@@ -588,7 +588,7 @@ namespace KiteConnect
         public string RefreshToken { get; }
         public string UserType { get; }
         public string UserId { get; }
-        public string LoginTime { get; }
+        public DateTime? LoginTime { get; }
         public string[] Exchanges { get; }
         public string[] OrderTypes { get; }
         public string Email { get; }
@@ -660,10 +660,10 @@ namespace KiteConnect
             try
             {
                 InstrumentToken = Convert.ToUInt32(data["instrument_token"]);
-                Timestamp = DateTime.ParseExact(data["timestamp"], "yyyy-MM-dd HH:mm:ss", null);
+                Timestamp = Utils.StringToDate(data["timestamp"]);
                 LastPrice = data["last_price"];
                 LastQuantity = Convert.ToUInt32(data["last_quantity"]);
-                LastTradeTime = DateTime.ParseExact(data["last_trade_time"], "yyyy-MM-dd HH:mm:ss", null);
+                LastTradeTime = Utils.StringToDate(data["last_trade_time"]);
                 AveragePrice = data["average_price"];
                 Volume = Convert.ToUInt32(data["volume"]);
 
@@ -679,8 +679,8 @@ namespace KiteConnect
                 
                 OI = Convert.ToUInt32(data["oi"]);
                 
-                OIDayHigh = Convert.ToUInt32(data["day_high_oi"]);
-                OIDayLow = Convert.ToUInt32(data["day_low_oi"]);
+                OIDayHigh = Convert.ToUInt32(data["oi_day_high"]);
+                OIDayLow = Convert.ToUInt32(data["oi_day_low"]);
 
                 Bids = new List<DepthItem>();
                 Offers = new List<DepthItem>();
@@ -880,11 +880,11 @@ namespace KiteConnect
                 Amount = data["amount"];
                 Quantity = data["quantity"];
                 SettlementId = data["settlement_id"];
-                OrderTimestamp = data["order_timestamp"];
+                OrderTimestamp =  Utils.StringToDate(data["order_timestamp"]);
                 AveragePrice = data["average_price"];
                 TransactionType = data["transaction_type"];
                 ExchangeOrderId = data["exchange_order_id"];
-                ExchangeTimestamp = data["exchange_timestamp"];
+                ExchangeTimestamp =  Utils.StringToDate(data["exchange_timestamp"]);
                 Fund = data["fund"];
                 Variety = data["variety"];
                 Folio = data["folio"];
@@ -907,11 +907,11 @@ namespace KiteConnect
         public decimal Amount { get; }
         public decimal Quantity { get; }
         public string SettlementId { get; }
-        public string OrderTimestamp { get; }
+        public DateTime? OrderTimestamp { get; }
         public decimal AveragePrice { get; }
         public string TransactionType { get; }
         public string ExchangeOrderId { get; }
-        public string ExchangeTimestamp { get; }
+        public DateTime? ExchangeTimestamp { get; }
         public string Fund { get; }
         public string Variety { get; }
         public string Folio { get; }
@@ -933,8 +933,8 @@ namespace KiteConnect
             {
                 DividendType = data["dividend_type"];
                 PendingInstalments = data["pending_instalments"];
-                Created = data["created"];
-                LastInstalment = data["last_instalment"];
+                Created = Utils.StringToDate(data["created"]);
+                LastInstalment = Utils.StringToDate(data["last_instalment"]);
                 TransactionType = data["transaction_type"];
                 Frequency = data["frequency"];
                 InstalmentDate = data["instalment_date"];
@@ -956,8 +956,8 @@ namespace KiteConnect
 
         public string DividendType { get; }
         public int PendingInstalments { get; }
-        public string Created { get; }
-        public string LastInstalment { get; }
+        public DateTime? Created { get; }
+        public DateTime? LastInstalment { get; }
         public string TransactionType { get; }
         public string Frequency { get; }
         public int InstalmentDate { get; }

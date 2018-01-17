@@ -12,7 +12,7 @@
       "product": "MIS",
       "average_price": 100.98,
       "quantity": 10,
-      "order_timestamp": "2015-12-20 15:01:44",
+      "fill_timestamp": "2015-12-20 15:01:44",
       "exchange_timestamp": "2015-12-20 15:01:43"
     }
   ]
