@@ -22,7 +22,13 @@ namespace KiteConnect
         {
             try
             {
-                return DateTime.ParseExact(DateString, "yyyy-MM-dd HH:mm:ss", null);
+                if(DateString.Length == 10)
+                {
+                    return DateTime.ParseExact(DateString, "yyyy-MM-dd", null);
+                }else
+                {
+                    return DateTime.ParseExact(DateString, "yyyy-MM-dd HH:mm:ss", null);
+                }
             }catch (Exception e)
             {
                 return null;

@@ -1073,11 +1073,8 @@ namespace KiteConnect
                                 case "GeneralException": throw new GeneralException(message, status);
                                 case "TokenException":
                                     {
-                                        if (_sessionHook == null)
-                                            throw new TokenException(message, status);
-                                        else
-                                            _sessionHook.Invoke();
-                                        break;
+                                        _sessionHook?.Invoke();
+                                        throw new TokenException(message, status);
                                     }
                                 case "PermissionException": throw new PermissionException(message, status);
                                 case "OrderException": throw new OrderException(message, status);

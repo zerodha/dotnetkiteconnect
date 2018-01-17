@@ -146,7 +146,8 @@ Ticker ticker = new Ticker(MyAPIKey, MyUserId, MyAccessToken, Root: "wss://webso
 
 | Verion 2 | Version 3 |
 | :---: | :---: |
-| OrderTimestamp | FillTimestamp |
+| OrderTimestamp | - |
+| - | FillTimestamp |
 
 <!-- **Added**
 

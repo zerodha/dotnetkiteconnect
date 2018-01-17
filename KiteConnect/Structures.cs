@@ -447,7 +447,7 @@ namespace KiteConnect
                 Name = data["name"];
                 LastPrice = Convert.ToDecimal(data["last_price"]);
                 TickSize = Convert.ToDecimal(data["tick_size"]);
-                Expiry = data["expiry"];
+                Expiry = Utils.StringToDate(data["expiry"]);
                 InstrumentType = data["instrument_type"];
                 Segment = data["segment"];
                 Exchange = data["exchange"];
@@ -472,7 +472,7 @@ namespace KiteConnect
         public string Name { get; set; }
         public decimal LastPrice { get; set; }
         public decimal TickSize { get; set; }
-        public string Expiry { get; set; }
+        public DateTime? Expiry { get; set; }
         public string InstrumentType { get; set; }
         public string Segment { get; set; }
         public string Exchange { get; set; }
@@ -821,8 +821,8 @@ namespace KiteConnect
                 AMC = data["amc"];
                 Name = data["name"];
 
-                PurchaseAllowed = Convert.ToInt32(data["purchase_allowed"]);
-                RedemtpionAllowed = Convert.ToInt32(data["redemption_allowed"]);
+                PurchaseAllowed = data["purchase_allowed"] == "1";
+                RedemtpionAllowed = data["redemption_allowed"] == "1";
 
                 MinimumPurchaseAmount = Convert.ToDecimal(data["minimum_purchase_amount"]);
                 PurchaseAmountMultiplier = Convert.ToDecimal(data["purchase_amount_multiplier"]);
@@ -835,7 +835,7 @@ namespace KiteConnect
                 SchemeType = data["scheme_type"];
                 Plan = data["plan"];
                 SettlementType = data["settlement_type"];
-                LastPriceDate = data["last_price_date"];
+                LastPriceDate = Utils.StringToDate(data["last_price_date"]);
             }
             catch (Exception)
             {
@@ -848,8 +848,8 @@ namespace KiteConnect
         public string AMC { get; }
         public string Name { get; }
 
-        public int PurchaseAllowed { get; }
-        public int RedemtpionAllowed { get; }
+        public bool PurchaseAllowed { get; }
+        public bool RedemtpionAllowed { get; }
 
         public decimal MinimumPurchaseAmount { get; }
         public decimal PurchaseAmountMultiplier { get; }
@@ -862,7 +862,7 @@ namespace KiteConnect
         public string SchemeType { get; }
         public string Plan { get; }
         public string SettlementType { get; }
-        public string LastPriceDate { get; }
+        public DateTime? LastPriceDate { get; }
     }
 
     /// <summary>
