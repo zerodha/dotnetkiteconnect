@@ -97,7 +97,7 @@ once user goes out of app.
 */
 
 // Create a new Ticker instance
-Ticker ticker = new Ticker(MyAPIKey, MyUserId, MyAccessToken);
+Ticker ticker = new Ticker(MyAPIKey, MyAccessToken);
 
 // Add handlers to events
 ticker.OnTick += onTick;
