@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace KiteConnect
 {
@@ -279,14 +277,14 @@ namespace KiteConnect
                 OvernightQuantity = data["overnight_quantity"];
                 Exchange = data["exchange"];
                 SellValue = data["sell_value"];
-                BuyM2MValue = data["buy_m2m_value"];
+                BuyM2M = data["buy_m2m"];
                 LastPrice = data["last_price"];
                 TradingSymbol = data["tradingsymbol"];
                 Realised = data["realised"];
                 PNL = data["pnl"];
                 Multiplier = data["multiplier"];
                 SellQuantity = data["sell_quantity"];
-                SellM2MValue = data["sell_m2m_value"];
+                SellM2M = data["sell_m2m"];
                 BuyValue = data["buy_value"];
                 BuyQuantity = data["buy_quantity"];
                 AveragePrice = data["average_price"];
@@ -299,10 +297,10 @@ namespace KiteConnect
                 ClosePrice = data["close_price"];
                 Quantity = data["quantity"];
                 DayBuyQuantity = data["day_buy_quantity"];
-                // DayBuyValue = data["day_buy_value"];
+                DayBuyValue = data["day_buy_value"];
                 DayBuyPrice = data["day_buy_price"];
                 DaySellQuantity = data["day_sell_quantity"];
-                // DaySellValue = data["day_sell_value"];
+                DaySellValue = data["day_sell_value"];
                 DaySellPrice = data["day_sell_price"];
             }
             catch (Exception)
@@ -316,14 +314,14 @@ namespace KiteConnect
         public int OvernightQuantity { get; }
         public string Exchange { get; }
         public decimal SellValue { get; }
-        public decimal BuyM2MValue { get; }
+        public decimal BuyM2M { get; }
         public decimal LastPrice { get; }
         public string TradingSymbol { get; }
         public decimal Realised { get; }
         public decimal PNL { get; }
         public decimal Multiplier { get; }
         public int SellQuantity { get; }
-        public decimal SellM2MValue { get; }
+        public decimal SellM2M { get; }
         public decimal BuyValue { get; }
         public int BuyQuantity { get; }
         public decimal AveragePrice { get; }
@@ -337,10 +335,10 @@ namespace KiteConnect
         public int Quantity { get; }
         public int DayBuyQuantity { get; }
         public decimal DayBuyPrice { get; }
-        //public decimal DayBuyValue { get; }
+        public decimal DayBuyValue { get; }
         public int DaySellQuantity { get; }
         public decimal DaySellPrice { get; }
-        //public decimal DaySellValue { get; }
+        public decimal DaySellValue { get; }
     }
 
     /// <summary>
@@ -560,6 +558,7 @@ namespace KiteConnect
                 Products = (string[])data["data"]["products"].ToArray(typeof(string));
                 UserName = data["data"]["user_name"];
                 UserShortName = data["data"]["user_shortname"];
+                AvatarURL = data["data"]["avatar_url"];
                 Broker = data["data"]["broker"];
                 AccessToken = data["data"]["access_token"];
                 PublicToken = data["data"]["public_token"];
@@ -582,6 +581,7 @@ namespace KiteConnect
         public string[] Products { get; }
         public string UserName { get; }
         public string UserShortName { get; }
+        public string AvatarURL { get; }
         public string Broker { get; }
         public string AccessToken { get; }
         public string PublicToken { get; }
@@ -626,6 +626,7 @@ namespace KiteConnect
                 Products = (string[])data["data"]["products"].ToArray(typeof(string));
                 UserName = data["data"]["user_name"];
                 UserShortName = data["data"]["user_shortname"];
+                AvatarURL = data["data"]["avatar_url"];
                 Broker = data["data"]["broker"];
                 UserType = data["data"]["user_type"];
                 Exchanges = (string[])data["data"]["exchanges"].ToArray(typeof(string));
@@ -643,6 +644,7 @@ namespace KiteConnect
         public string[] Products { get; }
         public string UserName { get; }
         public string UserShortName { get; }
+        public string AvatarURL { get; }
         public string Broker { get; }
         public string UserType { get; }
         public string[] Exchanges { get; }

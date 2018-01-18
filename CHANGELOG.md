@@ -17,7 +17,7 @@ New APIs added:
 
 ### Changes in Ticker
 
-* Use Access Token to authenticate instead of Public Token
+* Use Access Token to authenticate instead of Public Token. User id is not required.
 
 ```csharp
 Ticker ticker = new Ticker(MyAPIKey, MyUserId, MyPublicToken);
@@ -26,7 +26,7 @@ Ticker ticker = new Ticker(MyAPIKey, MyUserId, MyPublicToken);
 becomes,
 
 ```csharp
-Ticker ticker = new Ticker(MyAPIKey, MyUserId, MyAccessToken);
+Ticker ticker = new Ticker(MyAPIKey, MyAccessToken);
 ```
 
 * Ticker now streams order updates
@@ -53,6 +53,7 @@ Ticker ticker = new Ticker(MyAPIKey, MyUserId, MyAccessToken);
 | Verion 2 | Version 3 |
 | :---: | :---: |
 | _ | APIKey |
+| _ | AvatarURL |
 | PasswordReset | _ |
 | MemberId | _ |
 | OrderType | OrderTypes |
@@ -84,8 +85,6 @@ Ticker ticker = new Ticker(MyAPIKey, MyUserId, MyAccessToken);
 | _ | DaySellPrice |
 | NetBuyAmountM2M | _ |
 | NetSellAmountM2M | _ |
-| BuyM2M | BuyM2MValue |
-| SellM2M | SellM2MValue |
 
 <!-- **Added**
 

@@ -338,7 +338,7 @@ namespace KiteConnectSample
 
         private static void initTicker()
         {
-            ticker = new Ticker(MyAPIKey, MyUserId, MyAccessToken);
+            ticker = new Ticker(MyAPIKey, MyAccessToken);
 
             ticker.OnTick += OnTick;
             ticker.OnReconnect += OnReconnect;

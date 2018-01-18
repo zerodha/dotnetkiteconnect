@@ -21,7 +21,6 @@ namespace KiteConnect
 
         // Configurations to create ticker connection
         private string _apiKey;
-        private string _userID;
         private string _accessToken;
         private string _socketUrl = "";
         private bool _isReconnect = false;
@@ -130,11 +129,10 @@ namespace KiteConnect
         /// <param name="Reconnect">Enables WebSocket autreconnect in case of network failure/disconnection.</param>
         /// <param name="ReconnectInterval">Interval (in seconds) between auto reconnection attemptes. Defaults to 5 seconds.</param>
         /// <param name="ReconnectTries">Maximum number reconnection attempts. Defaults to 50 attempts.</param>
-        public Ticker(string APIKey, string UserID, string AccessToken, string Root = null, bool Reconnect = false, int ReconnectInterval = 5, int ReconnectTries = 50, bool Debug = false)
+        public Ticker(string APIKey, string AccessToken, string Root = null, bool Reconnect = false, int ReconnectInterval = 5, int ReconnectTries = 50, bool Debug = false)
         {
             _debug = Debug;
             _apiKey = APIKey;
-            _userID = UserID;
             _accessToken = AccessToken;
             _subscribedTokens = new Dictionary<UInt32, string>();
             _interval = ReconnectInterval;
@@ -143,7 +141,7 @@ namespace KiteConnect
             if (!String.IsNullOrEmpty(Root))
                 _root = Root;
             _isReconnect = Reconnect;
-            _socketUrl = _root + String.Format("?api_key={0}&user_id={1}&access_token={2}", _apiKey, _userID, _accessToken);
+            _socketUrl = _root + String.Format("?api_key={0}&access_token={1}", _apiKey, _accessToken);
 
             // initialize websocket
             _ws = new WebSocket(_socketUrl);
