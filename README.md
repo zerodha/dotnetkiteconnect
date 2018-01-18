@@ -18,7 +18,7 @@ Kite Connect is a set of REST-like APIs that expose many capabilities required t
 ## Documentation
 
 - [Kite Connect HTTP API documentation](https://kite.trade/docs/connect/v3)
-- [.Net library documentation](https://kite.trade/docs/kiteconnectdotnet/)
+<!-- - [.Net library documentation](https://kite.trade/docs/kiteconnectdotnet/) -->
 
 ## Install Client Library
 
