@@ -1,3 +1,7 @@
+**NOTICE (Jan 2018): Upgrade to Kite Connect 3.0**
+
+This repository is being phased and will be replaced soon by Kite Connect v3. Use the [kite3](https://github.com/zerodhatech/dotnetkiteconnect/tree/kite3) branch instead. Read the [announcement](https://kite.trade/forum/discussion/2998/upgrade-to-kite-connect-3-0) on the forum.
+
 # The Kite Connect API .Net client
 The official .Net client for communicating with [Kite Connect API](https://kite.trade).
 
