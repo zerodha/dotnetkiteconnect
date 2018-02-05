@@ -687,11 +687,17 @@ namespace KiteConnect
                 Bids = new List<DepthItem>();
                 Offers = new List<DepthItem>();
 
-                foreach (Dictionary<string, dynamic> bid in data["depth"]["buy"])
-                    Bids.Add(new DepthItem(bid));
+                if(data["depth"]["buy"] != null)
+                {
+                    foreach (Dictionary<string, dynamic> bid in data["depth"]["buy"])
+                        Bids.Add(new DepthItem(bid));
+                }
 
-                foreach (Dictionary<string, dynamic> offer in data["depth"]["sell"])
-                    Offers.Add(new DepthItem(offer));
+                if (data["depth"]["sell"] != null)
+                {
+                    foreach (Dictionary<string, dynamic> offer in data["depth"]["sell"])
+                        Offers.Add(new DepthItem(offer));
+                }
             }
             catch (Exception)
             {
