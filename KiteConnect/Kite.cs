@@ -59,7 +59,7 @@ namespace KiteConnect
             ["market.ohlc"] = "/quote/ohlc",
             ["market.ltp"] = "/quote/ltp",
             ["market.historical"] = "/instruments/historical/{instrument_token}/{interval}",
-            ["market.trigger_range"] = "/instruments/{exchange}/{tradingsymbol}/trigger_range",
+            ["market.trigger_range"] = "/instruments/trigger_range/{transaction_type}",
 
             ["mutualfunds.orders"] = "/mf/orders",
             ["mutualfunds.order"] = "/mf/orders/{order_id}",
@@ -651,21 +651,23 @@ namespace KiteConnect
         /// <summary>
         /// Retrieve the buy/sell trigger range for Cover Orders.
         /// </summary>
-        /// <param name="Exchange">Name of the exchange</param>
-        /// <param name="TradingSymbol">Tradingsymbol of the instrument</param>
+        /// <param name="InstrumentId">Indentification of instrument in the form of EXCHANGE:TRADINGSYMBOL (eg: NSE:INFY) or InstrumentToken (eg: 408065)</param>
         /// <param name="TrasactionType">BUY or SELL</param>
-        /// <returns>Trigger range for given instrument for given transaction type.</returns>
-        public TrigerRange GetTriggerRange(string Exchange, string TradingSymbol, string TrasactionType)
+        /// <returns>List of trigger ranges for given instrument ids for given transaction type.</returns>
+        public Dictionary<string, TrigerRange> GetTriggerRange(string[] InstrumentId, string TrasactionType)
         {
             var param = new Dictionary<string, dynamic>();
 
-            param.Add("exchange", Exchange);
-            param.Add("tradingsymbol", TradingSymbol);
-            param.Add("transaction_type", TrasactionType);
+            param.Add("i", InstrumentId);
+            param.Add("transaction_type", TrasactionType.ToLower());
 
-            var triggerdata = Get("market.trigger_range", param);
+            var triggerdata = Get("market.trigger_range", param)["data"];
 
-            return new TrigerRange(triggerdata["data"]);
+            Dictionary<string, TrigerRange> triggerRanges = new Dictionary<string, TrigerRange>();
+            foreach (string item in triggerdata.Keys)
+                triggerRanges.Add(item, new TrigerRange(triggerdata[item]));
+
+            return triggerRanges;
         }
 
         #region MF Calls

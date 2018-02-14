@@ -530,9 +530,10 @@ namespace KiteConnect
         {
             try
             {
-                Start = data["start"];
-                End = data["end"];
-                Percent = data["percent"];
+                InstrumentToken = Convert.ToUInt32(data["instrument_token"]);
+                Lower = data["lower"];
+                Upper = data["upper"];
+                Percentage = data["percentage"];
             }
             catch (Exception)
             {
@@ -540,9 +541,10 @@ namespace KiteConnect
             }
 
         }
-        public decimal Start { get; }
-        public decimal End { get; }
-        public decimal Percent { get; }
+        public UInt32 InstrumentToken { get; }
+        public decimal Lower { get; }
+        public decimal Upper { get; }
+        public decimal Percentage { get; }
     }
 
     /// <summary>

@@ -89,9 +89,8 @@ namespace KiteConnectSample
 
             // Trigger Range
 
-            TrigerRange triggerRange = kite.GetTriggerRange(
-                Exchange: Constants.EXCHANGE_NSE,
-                TradingSymbol: "INFY",
+            Dictionary <string, TrigerRange> triggerRange = kite.GetTriggerRange(
+                InstrumentId: new string[] { "NSE:ASHOKLEY" },
                 TrasactionType: Constants.TRANSACTION_TYPE_BUY
             );
             Console.WriteLine(Utils.JsonSerialize(triggerRange));
