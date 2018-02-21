@@ -97,12 +97,23 @@ namespace KiteConnect
             try
             {
                //Callback for receiving data
-
                callback = t =>
                 {
                     try
                     {
-                        OnData?.Invoke(buffer, t.Result.Count, t.Result.MessageType);
+                        byte[] tempBuff = new byte[_bufferLength];
+                        int offset = t.Result.Count;
+                        bool endOfMessage = t.Result.EndOfMessage;
+                        // if chunk has even more data yet to recieve do that synchronously
+                        while (!endOfMessage)
+                        {
+                            WebSocketReceiveResult result = _ws.ReceiveAsync(new ArraySegment<byte>(tempBuff), CancellationToken.None).Result;
+                            Array.Copy(tempBuff, 0, buffer, offset, result.Count);
+                            offset += result.Count;
+                            endOfMessage = result.EndOfMessage;
+                        }
+                        // send data to process
+                        OnData?.Invoke(buffer, offset, t.Result.MessageType);
                         // Again try to receive data
                         _ws.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None).ContinueWith(callback);
                     }catch(Exception e)
