@@ -10,6 +10,7 @@ New APIs added:
 * GetQuote
 * GetOHLC
 * GetLTP
+* GetTriggerRange
 * GetHistoricalData with timestamps
 * GetProfile
 * InvalidateRefreshToken
@@ -130,6 +131,15 @@ Ticker ticker = new Ticker(MyAPIKey, MyAccessToken);
 
 **Changes**
 * LastTime &rarr; LastTradeTime -->
+
+### Changes in TriggerRange structure
+
+| Verion 3.0.0 Beta 1 | Version 3.0.0 Beta 2 |
+| :---: | :---: |
+| _ | InstrumentToken |
+| Start | Lower |
+| End | Upper |
+| Percent | Percentage |
 
 ### Changes in Tick structure
 
