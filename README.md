@@ -22,7 +22,7 @@ Kite Connect is a set of REST-like APIs that expose many capabilities required t
 
 ## Install Client Library
 
-<!--
+
 ### Using NuGet
 
 Execute in **Tools** &raquo; **NuGet Package Manager** &raquo; **Package Manager Console**
@@ -35,7 +35,7 @@ Install-Package Tech.Zerodha.KiteConnect
 ```
 dotnet add package Tech.Zerodha.KiteConnect
 ```
--->
+
 ### Manual Install
 
 - Download [KiteConnect 3.0.0 beta2](https://github.com/zerodhatech/dotnetkiteconnect/releases/tag/3.0.0beta2) dll
