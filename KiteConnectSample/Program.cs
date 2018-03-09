@@ -337,7 +337,7 @@ namespace KiteConnectSample
 
         private static void initTicker()
         {
-            ticker = new Ticker(MyAPIKey, MyAccessToken);
+            ticker = new Ticker(MyAPIKey, MyAccessToken, CustomWebSocket: new Win7WebSocket());
 
             ticker.OnTick += OnTick;
             ticker.OnReconnect += OnReconnect;
