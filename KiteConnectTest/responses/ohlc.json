@@ -1,0 +1,25 @@
+﻿{
+  "status": "success",
+  "data": {
+    "408065": {
+      "instrument_token": 408065,
+      "last_price": 966.8,
+      "ohlc": {
+        "open": 966.6,
+        "high": 971.05,
+        "low": 964.25,
+        "close": 966.25
+      }
+    },
+    "NSE:INFY": {
+      "instrument_token": 408065,
+      "last_price": 966.8,
+      "ohlc": {
+        "open": 966.6,
+        "high": 971.05,
+        "low": 964.25,
+        "close": 966.25
+      }
+    }
+  }
+}

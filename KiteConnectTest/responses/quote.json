@@ -1,0 +1,82 @@
+﻿{
+  "status": "success",
+  "data": {
+    "NSE:INFY": {
+      "instrument_token": 408065,
+      "timestamp": "2018-01-09 11:36:09",
+      "last_price": 1034.25,
+      "last_quantity": 2,
+      "last_trade_time": "2018-01-09 11:36:08",
+      "average_price": 1034.35,
+      "volume": 2556476,
+      "buy_quantity": 224230,
+      "sell_quantity": 335291,
+      "ohlc": {
+        "open": 1040,
+        "high": 1041.95,
+        "low": 1028.9,
+        "close": 1036.05
+      },
+      "net_change": 0,
+      "oi": 0,
+      "oi_day_high": 0,
+      "oi_day_low": 0,
+      "depth": {
+        "buy": [
+          {
+            "price": 1034.1,
+            "quantity": 42,
+            "orders": 5
+          },
+          {
+            "price": 1034.05,
+            "quantity": 6,
+            "orders": 4
+          },
+          {
+            "price": 1034,
+            "quantity": 115,
+            "orders": 10
+          },
+          {
+            "price": 1033.85,
+            "quantity": 99,
+            "orders": 1
+          },
+          {
+            "price": 1033.8,
+            "quantity": 353,
+            "orders": 1
+          }
+        ],
+        "sell": [
+          {
+            "price": 1034.35,
+            "quantity": 644,
+            "orders": 7
+          },
+          {
+            "price": 1034.4,
+            "quantity": 1703,
+            "orders": 5
+          },
+          {
+            "price": 1034.45,
+            "quantity": 31,
+            "orders": 2
+          },
+          {
+            "price": 1034.5,
+            "quantity": 415,
+            "orders": 5
+          },
+          {
+            "price": 1034.55,
+            "quantity": 712,
+            "orders": 4
+          }
+        ]
+      }
+    }
+  }
+}

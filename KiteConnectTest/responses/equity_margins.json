@@ -1,0 +1,24 @@
+﻿{
+  "status": "success",
+  "data": {
+    "enabled": true,
+    "net": 1812.3535,
+    "available": {
+      "adhoc_margin": 0,
+      "cash": 1927.505,
+      "collateral": 0,
+      "intraday_payin": 0
+    },
+    "utilised": {
+      "debits": 115.1515,
+      "exposure": 0,
+      "m2m_realised": 0,
+      "m2m_unrealised": 0,
+      "option_premium": 0,
+      "payout": 0,
+      "span": 0,
+      "holding_sales": 0,
+      "turnover": 0
+    }
+  }
+}

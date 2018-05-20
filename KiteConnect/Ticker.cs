@@ -17,12 +17,11 @@ namespace KiteConnect
         private bool _debug = false;
 
         // Root domain for ticker. Can be changed with Root parameter in the constructor.
-        private string _root = "wss://websocket.kite.trade/";
+        private string _root = "wss://ws.kite.trade/";
 
         // Configurations to create ticker connection
         private string _apiKey;
-        private string _userID;
-        private string _publicToken;
+        private string _accessToken;
         private string _socketUrl = "";
         private bool _isReconnect = false;
         private int _interval = 5;
@@ -37,7 +36,7 @@ namespace KiteConnect
         private WebSocket _ws;
 
         // Dictionary that keeps instrument_token -> mode data
-        private Dictionary<string, string> _subscribedTokens;
+        private Dictionary<UInt32, string> _subscribedTokens;
 
         // Delegates for callbacks
 
@@ -56,6 +55,12 @@ namespace KiteConnect
         /// </summary>
         /// <param name="TickData">Tick data</param>
         public delegate void OnTickHandler(Tick TickData);
+
+        /// <summary>
+        /// Delegate for OnOrderUpdate event
+        /// </summary>
+        /// <param name="OrderData">Order data</param>
+        public delegate void OnOrderUpdateHandler(Order OrderData);
 
         /// <summary>
         /// Delegate for OnError event
@@ -90,6 +95,11 @@ namespace KiteConnect
         public event OnTickHandler OnTick;
 
         /// <summary>
+        /// Event triggered when ticker receives an order update
+        /// </summary>
+        public event OnOrderUpdateHandler OnOrderUpdate;
+
+        /// <summary>
         /// Event triggered when ticker encounters an error
         /// </summary>
         public event OnErrorHandler OnError;
@@ -109,7 +119,7 @@ namespace KiteConnect
         /// </summary>
         /// <param name="APIKey">API key issued to you</param>
         /// <param name="UserID">Zerodha client id of the authenticated user</param>
-        /// <param name="PublicToken">Token obtained after the login flow in 
+        /// <param name="AccessToken">Token obtained after the login flow in 
         /// exchange for the `request_token`.Pre-login, this will default to None,
         /// but once you have obtained it, you should
         /// persist it in a database or session to pass
@@ -119,19 +129,19 @@ namespace KiteConnect
         /// <param name="Reconnect">Enables WebSocket autreconnect in case of network failure/disconnection.</param>
         /// <param name="ReconnectInterval">Interval (in seconds) between auto reconnection attemptes. Defaults to 5 seconds.</param>
         /// <param name="ReconnectTries">Maximum number reconnection attempts. Defaults to 50 attempts.</param>
-        public Ticker(string APIKey, string UserID, string PublicToken, string Root = null, bool Reconnect = false, int ReconnectInterval = 5, int ReconnectTries = 50)
+        public Ticker(string APIKey, string AccessToken, string Root = null, bool Reconnect = false, int ReconnectInterval = 5, int ReconnectTries = 50, bool Debug = false)
         {
+            _debug = Debug;
             _apiKey = APIKey;
-            _userID = UserID;
-            _publicToken = PublicToken;
-            _subscribedTokens = new Dictionary<string, string>();
+            _accessToken = AccessToken;
+            _subscribedTokens = new Dictionary<UInt32, string>();
             _interval = ReconnectInterval;
             _timerTick = ReconnectInterval;
             _retries = ReconnectTries;
             if (!String.IsNullOrEmpty(Root))
                 _root = Root;
             _isReconnect = Reconnect;
-            _socketUrl = _root + String.Format("?api_key={0}&user_id={1}&public_token={2}", _apiKey, _userID, _publicToken);
+            _socketUrl = _root + String.Format("?api_key={0}&access_token={1}", _apiKey, _accessToken);
 
             // initialize websocket
             _ws = new WebSocket(_socketUrl);
@@ -185,7 +195,7 @@ namespace KiteConnect
         private Tick ReadLTP(byte[] b, ref int offset)
         {
             Tick tick = new Tick();
-            tick.Mode = "ltp";
+            tick.Mode = Constants.MODE_LTP;
             tick.InstrumentToken = ReadInt(b, ref offset);
 
             decimal divisor = (tick.InstrumentToken & 0xff) == 3 ? 10000000.0m : 100.0m;
@@ -198,10 +208,10 @@ namespace KiteConnect
         /// <summary>
         /// Reads a index's quote mode tick from raw binary data
         /// </summary>
-        private Tick ReadIndex(byte[] b, ref int offset)
+        private Tick ReadIndexQuote(byte[] b, ref int offset)
         {
             Tick tick = new Tick();
-            tick.Mode = "quote";
+            tick.Mode = Constants.MODE_QUOTE;
             tick.InstrumentToken = ReadInt(b, ref offset);
 
             decimal divisor = (tick.InstrumentToken & 0xff) == 3 ? 10000000.0m : 100.0m;
@@ -216,13 +226,33 @@ namespace KiteConnect
             return tick;
         }
 
+        private Tick ReadIndexFull(byte[] b, ref int offset)
+        {
+            Tick tick = new Tick();
+            tick.Mode = Constants.MODE_FULL;
+            tick.InstrumentToken = ReadInt(b, ref offset);
+
+            decimal divisor = (tick.InstrumentToken & 0xff) == 3 ? 10000000.0m : 100.0m;
+
+            tick.Tradable = (tick.InstrumentToken & 0xff) != 9;
+            tick.LastPrice = ReadInt(b, ref offset) / divisor;
+            tick.High = ReadInt(b, ref offset) / divisor;
+            tick.Low = ReadInt(b, ref offset) / divisor;
+            tick.Open = ReadInt(b, ref offset) / divisor;
+            tick.Close = ReadInt(b, ref offset) / divisor;
+            tick.Change = ReadInt(b, ref offset) / divisor;
+            uint time = ReadInt(b, ref offset);
+            tick.Timestamp = Utils.UnixToDateTime(time);
+            return tick;
+        }
+
         /// <summary>
         /// Reads a quote mode tick from raw binary data
         /// </summary>
         private Tick ReadQuote(byte[] b, ref int offset)
         {
             Tick tick = new Tick();
-            tick.Mode = "quote";
+            tick.Mode = Constants.MODE_QUOTE;
             tick.InstrumentToken = ReadInt(b, ref offset);
 
             decimal divisor = (tick.InstrumentToken & 0xff) == 3 ? 10000000.0m : 100.0m;
@@ -248,7 +278,7 @@ namespace KiteConnect
         private Tick ReadFull(byte[] b, ref int offset)
         {
             Tick tick = new Tick();
-            tick.Mode = "full";
+            tick.Mode = Constants.MODE_FULL;
             tick.InstrumentToken = ReadInt(b, ref offset);
 
             decimal divisor = (tick.InstrumentToken & 0xff) == 3 ? 10000000.0m : 100.0m;
@@ -264,6 +294,14 @@ namespace KiteConnect
             tick.High = ReadInt(b, ref offset) / divisor;
             tick.Low = ReadInt(b, ref offset) / divisor;
             tick.Close = ReadInt(b, ref offset) / divisor;
+
+            // KiteConnect 3 fields
+            tick.LastTradeTime = Utils.UnixToDateTime(ReadInt(b, ref offset));
+            tick.OI = ReadInt(b, ref offset);
+            tick.OIDayHigh = ReadInt(b, ref offset);
+            tick.OIDayLow = ReadInt(b, ref offset);
+            tick.Timestamp = Utils.UnixToDateTime(ReadInt(b, ref offset));
+
 
             tick.Bids = new DepthItem[5];
             for (int i = 0; i < 5; i++)
@@ -291,43 +329,55 @@ namespace KiteConnect
             if (MessageType == WebSocketMessageType.Binary)
             {
                 if (Count == 1)
-                {                    
+                {
                     if (_debug) Console.WriteLine(DateTime.Now.ToLocalTime() + " Heartbeat");
                 }
                 else
                 {
                     int offset = 0;
                     ushort count = ReadShort(Data, ref offset); //number of packets
-                    if(_debug) Console.WriteLine("No of packets: " + count);
+                    if (_debug) Console.WriteLine("No of packets: " + count);
                     if (_debug) Console.WriteLine("No of bytes: " + Count);
 
                     for (ushort i = 0; i < count; i++)
-                    {                         
+                    {
                         ushort length = ReadShort(Data, ref offset); // length of the packet
                         if (_debug) Console.WriteLine("Packet Length " + length);
                         Tick tick = new Tick();
                         if (length == 8) // ltp
                             tick = ReadLTP(Data, ref offset);
                         else if (length == 28) // index quote
-                            tick = ReadIndex(Data, ref offset);
+                            tick = ReadIndexQuote(Data, ref offset);
+                        else if (length == 32) // index quote
+                            tick = ReadIndexFull(Data, ref offset);
                         else if (length == 44) // quote
                             tick = ReadQuote(Data, ref offset);
-                        else if (length == 164) // marketdepth
+                        else if (length == 184) // full with marketdepth and timestamp
                             tick = ReadFull(Data, ref offset);
                         // If the number of bytes got from stream is less that that is required
                         // data is invalid. This will skip that wrong tick
-                        if(tick.InstrumentToken != 0 && IsConnected && offset <= Count)
+                        if (tick.InstrumentToken != 0 && IsConnected && offset <= Count)
                         {
                             OnTick(tick);
                         }
                     }
                 }
             }
-            else if(MessageType == WebSocketMessageType.Text)
+            else if (MessageType == WebSocketMessageType.Text)
             {
-                if (_debug) Console.WriteLine("WS Message: " + (Encoding.UTF8.GetString(Data.Take(Count).ToArray())));
+                string message = Encoding.UTF8.GetString(Data.Take(Count).ToArray());
+                if (_debug) Console.WriteLine("WebSocket Message: " + message);
+
+                Dictionary<string, dynamic> messageDict = Utils.JsonDeserialize(message);
+                if(messageDict["type"] == "order")
+                {
+                    OnOrderUpdate?.Invoke(new Order(messageDict["data"]));
+                } else if (messageDict["type"] == "error")
+                {
+                    OnError?.Invoke(messageDict["data"]);
+                }
             }
-            else if(MessageType == WebSocketMessageType.Close)
+            else if (MessageType == WebSocketMessageType.Close)
             {
                 Close();
             }
@@ -346,7 +396,7 @@ namespace KiteConnect
             }
             if (_debug) Console.WriteLine(_timerTick);
         }
-        
+
         private void _onConnect()
         {
             // Reset timer and retry counts and resubscribe to tokens.
@@ -371,12 +421,14 @@ namespace KiteConnect
         /// </summary>
         public void Connect()
         {
-            if (!IsConnected)
-                _ws.Connect();
             _timerTick = _interval;
             _timer.Start();
+            if (!IsConnected)
+            {
+                _ws.Connect(new Dictionary<string, string>() { ["X-Kite-Version"] = "3" });
+            }
         }
-    
+
         /// <summary>
         /// Close a WebSocket connection
         /// </summary>
@@ -406,7 +458,8 @@ namespace KiteConnect
                 _retryCount += 1;
                 _ws.Close(true);
                 Connect();
-                _timerTick = _interval;
+                _timerTick = (int)Math.Min(Math.Pow(2, _retryCount) * _interval, 60);
+                if (_debug) Console.WriteLine("New interval " + _timerTick);
                 _timer.Start();
             }
         }
@@ -415,14 +468,14 @@ namespace KiteConnect
         /// Subscribe to a list of instrument_tokens.
         /// </summary>
         /// <param name="Tokens">List of instrument instrument_tokens to subscribe</param>
-        public void Subscribe(string[] Tokens)
+        public void Subscribe(UInt32[] Tokens)
         {
             string msg = "{\"a\":\"subscribe\",\"v\":[" + String.Join(",", Tokens) + "]}";
-            if (_debug) Console.WriteLine(msg);
+            if (_debug) Console.WriteLine(msg.Length);
 
             if (IsConnected)
                 _ws.Send(msg);
-            foreach (string token in Tokens)
+            foreach (UInt32 token in Tokens)
                 if (!_subscribedTokens.ContainsKey(token))
                     _subscribedTokens.Add(token, "quote");
         }
@@ -431,14 +484,14 @@ namespace KiteConnect
         /// Unsubscribe the given list of instrument_tokens.
         /// </summary>
         /// <param name="Tokens">List of instrument instrument_tokens to unsubscribe</param>
-        public void UnSubscribe(string[] Tokens)
+        public void UnSubscribe(UInt32[] Tokens)
         {
             string msg = "{\"a\":\"unsubscribe\",\"v\":[" + String.Join(",", Tokens) + "]}";
             if (_debug) Console.WriteLine(msg);
 
             if (IsConnected)
                 _ws.Send(msg);
-            foreach (string token in Tokens)
+            foreach (UInt32 token in Tokens)
                 if (_subscribedTokens.ContainsKey(token))
                     _subscribedTokens.Remove(token);
         }
@@ -448,12 +501,14 @@ namespace KiteConnect
         /// </summary>
         /// <param name="Tokens">List of instrument tokens on which the mode should be applied</param>
         /// <param name="Mode">Mode to set. It can be one of the following: ltp, quote, full.</param>
-        public void SetMode(string[] Tokens, string Mode)
+        public void SetMode(UInt32[] Tokens, string Mode)
         {
             string msg = "{\"a\":\"mode\",\"v\":[\"" + Mode + "\", [" + String.Join(",", Tokens) + "]]}";
+            if (_debug) Console.WriteLine(msg);
+
             if (IsConnected)
                 _ws.Send(msg);
-            foreach (string token in Tokens)
+            foreach (UInt32 token in Tokens)
                 if (_subscribedTokens.ContainsKey(token))
                     _subscribedTokens[token] = Mode;
         }
@@ -464,11 +519,11 @@ namespace KiteConnect
         public void ReSubscribe()
         {
             if (_debug) Console.WriteLine("Resubscribing");
-            string[] all_tokens = _subscribedTokens.Keys.ToArray();
+            UInt32[] all_tokens = _subscribedTokens.Keys.ToArray();
 
-            string[] ltp_tokens = all_tokens.Where(key => _subscribedTokens[key] == "ltp").ToArray();
-            string[] quote_tokens = all_tokens.Where(key => _subscribedTokens[key] == "quote").ToArray();
-            string[] full_tokens = all_tokens.Where(key => _subscribedTokens[key] == "full").ToArray();
+            UInt32[] ltp_tokens = all_tokens.Where(key => _subscribedTokens[key] == "ltp").ToArray();
+            UInt32[] quote_tokens = all_tokens.Where(key => _subscribedTokens[key] == "quote").ToArray();
+            UInt32[] full_tokens = all_tokens.Where(key => _subscribedTokens[key] == "full").ToArray();
 
             UnSubscribe(all_tokens);
             Subscribe(all_tokens);
@@ -486,7 +541,7 @@ namespace KiteConnect
         public void EnableReconnect(int Interval = 5, int Retries = 50)
         {
             _isReconnect = true;
-            _interval = Interval;
+            _interval = Math.Max(Interval, 5);
             _retries = Retries;
 
             _timerTick = _interval;
