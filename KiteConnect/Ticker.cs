@@ -470,6 +470,8 @@ namespace KiteConnect
         /// <param name="Tokens">List of instrument instrument_tokens to subscribe</param>
         public void Subscribe(UInt32[] Tokens)
         {
+            if (Tokens.Length == 0) return;
+
             string msg = "{\"a\":\"subscribe\",\"v\":[" + String.Join(",", Tokens) + "]}";
             if (_debug) Console.WriteLine(msg.Length);
 
@@ -486,6 +488,8 @@ namespace KiteConnect
         /// <param name="Tokens">List of instrument instrument_tokens to unsubscribe</param>
         public void UnSubscribe(UInt32[] Tokens)
         {
+            if (Tokens.Length == 0) return;
+
             string msg = "{\"a\":\"unsubscribe\",\"v\":[" + String.Join(",", Tokens) + "]}";
             if (_debug) Console.WriteLine(msg);
 
@@ -503,6 +507,8 @@ namespace KiteConnect
         /// <param name="Mode">Mode to set. It can be one of the following: ltp, quote, full.</param>
         public void SetMode(UInt32[] Tokens, string Mode)
         {
+            if (Tokens.Length == 0) return;
+
             string msg = "{\"a\":\"mode\",\"v\":[\"" + Mode + "\", [" + String.Join(",", Tokens) + "]]}";
             if (_debug) Console.WriteLine(msg);
 
