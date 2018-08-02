@@ -666,39 +666,62 @@ namespace KiteConnect
                 InstrumentToken = Convert.ToUInt32(data["instrument_token"]);
                 Timestamp = Utils.StringToDate(data["timestamp"]);
                 LastPrice = data["last_price"];
-                LastQuantity = Convert.ToUInt32(data["last_quantity"]);
-                LastTradeTime = Utils.StringToDate(data["last_trade_time"]);
-                AveragePrice = data["average_price"];
-                Volume = Convert.ToUInt32(data["volume"]);
 
-                BuyQuantity = Convert.ToUInt32(data["buy_quantity"]);
-                SellQuantity = Convert.ToUInt32(data["sell_quantity"]);
+                Change = data["net_change"];
 
                 Open = data["ohlc"]["open"];
                 Close = data["ohlc"]["close"];
                 Low = data["ohlc"]["low"];
                 High = data["ohlc"]["high"];
 
-                Change = data["net_change"];
-                
-                OI = Convert.ToUInt32(data["oi"]);
-                
-                OIDayHigh = Convert.ToUInt32(data["oi_day_high"]);
-                OIDayLow = Convert.ToUInt32(data["oi_day_low"]);
-
-                Bids = new List<DepthItem>();
-                Offers = new List<DepthItem>();
-
-                if(data["depth"]["buy"] != null)
+                if (data.ContainsKey("last_quantity"))
                 {
-                    foreach (Dictionary<string, dynamic> bid in data["depth"]["buy"])
-                        Bids.Add(new DepthItem(bid));
-                }
+                    // Non index quote
+                    LastQuantity = Convert.ToUInt32(data["last_quantity"]);
+                    LastTradeTime = Utils.StringToDate(data["last_trade_time"]);
+                    AveragePrice = data["average_price"];
+                    Volume = Convert.ToUInt32(data["volume"]);
 
-                if (data["depth"]["sell"] != null)
+                    BuyQuantity = Convert.ToUInt32(data["buy_quantity"]);
+                    SellQuantity = Convert.ToUInt32(data["sell_quantity"]);
+
+                    OI = Convert.ToUInt32(data["oi"]);
+
+                    OIDayHigh = Convert.ToUInt32(data["oi_day_high"]);
+                    OIDayLow = Convert.ToUInt32(data["oi_day_low"]);
+
+                    Bids = new List<DepthItem>();
+                    Offers = new List<DepthItem>();
+
+                    if (data["depth"]["buy"] != null)
+                    {
+                        foreach (Dictionary<string, dynamic> bid in data["depth"]["buy"])
+                            Bids.Add(new DepthItem(bid));
+                    }
+
+                    if (data["depth"]["sell"] != null)
+                    {
+                        foreach (Dictionary<string, dynamic> offer in data["depth"]["sell"])
+                            Offers.Add(new DepthItem(offer));
+                    }
+                } else
                 {
-                    foreach (Dictionary<string, dynamic> offer in data["depth"]["sell"])
-                        Offers.Add(new DepthItem(offer));
+                    // Index quote
+                    LastQuantity = 0;
+                    LastTradeTime = null;
+                    AveragePrice = 0;
+                    Volume = 0;
+
+                    BuyQuantity = 0;
+                    SellQuantity = 0;
+
+                    OI = 0;
+
+                    OIDayHigh = 0;
+                    OIDayLow = 0;
+
+                    Bids = new List<DepthItem>();
+                    Offers = new List<DepthItem>();
                 }
             }
             catch (Exception)
