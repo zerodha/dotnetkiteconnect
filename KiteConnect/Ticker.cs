@@ -33,7 +33,7 @@ namespace KiteConnect
         int _timerTick = 5;
 
         // Instance of WebSocket class that wraps .Net version
-        private WebSocket _ws;
+        private IWebSocket _ws;
 
         // Dictionary that keeps instrument_token -> mode data
         private Dictionary<UInt32, string> _subscribedTokens;
@@ -129,7 +129,7 @@ namespace KiteConnect
         /// <param name="Reconnect">Enables WebSocket autreconnect in case of network failure/disconnection.</param>
         /// <param name="ReconnectInterval">Interval (in seconds) between auto reconnection attemptes. Defaults to 5 seconds.</param>
         /// <param name="ReconnectTries">Maximum number reconnection attempts. Defaults to 50 attempts.</param>
-        public Ticker(string APIKey, string AccessToken, string Root = null, bool Reconnect = false, int ReconnectInterval = 5, int ReconnectTries = 50, bool Debug = false)
+        public Ticker(string APIKey, string AccessToken, string Root = null, bool Reconnect = false, int ReconnectInterval = 5, int ReconnectTries = 50, bool Debug = false, IWebSocket CustomWebSocket = null)
         {
             _debug = Debug;
             _apiKey = APIKey;
@@ -144,7 +144,15 @@ namespace KiteConnect
             _socketUrl = _root + String.Format("?api_key={0}&access_token={1}", _apiKey, _accessToken);
 
             // initialize websocket
-            _ws = new WebSocket(_socketUrl);
+            if (CustomWebSocket != null)
+            {
+                _ws = CustomWebSocket;
+            }
+            else
+            {
+                _ws = new WebSocket();
+            }
+
             _ws.OnConnect += _onConnect;
             _ws.OnData += _onData;
             _ws.OnClose += _onClose;
@@ -323,10 +331,10 @@ namespace KiteConnect
             return tick;
         }
 
-        private void _onData(byte[] Data, int Count, WebSocketMessageType MessageType)
+        private void _onData(byte[] Data, int Count, string MessageType)
         {
             _timerTick = _interval;
-            if (MessageType == WebSocketMessageType.Binary)
+            if (MessageType == "Binary")
             {
                 if (Count == 1)
                 {
@@ -363,7 +371,7 @@ namespace KiteConnect
                     }
                 }
             }
-            else if (MessageType == WebSocketMessageType.Text)
+            else if (MessageType == "Text")
             {
                 string message = Encoding.UTF8.GetString(Data.Take(Count).ToArray());
                 if (_debug) Console.WriteLine("WebSocket Message: " + message);
@@ -377,7 +385,7 @@ namespace KiteConnect
                     OnError?.Invoke(messageDict["data"]);
                 }
             }
-            else if (MessageType == WebSocketMessageType.Close)
+            else if (MessageType == "Close")
             {
                 Close();
             }
@@ -425,7 +433,7 @@ namespace KiteConnect
             _timer.Start();
             if (!IsConnected)
             {
-                _ws.Connect(new Dictionary<string, string>() { ["X-Kite-Version"] = "3" });
+                _ws.Connect(_socketUrl, new Dictionary<string, string>() { ["X-Kite-Version"] = "3" });
             }
         }
 

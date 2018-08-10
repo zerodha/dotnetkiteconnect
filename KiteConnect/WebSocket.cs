@@ -9,21 +9,21 @@ using System.Net;
 
 namespace KiteConnect
 {
+    // Delegates for events
+    public delegate void OnConnectHandler();
+    public delegate void OnCloseHandler();
+    public delegate void OnErrorHandler(string Message);
+    public delegate void OnDataHandler(byte[] Data, int Count, string MessageType);
+
     /// <summary>
     /// A wrapper for .Net's ClientWebSocket with callbacks
     /// </summary>
-    internal class WebSocket
+    internal class WebSocket : IWebSocket
     {
         // Instance of built in ClientWebSocket
         ClientWebSocket _ws;
         string _url;
         int _bufferLength; // Length of buffer to keep binary chunk
-
-        // Delegates for events
-        public delegate void OnConnectHandler();
-        public delegate void OnCloseHandler();
-        public delegate void OnErrorHandler(string Message);
-        public delegate void OnDataHandler(byte[] Data, int Count, WebSocketMessageType MessageType);
 
         // Events that can be subscribed
         public event OnConnectHandler OnConnect;
@@ -36,9 +36,8 @@ namespace KiteConnect
         /// </summary>
         /// <param name="Url">Url to the WebSocket.</param>
         /// <param name="BufferLength">Size of buffer to keep byte stream chunk.</param>
-        public WebSocket(string Url, int BufferLength = 2000000)
-        {
-            _url = Url;
+        public WebSocket(int BufferLength = 2000000)
+        {            
             _bufferLength = BufferLength;
         }
 
@@ -57,8 +56,9 @@ namespace KiteConnect
         /// <summary>
         /// Connect to WebSocket
         /// </summary>
-        public void Connect(Dictionary<string, string> headers = null)
+        public void Connect(string Url, Dictionary<string, string> headers = null)
         {
+            _url = Url;
             try
             {
                 // Initialize ClientWebSocket instance and connect with Url
@@ -113,7 +113,7 @@ namespace KiteConnect
                             endOfMessage = result.EndOfMessage;
                         }
                         // send data to process
-                        OnData?.Invoke(buffer, offset, t.Result.MessageType);
+                        OnData?.Invoke(buffer, offset, t.Result.MessageType.ToString());
                         // Again try to receive data
                         _ws.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None).ContinueWith(callback);
                     }catch(Exception e)
