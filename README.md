@@ -131,4 +131,4 @@ private static void OnOrderUpdate(Order OrderData)
 ticker.Close();
 ```
 
-For more details about different mode of quotes and subscribing for them, take a look at **KiteConnect Sample** project in this repository and [Kite Connect HTTP API documentation](https://kite.trade/docs/connect/v1).
+For more details about different mode of quotes and subscribing for them, take a look at **KiteConnect Sample** project in this repository and [Kite Connect HTTP API documentation](https://kite.trade/docs/connect/v3).
