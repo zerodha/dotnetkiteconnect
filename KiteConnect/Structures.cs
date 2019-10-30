@@ -481,7 +481,7 @@ namespace KiteConnect
         {
             try
             {
-                RejectionReason = data.ContainsKey("rejection_reason") ? data["rejection_reason"] : "";
+                RejectionReason = data != null && data.ContainsKey("rejection_reason") ? data["rejection_reason"] : "";
             }
             catch (Exception e)
             {
