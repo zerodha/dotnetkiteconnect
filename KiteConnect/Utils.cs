@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -29,7 +30,7 @@ namespace KiteConnect
                 {
                     return DateTime.ParseExact(DateString, "yyyy-MM-dd HH:mm:ss", null);
                 }
-            }catch (Exception e)
+            }catch (Exception)
             {
                 return null;
             }
@@ -165,6 +166,16 @@ namespace KiteConnect
             DateTime dateTime = new DateTime(1970, 1, 1, 5, 30, 0, 0, DateTimeKind.Unspecified);
             dateTime = dateTime.AddSeconds(unixTimeStamp);
             return dateTime;
+        }
+
+        public static List<decimal> ToDecimalList(ArrayList arrayList)
+        {
+            var res = new List<decimal>();
+            foreach(var i in arrayList)
+            {
+                res.Add(Convert.ToDecimal(i));
+            }
+            return res;
         }
     }
 }
