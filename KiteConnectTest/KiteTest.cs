@@ -28,6 +28,7 @@ namespace KiteConnectTest
             Kite kite = new Kite("apikey", Root: "http://localhost:8080");
             Profile profile = kite.GetProfile();
             Assert.AreEqual(profile.Email, "xxxyyy@gmail.com");
+            ms.Stop();
         }
 
         [TestMethod]
@@ -39,6 +40,7 @@ namespace KiteConnectTest
             PositionResponse positionResponse = kite.GetPositions();
             Assert.AreEqual(positionResponse.Net[0].TradingSymbol, "LEADMINI17DECFUT");
             Assert.AreEqual(positionResponse.Day[0].TradingSymbol, "GOLDGUINEA17DECFUT");
+            ms.Stop();
         }
 
         [TestMethod]
@@ -49,6 +51,7 @@ namespace KiteConnectTest
             Kite kite = new Kite("apikey", Root: "http://localhost:8080");
             List<Holding> holdings = kite.GetHoldings();
             Assert.AreEqual(holdings.Count, 1);
+            ms.Stop();
         }
 
         [TestMethod]
@@ -61,6 +64,7 @@ namespace KiteConnectTest
 
             Assert.AreEqual(margins.Equity.Net, (decimal)1697.7);
             Assert.AreEqual(margins.Commodity.Net, (decimal)-8676.296);
+            ms.Stop();
         }
 
         [TestMethod]
@@ -72,6 +76,7 @@ namespace KiteConnectTest
             UserMargin margin = kite.GetMargins("equity");
 
             Assert.AreEqual(margin.Net, (decimal)1812.3535);
+            ms.Stop();
         }
 
         [TestMethod]
@@ -83,6 +88,7 @@ namespace KiteConnectTest
             UserMargin margin = kite.GetMargins("commodity");
 
             Assert.AreEqual(margin.Net, (decimal)1812.3535);
+            ms.Stop();
         }
 
         [TestMethod]
@@ -94,6 +100,7 @@ namespace KiteConnectTest
             Dictionary<string, OHLC> ohlcs = kite.GetOHLC(new string[] { "408065", "NSE:INFY" });
 
             Assert.AreEqual(ohlcs["408065"].LastPrice, (decimal)966.8);
+            ms.Stop();
         }
 
         [TestMethod]
@@ -105,6 +112,7 @@ namespace KiteConnectTest
             Dictionary<string, LTP> ltps = kite.GetLTP(new string[] { "NSE:INFY" });
 
             Assert.AreEqual(ltps["NSE:INFY"].LastPrice, (decimal)989.2);
+            ms.Stop();
         }
 
         [TestMethod]
@@ -116,6 +124,7 @@ namespace KiteConnectTest
             Dictionary<string, Quote> quotes = kite.GetQuote(new string[] { "NSE:INFY" });
 
             Assert.AreEqual(quotes["NSE:INFY"].LastPrice, (decimal)1034.25);
+            ms.Stop();
         }
 
         [TestMethod]
@@ -127,6 +136,31 @@ namespace KiteConnectTest
             List<Order> orders = kite.GetOrders();
 
             Assert.AreEqual(orders[0].Price, 90);
+            ms.Stop();
+        }
+
+        [TestMethod]
+        public void TestGTTs()
+        {
+            string json = File.ReadAllText(@"responses\gtt_get_orders.json", Encoding.UTF8);
+            MockServer ms = new MockServer("http://localhost:8080/", "application/json", json);
+            Kite kite = new Kite("apikey", Root: "http://localhost:8080");
+            List<GTT> gtts = kite.GetGTTs();
+
+            Assert.AreEqual(gtts[0].Id, 105099);
+            ms.Stop();
+        }
+
+        [TestMethod]
+        public void TestGTT()
+        {
+            string json = File.ReadAllText(@"responses\gtt_get_order.json", Encoding.UTF8);
+            MockServer ms = new MockServer("http://localhost:8080/", "application/json", json);
+            Kite kite = new Kite("apikey", Root: "http://localhost:8080");
+            GTT gtt = kite.GetGTT(123);
+
+            Assert.AreEqual(gtt.Id, 123);
+            ms.Stop();
         }
 
         [TestMethod]
@@ -138,6 +172,7 @@ namespace KiteConnectTest
             List<Order> orderhistory = kite.GetOrderHistory("171124000819854");
 
             Assert.AreEqual(orderhistory[0].PendingQuantity, 100);
+            ms.Stop();
         }
 
         [TestMethod]
@@ -149,6 +184,7 @@ namespace KiteConnectTest
             List<Instrument> instruments = kite.GetInstruments();
 
             Assert.AreEqual(instruments[0].InstrumentToken, (uint)3813889);
+            ms.Stop();
         }
 
         [TestMethod]
@@ -160,6 +196,7 @@ namespace KiteConnectTest
             List<Instrument> instruments = kite.GetInstruments(Constants.EXCHANGE_NSE);
 
             Assert.AreEqual(instruments[0].InstrumentToken, (uint)3813889);
+            ms.Stop();
         }
 
         [TestMethod]
@@ -171,6 +208,7 @@ namespace KiteConnectTest
             List<Trade> trades = kite.GetOrderTrades("151220000000000");
 
             Assert.AreEqual(trades[0].TradeId, "159918");
+            ms.Stop();
         }
 
         [TestMethod]
@@ -182,6 +220,7 @@ namespace KiteConnectTest
             List<MFSIP> sips = kite.GetMFSIPs();
 
             Assert.AreEqual(sips[0].SIPId, "1234");
+            ms.Stop();
         }
 
         [TestMethod]
@@ -193,6 +232,7 @@ namespace KiteConnectTest
             MFSIP sip = kite.GetMFSIPs("1234");
 
             Assert.AreEqual(sip.SIPId, "1234");
+            ms.Stop();
         }
 
         [TestMethod]
@@ -204,6 +244,7 @@ namespace KiteConnectTest
             List<MFOrder> orders = kite.GetMFOrders();
 
             Assert.AreEqual(orders[0].OrderId, "123123");
+            ms.Stop();
         }
 
         [TestMethod]
@@ -215,6 +256,7 @@ namespace KiteConnectTest
             MFOrder order = kite.GetMFOrders("123123");
 
             Assert.AreEqual(order.OrderId, "123123");
+            ms.Stop();
         }
 
         [TestMethod]
@@ -226,6 +268,7 @@ namespace KiteConnectTest
             List<MFHolding> holdings = kite.GetMFHoldings();
 
             Assert.AreEqual(holdings[0].Folio, "123123/123");
+            ms.Stop();
         }
 
         [TestMethod]
@@ -237,6 +280,7 @@ namespace KiteConnectTest
             List<MFInstrument> instruments = kite.GetMFInstruments();
 
             Assert.AreEqual(instruments[0].TradingSymbol, "INF209K01157");
+            ms.Stop();
         }
     }
 }

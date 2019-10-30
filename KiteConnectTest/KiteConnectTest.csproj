@@ -60,6 +60,12 @@
     <None Include="responses\equity_margins.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="responses\gtt_get_order.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="responses\gtt_get_orders.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="responses\historical.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
