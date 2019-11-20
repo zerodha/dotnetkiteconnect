@@ -47,6 +47,66 @@ namespace KiteConnectSample
 
             initTicker();
 
+            // Get all GTTs
+
+            List<GTT> gtts = kite.GetGTTs();
+            Console.WriteLine(Utils.JsonSerialize(gtts[0]));
+
+            // Get GTT by Id
+
+            GTT gtt = kite.GetGTT(99691);
+            Console.WriteLine(Utils.JsonSerialize(gtt));
+
+            // Cacncel GTT by Id
+
+            var gttCancelResponse = kite.CancelGTT(1582);
+            Console.WriteLine(Utils.JsonSerialize(gttCancelResponse));
+
+            // Place GTT
+
+            GTTParams gttParams = new GTTParams();
+            gttParams.TriggerType = Constants.GTT_TRIGGER_OCO;
+            gttParams.Exchange = "NSE";
+            gttParams.TradingSymbol = "SBIN";
+            gttParams.LastPrice = 288.9m;
+
+            List<decimal> triggerPrices = new List<decimal>();
+            triggerPrices.Add(260m);
+            triggerPrices.Add(320m);
+            gttParams.TriggerPrices = triggerPrices;
+
+            // Only sell is allowed for OCO or two-leg orders.
+            // Single leg orders can be buy or sell order.
+            // Passing a last price is mandatory.
+            // A stop-loss order must have trigger and price below last price and target order must have trigger and price above last price.
+            // Only limit order type  and CNC product type is allowed for now.
+
+            GTTOrderParams order1Params = new GTTOrderParams();
+            order1Params.OrderType = Constants.ORDER_TYPE_LIMIT;
+            order1Params.Price = 250m;
+            order1Params.Product = Constants.PRODUCT_CNC;
+            order1Params.TransactionType = Constants.TRANSACTION_TYPE_SELL;
+            order1Params.Quantity = 0;
+
+            GTTOrderParams order2Params = new GTTOrderParams();
+            order2Params.OrderType = Constants.ORDER_TYPE_LIMIT;
+            order2Params.Price = 320m;
+            order2Params.Product = Constants.PRODUCT_CNC;
+            order2Params.TransactionType = Constants.TRANSACTION_TYPE_SELL;
+            order2Params.Quantity = 1;
+
+            // Target or upper trigger
+            List<GTTOrderParams> ordersList = new List<GTTOrderParams>();
+            ordersList.Add(order1Params);
+            ordersList.Add(order2Params);
+            gttParams.Orders = ordersList;
+
+            var placeGTTResponse = kite.PlaceGTT(gttParams);
+            Console.WriteLine(Utils.JsonSerialize(placeGTTResponse));
+
+            var modifyGTTResponse = kite.ModifyGTT(407301, gttParams);
+            Console.WriteLine(Utils.JsonSerialize(modifyGTTResponse));
+
             // Positions
 
             PositionResponse positions = kite.GetPositions();
@@ -89,7 +149,7 @@ namespace KiteConnectSample
 
             // Trigger Range
 
-            Dictionary <string, TrigerRange> triggerRange = kite.GetTriggerRange(
+            Dictionary<string, TrigerRange> triggerRange = kite.GetTriggerRange(
                 InstrumentId: new string[] { "NSE:ASHOKLEY" },
                 TrasactionType: Constants.TRANSACTION_TYPE_BUY
             );

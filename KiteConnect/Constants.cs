@@ -56,11 +56,11 @@ namespace KiteConnect
         public const string MODE_QUOTE = "quote";
         public const string MODE_LTP = "ltp";
 
-        //Positions
+        // Positions
         public const string POSITION_DAY = "day";
         public const string POSITION_OVERNIGHT = "overnight";
 
-        //Historical intervals
+        // Historical intervals
         public const string INTERVAL_MINUTE = "minute";
         public const string INTERVAL_3MINUTE = "3minute";
         public const string INTERVAL_5MINUTE = "5minute";
@@ -70,5 +70,18 @@ namespace KiteConnect
         public const string INTERVAL_60MINUTE = "60minute";
         public const string INTERVAL_DAY = "day";
 
+        // GTT status
+        public const string GTT_ACTIVE = "active";
+        public const string GTT_TRIGGERED = "triggered";
+        public const string GTT_DISABLED = "disabled";
+        public const string GTT_EXPIRED = "expired";
+        public const string GTT_CANCELLED = "cancelled";
+        public const string GTT_REJECTED = "rejected";
+        public const string GTT_DELETED = "deleted";
+
+
+        // GTT trigger type
+        public const string GTT_TRIGGER_OCO = "two-leg";
+        public const string GTT_TRIGGER_SINGLE = "single";
     }
 }

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Net;
+using System.Linq;
 
 namespace KiteConnect
 {
@@ -100,9 +102,9 @@ namespace KiteConnect
                 RealisedQuantity = data["realised_quantity"];
                 Quantity = data["quantity"];
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data));
+                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
             }
         }
 
@@ -137,9 +139,9 @@ namespace KiteConnect
                 Collateral = data["collateral"];
                 IntradayPayin = data["intraday_payin"];
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data));
+                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
             }
         }
 
@@ -168,9 +170,9 @@ namespace KiteConnect
                 HoldingSales = data["holding_sales"];
                 Turnover = data["turnover"];
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data));
+                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
             }
         }
 
@@ -200,9 +202,9 @@ namespace KiteConnect
                 Available = new AvailableMargin(data["available"]);
                 Utilised = new UtilisedMargin(data["utilised"]);
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data));
+                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
             }
         }
 
@@ -224,9 +226,9 @@ namespace KiteConnect
                 Equity = new UserMargin(data["equity"]);
                 Commodity = new UserMargin(data["commodity"]);
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data));
+                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
             }
         }
         public UserMargin Equity { get; set; }
@@ -250,9 +252,9 @@ namespace KiteConnect
                 NRMLMargin = data["nrml_margin"];
                 MISMargin = data["mis_margin"];
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data));
+                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
             }
         }
 
@@ -303,9 +305,9 @@ namespace KiteConnect
                 DaySellValue = data["day_sell_value"];
                 DaySellPrice = data["day_sell_price"];
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data));
+                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
             }
 
         }
@@ -375,11 +377,11 @@ namespace KiteConnect
                 DisclosedQuantity = data["disclosed_quantity"];
                 Exchange = data["exchange"];
                 ExchangeOrderId = data["exchange_order_id"];
-                ExchangeTimestamp =  Utils.StringToDate(data["exchange_timestamp"]);
+                ExchangeTimestamp = Utils.StringToDate(data["exchange_timestamp"]);
                 FilledQuantity = data["filled_quantity"];
                 InstrumentToken = Convert.ToUInt32(data["instrument_token"]);
                 OrderId = data["order_id"];
-                OrderTimestamp =  Utils.StringToDate(data["order_timestamp"]);
+                OrderTimestamp = Utils.StringToDate(data["order_timestamp"]);
                 OrderType = data["order_type"];
                 ParentOrderId = data["parent_order_id"];
                 PendingQuantity = data["pending_quantity"];
@@ -396,9 +398,9 @@ namespace KiteConnect
                 Validity = data["validity"];
                 Variety = data["variety"];
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data));
+                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
             }
 
         }
@@ -431,6 +433,199 @@ namespace KiteConnect
     }
 
     /// <summary>
+    /// GTTOrder structure
+    /// </summary>
+    public struct GTT
+    {
+        public GTT(Dictionary<string, dynamic> data)
+        {
+            try
+            {
+                Id = data["id"];
+                Condition = new GTTCondition(data["condition"]);
+                TriggerType = data["type"];
+
+                Orders = new List<GTTOrder>();
+                foreach (Dictionary<string, dynamic> item in data["orders"])
+                    Orders.Add(new GTTOrder(item));
+
+                Status = data["status"];
+                CreatedAt = Utils.StringToDate(data["created_at"]);
+                UpdatedAt = Utils.StringToDate(data["updated_at"]);
+                ExpiresAt = Utils.StringToDate(data["expires_at"]);
+                Meta = new GTTMeta(data["meta"]);
+            }
+            catch (Exception e)
+            {
+                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
+            }
+        }
+
+        public int Id { get; set; }
+        public GTTCondition? Condition { get; set; }
+        public string TriggerType { get; set; }
+        public List<GTTOrder> Orders { get; set; }
+        public string Status { get; set; }
+        public DateTime? CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
+        public DateTime? ExpiresAt { get; set; }
+        public GTTMeta? Meta { get; set; }
+    }
+
+    /// <summary>
+    /// GTTMeta structure
+    /// </summary>
+    public struct GTTMeta
+    {
+        public GTTMeta(Dictionary<string, dynamic> data)
+        {
+            try
+            {
+                RejectionReason = data != null && data.ContainsKey("rejection_reason") ? data["rejection_reason"] : "";
+            }
+            catch (Exception e)
+            {
+                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
+            }
+        }
+
+        public string RejectionReason { get; set; }
+    }
+
+    /// <summary>
+    /// GTTCondition structure
+    /// </summary>
+    public struct GTTCondition
+    {
+        public GTTCondition(Dictionary<string, dynamic> data)
+        {
+            try
+            {
+                InstrumentToken = data["instrument_token"];
+                Exchange = data["exchange"];
+                TradingSymbol = data["tradingsymbol"];
+                TriggerValues = Utils.ToDecimalList(data["trigger_values"] as ArrayList);
+                LastPrice = data["last_price"];
+            }
+            catch (Exception e)
+            {
+                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
+            }
+        }
+
+        public int InstrumentToken { get; set; }
+        public string Exchange { get; set; }
+        public string TradingSymbol { get; set; }
+        public List<decimal> TriggerValues { get; set; }
+        public decimal LastPrice { get; set; }
+    }
+
+    /// <summary>
+    /// GTTOrder structure
+    /// </summary>
+    public struct GTTOrder
+    {
+        public GTTOrder(Dictionary<string, dynamic> data)
+        {
+            try
+            {
+                TransactionType = data["transaction_type"];
+                Product = data["product"];
+                OrderType = data["order_type"];
+                Quantity = data["quantity"];
+                Price = data["price"];
+                Result = data["result"] == null ? null : new Nullable<GTTResult>(new GTTResult(data["result"]));
+            }
+            catch (Exception e)
+            {
+                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
+            }
+        }
+
+        public string TransactionType { get; set; }
+        public string Product { get; set; }
+        public string OrderType { get; set; }
+        public int Quantity { get; set; }
+        public decimal Price { get; set; }
+        public GTTResult? Result { get; set; }
+    }
+
+    /// <summary>
+    /// GTTResult structure
+    /// </summary>
+    public struct GTTResult
+    {
+        public GTTResult(Dictionary<string, dynamic> data)
+        {
+            try
+            {
+                OrderResult = data["order_result"] == null ? null : new Nullable<GTTOrderResult>(new GTTOrderResult(data["order_result"]));
+                Timestamp = data["timestamp"];
+                TriggeredAtPrice = data["triggered_at"];
+            }
+            catch (Exception e)
+            {
+                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
+            }
+        }
+
+        public GTTOrderResult? OrderResult { get; set; }
+        public string Timestamp { get; set; }
+        public decimal TriggeredAtPrice { get; set; }
+    }
+
+    /// <summary>
+    /// GTTOrderResult structure
+    /// </summary>
+    public struct GTTOrderResult
+    {
+        public GTTOrderResult(Dictionary<string, dynamic> data)
+        {
+            try
+            {
+                OrderId = data["order_id"];
+                RejectionReason = data["rejection_reason"];
+            }
+            catch (Exception e)
+            {
+                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
+            }
+        }
+
+        public string OrderId { get; set; }
+        public string RejectionReason { get; set; }
+    }
+
+    /// <summary>
+    /// GTTParams structure
+    /// </summary>
+    public struct GTTParams
+    {
+        public string TradingSymbol { get; set; }
+        public string Exchange { get; set; }
+        public int InstrumentToken { get; set; }
+        public string TriggerType { get; set; }
+        public decimal LastPrice { get; set; }
+        public List<GTTOrderParams> Orders { get; set; }
+        public List<decimal> TriggerPrices { get; set; }
+    }
+
+    /// <summary>
+    /// GTTOrderParams structure
+    /// </summary>
+    public struct GTTOrderParams
+    {
+        public int Quantity { get; set; }
+        public decimal Price { get; set; }
+        // Order type (LIMIT, SL, SL-M, MARKET)
+        public string OrderType { get; set; }
+        // Product code (NRML, MIS, CNC)
+        public string Product { get; set; }
+        // Transaction type (BUY, SELL)
+        public string TransactionType { get; set; }
+    }
+
+    /// <summary>
     /// Instrument structure
     /// </summary>
     public struct Instrument
@@ -457,9 +652,9 @@ namespace KiteConnect
 
                 LotSize = Convert.ToUInt32(data["lot_size"]);
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data));
+                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
             }
 
         }
@@ -497,12 +692,12 @@ namespace KiteConnect
                 Product = data["product"];
                 AveragePrice = data["average_price"];
                 Quantity = data["quantity"];
-                FillTimestamp =  Utils.StringToDate(data["fill_timestamp"]);
-                ExchangeTimestamp =  Utils.StringToDate(data["exchange_timestamp"]);
+                FillTimestamp = Utils.StringToDate(data["fill_timestamp"]);
+                ExchangeTimestamp = Utils.StringToDate(data["exchange_timestamp"]);
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data));
+                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
             }
 
         }
@@ -535,9 +730,9 @@ namespace KiteConnect
                 Upper = data["upper"];
                 Percentage = data["percentage"];
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data));
+                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
             }
 
         }
@@ -572,9 +767,9 @@ namespace KiteConnect
                 OrderTypes = (string[])data["data"]["order_types"].ToArray(typeof(string));
                 Email = data["data"]["email"];
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data));
+                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
             }
 
         }
@@ -606,9 +801,9 @@ namespace KiteConnect
                 AccessToken = data["data"]["access_token"];
                 RefreshToken = data["data"]["refresh_token"];
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data));
+                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
             }
         }
         public string UserId { get; }
@@ -635,9 +830,9 @@ namespace KiteConnect
                 OrderTypes = (string[])data["data"]["order_types"].ToArray(typeof(string));
                 Email = data["data"]["email"];
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data));
+                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
             }
 
         }
@@ -704,7 +899,8 @@ namespace KiteConnect
                         foreach (Dictionary<string, dynamic> offer in data["depth"]["sell"])
                             Offers.Add(new DepthItem(offer));
                     }
-                } else
+                }
+                else
                 {
                     // Index quote
                     LastQuantity = 0;
@@ -724,9 +920,9 @@ namespace KiteConnect
                     Offers = new List<DepthItem>();
                 }
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data));
+                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
             }
 
         }
@@ -772,9 +968,9 @@ namespace KiteConnect
                 Low = data["ohlc"]["low"];
                 High = data["ohlc"]["high"];
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data));
+                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
             }
 
         }
@@ -798,9 +994,9 @@ namespace KiteConnect
                 InstrumentToken = Convert.ToUInt32(data["instrument_token"]);
                 LastPrice = data["last_price"];
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data));
+                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
             }
 
         }
@@ -825,9 +1021,9 @@ namespace KiteConnect
                 LastPrice = data["last_price"];
                 PNL = data["pnl"];
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data));
+                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
             }
 
         }
@@ -870,9 +1066,9 @@ namespace KiteConnect
                 SettlementType = data["settlement_type"];
                 LastPriceDate = Utils.StringToDate(data["last_price_date"]);
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data));
+                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
             }
 
         }
@@ -913,11 +1109,11 @@ namespace KiteConnect
                 Amount = data["amount"];
                 Quantity = data["quantity"];
                 SettlementId = data["settlement_id"];
-                OrderTimestamp =  Utils.StringToDate(data["order_timestamp"]);
+                OrderTimestamp = Utils.StringToDate(data["order_timestamp"]);
                 AveragePrice = data["average_price"];
                 TransactionType = data["transaction_type"];
                 ExchangeOrderId = data["exchange_order_id"];
-                ExchangeTimestamp =  Utils.StringToDate(data["exchange_timestamp"]);
+                ExchangeTimestamp = Utils.StringToDate(data["exchange_timestamp"]);
                 Fund = data["fund"];
                 Variety = data["variety"];
                 Folio = data["folio"];
@@ -927,9 +1123,9 @@ namespace KiteConnect
                 Status = data["status"];
                 LastPrice = data["last_price"];
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data));
+                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
             }
 
         }
@@ -980,9 +1176,9 @@ namespace KiteConnect
                 Status = data["status"];
                 OrderId = data.ContainsKey(("order_id")) ? data["order_id"] : "";
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data));
+                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
             }
 
         }

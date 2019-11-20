@@ -49,6 +49,12 @@ namespace KiteConnect
             ["orders.cancel"] = "/orders/{variety}/{order_id}",
             ["orders.trades"] = "/orders/{order_id}/trades",
 
+            ["gtt"] = "/gtt/triggers",
+            ["gtt.place"] = "/gtt/triggers",
+            ["gtt.info"] = "/gtt/triggers/{id}",
+            ["gtt.modify"] = "/gtt/triggers/{id}",
+            ["gtt.delete"] = "/gtt/triggers/{id}",
+
             ["portfolio.positions"] = "/portfolio/positions",
             ["portfolio.holdings"] = "/portfolio/holdings",
             ["portfolio.positions.modify"] = "/portfolio/positions",
@@ -670,6 +676,130 @@ namespace KiteConnect
             return triggerRanges;
         }
 
+        #region GTT
+
+        /// <summary>
+        /// Retrieve the list of GTTs.
+        /// </summary>
+        /// <returns>List of GTTs.</returns>
+        public List<GTT> GetGTTs()
+        {
+            var gttsdata = Get("gtt");
+
+            List<GTT> gtts = new List<GTT>();
+
+            foreach (Dictionary<string, dynamic> item in gttsdata["data"])
+                gtts.Add(new GTT(item));
+
+            return gtts;
+        }
+
+
+        /// <summary>
+        /// Retrieve a single GTT
+        /// </summary>
+        /// <param name="GTTId">Id of the GTT</param>
+        /// <returns>GTT info</returns>
+        public GTT GetGTT(int GTTId)
+        {
+            var param = new Dictionary<string, dynamic>();
+            param.Add("id", GTTId.ToString());
+
+            var gttdata = Get("gtt.info", param);
+
+            return new GTT(gttdata["data"]);
+        }
+
+        /// <summary>
+        /// Place a GTT order
+        /// </summary>
+        /// <param name="gttParams">Contains the parameters for the GTT order</param>
+        /// <returns>Json response in the form of nested string dictionary.</returns>
+        public Dictionary<string, dynamic> PlaceGTT(GTTParams gttParams)
+        {
+            var condition = new Dictionary<string, dynamic>();
+            condition.Add("exchange", gttParams.Exchange);
+            condition.Add("tradingsymbol", gttParams.TradingSymbol);
+            condition.Add("trigger_values", gttParams.TriggerPrices);
+            condition.Add("last_price", gttParams.LastPrice);
+            condition.Add("instrument_token", gttParams.InstrumentToken);
+
+            var ordersParam = new List<Dictionary<string, dynamic>>();
+            foreach (var o in gttParams.Orders)
+            {
+                var order = new Dictionary<string, dynamic>();
+                order["exchange"] = gttParams.Exchange;
+                order["tradingsymbol"] = gttParams.TradingSymbol;
+                order["transaction_type"] = o.TransactionType;
+                order["quantity"] = o.Quantity;
+                order["price"] = o.Price;
+                order["order_type"] = o.OrderType;
+                order["product"] = o.Product;
+                ordersParam.Add(order);
+            }
+
+            var parms = new Dictionary<string, dynamic>();
+            parms.Add("condition", Utils.JsonSerialize(condition));
+            parms.Add("orders", Utils.JsonSerialize(ordersParam));
+            parms.Add("type", gttParams.TriggerType);
+
+            return Post("gtt.place", parms);
+        }
+
+        /// <summary>
+        /// Modify a GTT order
+        /// </summary>
+        /// <param name="GTTId">Id of the GTT to be modified</param>
+        /// <param name="gttParams">Contains the parameters for the GTT order</param>
+        /// <returns>Json response in the form of nested string dictionary.</returns>
+        public Dictionary<string, dynamic> ModifyGTT(int GTTId, GTTParams gttParams)
+        {
+            var condition = new Dictionary<string, dynamic>();
+            condition.Add("exchange", gttParams.Exchange);
+            condition.Add("tradingsymbol", gttParams.TradingSymbol);
+            condition.Add("trigger_values", gttParams.TriggerPrices);
+            condition.Add("last_price", gttParams.LastPrice);
+            condition.Add("instrument_token", gttParams.InstrumentToken);
+
+            var ordersParam = new List<Dictionary<string, dynamic>>();
+            foreach (var o in gttParams.Orders)
+            {
+                var order = new Dictionary<string, dynamic>();
+                order["exchange"] = gttParams.Exchange;
+                order["tradingsymbol"] = gttParams.TradingSymbol;
+                order["transaction_type"] = o.TransactionType;
+                order["quantity"] = o.Quantity;
+                order["price"] = o.Price;
+                order["order_type"] = o.OrderType;
+                order["product"] = o.Product;
+                ordersParam.Add(order);
+            }
+
+            var parms = new Dictionary<string, dynamic>();
+            parms.Add("condition", Utils.JsonSerialize(condition));
+            parms.Add("orders", Utils.JsonSerialize(ordersParam));
+            parms.Add("type", gttParams.TriggerType);
+            parms.Add("id", GTTId.ToString());
+
+            return Put("gtt.modify", parms);
+        }
+
+        /// <summary>
+        /// Cancel a GTT order
+        /// </summary>
+        /// <param name="GTTId">Id of the GTT to be modified</param>
+        /// <returns>Json response in the form of nested string dictionary.</returns>
+        public Dictionary<string, dynamic> CancelGTT(int GTTId)
+        {
+            var parms = new Dictionary<string, dynamic>();
+            parms.Add("id", GTTId.ToString());
+
+            return Delete("gtt.delete", parms);
+        }
+
+        #endregion GTT
+
+
         #region MF Calls
 
         /// <summary>
@@ -736,10 +866,10 @@ namespace KiteConnect
         /// <param name="Amount">Amount worth of units to purchase. Not applicable on SELLs.</param>
         /// <param name="Quantity">Quantity to SELL. Not applicable on BUYs. If the holding is less than minimum_redemption_quantity, all the units have to be sold.</param>
         /// <param name="Tag">An optional tag to apply to an order to identify it (alphanumeric, max 8 chars).</param>
-        public Dictionary<string, dynamic> PlaceMFOrder (
+        public Dictionary<string, dynamic> PlaceMFOrder(
             string TradingSymbol,
-            string TransactionType, 
-            decimal? Amount, 
+            string TransactionType,
+            decimal? Amount,
             decimal? Quantity = null,
             string Tag = "")
         {
@@ -818,9 +948,9 @@ namespace KiteConnect
             string TradingSymbol,
             decimal? Amount,
             decimal? InitialAmount,
-            string Frequency, 
-            int? InstalmentDay, 
-            int? Instalments, 
+            string Frequency,
+            int? InstalmentDay,
+            int? Instalments,
             string Tag = "")
         {
             var param = new Dictionary<string, dynamic>();
@@ -846,10 +976,10 @@ namespace KiteConnect
         /// <param name="Instalments">Number of instalments to trigger. If set to -1, instalments are triggered idefinitely until the SIP is cancelled.</param>
         /// <param name="Status">Pause or unpause an SIP (active or paused).</param>
         public Dictionary<string, dynamic> ModifyMFSIP(
-            string SIPId, 
+            string SIPId,
             decimal? Amount,
-            string Frequency, 
-            int? InstalmentDay, 
+            string Frequency,
+            int? InstalmentDay,
             int? Instalments,
             string Status)
         {
