@@ -34,7 +34,6 @@ namespace KiteConnect
         /// <summary>
         /// Initialize WebSocket class
         /// </summary>
-        /// <param name="Url">Url to the WebSocket.</param>
         /// <param name="BufferLength">Size of buffer to keep byte stream chunk.</param>
         public WebSocket(int BufferLength = 2000000)
         {            
