@@ -1,0 +1,867 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>KiteConnect</name>
+    </assembly>
+    <members>
+        <member name="T:KiteConnect.Kite">
+            <summary>
+            The API client class. In production, you may initialize a single instance of this class per `APIKey`.
+            </summary>
+        </member>
+        <member name="M:KiteConnect.Kite.#ctor(System.String,System.String,System.String,System.Boolean,System.Int32,System.Net.WebProxy,System.Int32)">
+            <summary>
+            Initialize a new Kite Connect client instance.
+            </summary>
+            <param name="APIKey">API Key issued to you</param>
+            <param name="AccessToken">The token obtained after the login flow in exchange for the `RequestToken` . 
+            Pre-login, this will default to None,but once you have obtained it, you should persist it in a database or session to pass 
+            to the Kite Connect class initialisation for subsequent requests.</param>
+            <param name="Root">API end point root. Unless you explicitly want to send API requests to a non-default endpoint, this can be ignored.</param>
+            <param name="Debug">If set to True, will serialise and print requests and responses to stdout.</param>
+            <param name="Timeout">Time in milliseconds for which  the API client will wait for a request to complete before it fails</param>
+            <param name="Proxy">To set proxy for http request. Should be an object of WebProxy.</param>
+            <param name="Pool">Number of connections to server. Client will reuse the connections if they are alive.</param>
+        </member>
+        <member name="M:KiteConnect.Kite.EnableLogging(System.Boolean)">
+            <summary>
+            Enabling logging prints HTTP request and response summaries to console
+            </summary>
+            <param name="enableLogging">Set to true to enable logging</param>
+        </member>
+        <member name="M:KiteConnect.Kite.SetSessionExpiryHook(System.Action)">
+            <summary>
+            Set a callback hook for session (`TokenException` -- timeout, expiry etc.) errors.
+            An `AccessToken` (login session) can become invalid for a number of
+            reasons, but it doesn't make sense for the client to
+            try and catch it during every API call.
+            A callback method that handles session errors
+            can be set here and when the client encounters
+            a token error at any point, it'll be called.
+            This callback, for instance, can log the user out of the UI,
+            clear session cookies, or initiate a fresh login.
+            </summary>
+            <param name="Method">Action to be invoked when session becomes invalid.</param>
+        </member>
+        <member name="M:KiteConnect.Kite.SetAccessToken(System.String)">
+            <summary>
+            Set the `AccessToken` received after a successful authentication.
+            </summary>
+            <param name="AccessToken">Access token for the session.</param>
+        </member>
+        <member name="M:KiteConnect.Kite.GetLoginURL">
+            <summary>
+            Get the remote login url to which a user should be redirected to initiate the login flow.
+            </summary>
+            <returns>Login url to authenticate the user.</returns>
+        </member>
+        <member name="M:KiteConnect.Kite.GenerateSession(System.String,System.String)">
+            <summary>
+            Do the token exchange with the `RequestToken` obtained after the login flow,
+            and retrieve the `AccessToken` required for all subsequent requests.The
+            response contains not just the `AccessToken`, but metadata for
+            the user who has authenticated.
+            </summary>
+            <param name="RequestToken">Token obtained from the GET paramers after a successful login redirect.</param>
+            <param name="AppSecret">API secret issued with the API key.</param>
+            <returns>User structure with tokens and profile data</returns>
+        </member>
+        <member name="M:KiteConnect.Kite.InvalidateAccessToken(System.String)">
+            <summary>
+            Kill the session by invalidating the access token
+            </summary>
+            <param name="AccessToken">Access token to invalidate. Default is the active access token.</param>
+            <returns>Json response in the form of nested string dictionary.</returns>
+        </member>
+        <member name="M:KiteConnect.Kite.InvalidateRefreshToken(System.String)">
+            <summary>
+            Invalidates RefreshToken
+            </summary>
+            <param name="RefreshToken">RefreshToken to invalidate</param>
+            <returns>Json response in the form of nested string dictionary.</returns>
+        </member>
+        <member name="M:KiteConnect.Kite.RenewAccessToken(System.String,System.String)">
+            <summary>
+            Renew AccessToken using RefreshToken
+            </summary>
+            <param name="RefreshToken">RefreshToken to renew the AccessToken.</param>
+            <param name="AppSecret">API secret issued with the API key.</param>
+            <returns>TokenRenewResponse that contains new AccessToken and RefreshToken.</returns>
+        </member>
+        <member name="M:KiteConnect.Kite.GetProfile">
+            <summary>
+            Gets currently logged in user details
+            </summary>
+            <returns>User profile</returns>
+        </member>
+        <member name="M:KiteConnect.Kite.GetMargins">
+            <summary>
+            Get account balance and cash margin details for all segments.
+            </summary>
+            <returns>User margin response with both equity and commodity margins.</returns>
+        </member>
+        <member name="M:KiteConnect.Kite.GetMargins(System.String)">
+            <summary>
+            Get account balance and cash margin details for a particular segment.
+            </summary>
+            <param name="Segment">Trading segment (eg: equity or commodity)</param>
+            <returns>Margins for specified segment.</returns>
+        </member>
+        <member name="M:KiteConnect.Kite.PlaceOrder(System.String,System.String,System.String,System.Int32,System.Nullable{System.Decimal},System.String,System.String,System.String,System.Nullable{System.Int32},System.Nullable{System.Decimal},System.Nullable{System.Decimal},System.Nullable{System.Decimal},System.Nullable{System.Decimal},System.String,System.String)">
+            <summary>
+            Place an order
+            </summary>
+            <param name="Exchange">Name of the exchange</param>
+            <param name="TradingSymbol">Tradingsymbol of the instrument</param>
+            <param name="TransactionType">BUY or SELL</param>
+            <param name="Quantity">Quantity to transact</param>
+            <param name="Price">For LIMIT orders</param>
+            <param name="Product">Margin product applied to the order (margin is blocked based on this)</param>
+            <param name="OrderType">Order type (MARKET, LIMIT etc.)</param>
+            <param name="Validity">Order validity</param>
+            <param name="DisclosedQuantity">Quantity to disclose publicly (for equity trades)</param>
+            <param name="TriggerPrice">For SL, SL-M etc.</param>
+            <param name="SquareOffValue">Price difference at which the order should be squared off and profit booked (eg: Order price is 100. Profit target is 102. So squareoff = 2)</param>
+            <param name="StoplossValue">Stoploss difference at which the order should be squared off (eg: Order price is 100. Stoploss target is 98. So stoploss = 2)</param>
+            <param name="TrailingStoploss">Incremental value by which stoploss price changes when market moves in your favor by the same incremental value from the entry price (optional)</param>
+            <param name="Variety">You can place orders of varieties; regular orders, after market orders, cover orders etc. </param>
+            <param name="Tag">An optional tag to apply to an order to identify it (alphanumeric, max 8 chars)</param>
+            <returns>Json response in the form of nested string dictionary.</returns>
+        </member>
+        <member name="M:KiteConnect.Kite.ModifyOrder(System.String,System.String,System.String,System.String,System.String,System.String,System.Nullable{System.Decimal},System.String,System.String,System.String,System.Nullable{System.Int32},System.Nullable{System.Decimal},System.String)">
+            <summary>
+            Modify an open order.
+            </summary>
+            <param name="OrderId">Id of the order to be modified</param>
+            <param name="ParentOrderId">Id of the parent order (obtained from the /orders call) as BO is a multi-legged order</param>
+            <param name="Exchange">Name of the exchange</param>
+            <param name="TradingSymbol">Tradingsymbol of the instrument</param>
+            <param name="TransactionType">BUY or SELL</param>
+            <param name="Quantity">Quantity to transact</param>
+            <param name="Price">For LIMIT orders</param>
+            <param name="Product">Margin product applied to the order (margin is blocked based on this)</param>
+            <param name="OrderType">Order type (MARKET, LIMIT etc.)</param>
+            <param name="Validity">Order validity</param>
+            <param name="DisclosedQuantity">Quantity to disclose publicly (for equity trades)</param>
+            <param name="TriggerPrice">For SL, SL-M etc.</param>
+            <param name="Variety">You can place orders of varieties; regular orders, after market orders, cover orders etc. </param>
+            <returns>Json response in the form of nested string dictionary.</returns>
+        </member>
+        <member name="M:KiteConnect.Kite.CancelOrder(System.String,System.String,System.String)">
+            <summary>
+            Cancel an order
+            </summary>
+            <param name="OrderId">Id of the order to be cancelled</param>
+            <param name="Variety">You can place orders of varieties; regular orders, after market orders, cover orders etc. </param>
+            <param name="ParentOrderId">Id of the parent order (obtained from the /orders call) as BO is a multi-legged order</param>
+            <returns>Json response in the form of nested string dictionary.</returns>
+        </member>
+        <member name="M:KiteConnect.Kite.GetOrders">
+            <summary>
+            Gets the collection of orders from the orderbook.
+            </summary>
+            <returns>List of orders.</returns>
+        </member>
+        <member name="M:KiteConnect.Kite.GetOrderHistory(System.String)">
+            <summary>
+            Gets information about given OrderId.
+            </summary>
+            <param name="OrderId">Unique order id</param>
+            <returns>List of order objects.</returns>
+        </member>
+        <member name="M:KiteConnect.Kite.GetOrderTrades(System.String)">
+            <summary>
+            Retreive the list of trades executed (all or ones under a particular order).
+            An order can be executed in tranches based on market conditions.
+            These trades are individually recorded under an order.
+            </summary>
+            <param name="OrderId">is the ID of the order (optional) whose trades are to be retrieved. If no `OrderId` is specified, all trades for the day are returned.</param>
+            <returns>List of trades of given order.</returns>
+        </member>
+        <member name="M:KiteConnect.Kite.GetPositions">
+            <summary>
+            Retrieve the list of positions.
+            </summary>
+            <returns>Day and net positions.</returns>
+        </member>
+        <member name="M:KiteConnect.Kite.GetHoldings">
+            <summary>
+            Retrieve the list of equity holdings.
+            </summary>
+            <returns>List of holdings.</returns>
+        </member>
+        <member name="M:KiteConnect.Kite.ConvertPosition(System.String,System.String,System.String,System.String,System.Nullable{System.Int32},System.String,System.String)">
+            <summary>
+            Modify an open position's product type.
+            </summary>
+            <param name="Exchange">Name of the exchange</param>
+            <param name="TradingSymbol">Tradingsymbol of the instrument</param>
+            <param name="TransactionType">BUY or SELL</param>
+            <param name="PositionType">overnight or day</param>
+            <param name="Quantity">Quantity to convert</param>
+            <param name="OldProduct">Existing margin product of the position</param>
+            <param name="NewProduct">Margin product to convert to</param>
+            <returns>Json response in the form of nested string dictionary.</returns>
+        </member>
+        <member name="M:KiteConnect.Kite.GetInstruments(System.String)">
+            <summary>
+            Retrieve the list of market instruments available to trade.
+            Note that the results could be large, several hundred KBs in size,
+            with tens of thousands of entries in the list.
+            </summary>
+            <param name="Exchange">Name of the exchange</param>
+            <returns>List of instruments.</returns>
+        </member>
+        <member name="M:KiteConnect.Kite.GetQuote(System.String[])">
+            <summary>
+            Retrieve quote and market depth of upto 200 instruments
+            </summary>
+            <param name="InstrumentId">Indentification of instrument in the form of EXCHANGE:TRADINGSYMBOL (eg: NSE:INFY) or InstrumentToken (eg: 408065)</param>
+            <returns>Dictionary of all Quote objects with keys as in InstrumentId</returns>
+        </member>
+        <member name="M:KiteConnect.Kite.GetOHLC(System.String[])">
+            <summary>
+            Retrieve LTP and OHLC of upto 200 instruments
+            </summary>
+            <param name="InstrumentId">Indentification of instrument in the form of EXCHANGE:TRADINGSYMBOL (eg: NSE:INFY) or InstrumentToken (eg: 408065)</param>
+            <returns>Dictionary of all OHLC objects with keys as in InstrumentId</returns>
+        </member>
+        <member name="M:KiteConnect.Kite.GetLTP(System.String[])">
+            <summary>
+            Retrieve LTP of upto 200 instruments
+            </summary>
+            <param name="InstrumentId">Indentification of instrument in the form of EXCHANGE:TRADINGSYMBOL (eg: NSE:INFY) or InstrumentToken (eg: 408065)</param>
+            <returns>Dictionary with InstrumentId as key and LTP as value.</returns>
+        </member>
+        <member name="M:KiteConnect.Kite.GetHistoricalData(System.String,System.DateTime,System.DateTime,System.String,System.Boolean)">
+            <summary>
+            Retrieve historical data (candles) for an instrument.
+            </summary>
+            <param name="InstrumentToken">Identifier for the instrument whose historical records you want to fetch. This is obtained with the instrument list API.</param>
+            <param name="FromDate">Date in format yyyy-MM-dd for fetching candles between two days. Date in format yyyy-MM-dd hh:mm:ss for fetching candles between two timestamps.</param>
+            <param name="ToDate">Date in format yyyy-MM-dd for fetching candles between two days. Date in format yyyy-MM-dd hh:mm:ss for fetching candles between two timestamps.</param>
+            <param name="Interval">The candle record interval. Possible values are: minute, day, 3minute, 5minute, 10minute, 15minute, 30minute, 60minute</param>
+            <param name="Continuous">Pass true to get continous data of expired instruments.</param>
+            <returns>List of Historical objects.</returns>
+        </member>
+        <member name="M:KiteConnect.Kite.GetTriggerRange(System.String[],System.String)">
+            <summary>
+            Retrieve the buy/sell trigger range for Cover Orders.
+            </summary>
+            <param name="InstrumentId">Indentification of instrument in the form of EXCHANGE:TRADINGSYMBOL (eg: NSE:INFY) or InstrumentToken (eg: 408065)</param>
+            <param name="TrasactionType">BUY or SELL</param>
+            <returns>List of trigger ranges for given instrument ids for given transaction type.</returns>
+        </member>
+        <member name="M:KiteConnect.Kite.GetGTTs">
+            <summary>
+            Retrieve the list of GTTs.
+            </summary>
+            <returns>List of GTTs.</returns>
+        </member>
+        <member name="M:KiteConnect.Kite.GetGTT(System.Int32)">
+            <summary>
+            Retrieve a single GTT
+            </summary>
+            <param name="GTTId">Id of the GTT</param>
+            <returns>GTT info</returns>
+        </member>
+        <member name="M:KiteConnect.Kite.PlaceGTT(KiteConnect.GTTParams)">
+            <summary>
+            Place a GTT order
+            </summary>
+            <param name="gttParams">Contains the parameters for the GTT order</param>
+            <returns>Json response in the form of nested string dictionary.</returns>
+        </member>
+        <member name="M:KiteConnect.Kite.ModifyGTT(System.Int32,KiteConnect.GTTParams)">
+            <summary>
+            Modify a GTT order
+            </summary>
+            <param name="GTTId">Id of the GTT to be modified</param>
+            <param name="gttParams">Contains the parameters for the GTT order</param>
+            <returns>Json response in the form of nested string dictionary.</returns>
+        </member>
+        <member name="M:KiteConnect.Kite.CancelGTT(System.Int32)">
+            <summary>
+            Cancel a GTT order
+            </summary>
+            <param name="GTTId">Id of the GTT to be modified</param>
+            <returns>Json response in the form of nested string dictionary.</returns>
+        </member>
+        <member name="M:KiteConnect.Kite.GetMFInstruments">
+            <summary>
+            Gets the Mutual funds Instruments.
+            </summary>
+            <returns>The Mutual funds Instruments.</returns>
+        </member>
+        <member name="M:KiteConnect.Kite.GetMFOrders">
+            <summary>
+            Gets all Mutual funds orders.
+            </summary>
+            <returns>The Mutual funds orders.</returns>
+        </member>
+        <member name="M:KiteConnect.Kite.GetMFOrders(System.String)">
+            <summary>
+            Gets the Mutual funds order by OrderId.
+            </summary>
+            <returns>The Mutual funds order.</returns>
+            <param name="OrderId">Order id.</param>
+        </member>
+        <member name="M:KiteConnect.Kite.PlaceMFOrder(System.String,System.String,System.Nullable{System.Decimal},System.Nullable{System.Decimal},System.String)">
+            <summary>
+            Places a Mutual funds order.
+            </summary>
+            <returns>JSON response as nested string dictionary.</returns>
+            <param name="TradingSymbol">Tradingsymbol (ISIN) of the fund.</param>
+            <param name="TransactionType">BUY or SELL.</param>
+            <param name="Amount">Amount worth of units to purchase. Not applicable on SELLs.</param>
+            <param name="Quantity">Quantity to SELL. Not applicable on BUYs. If the holding is less than minimum_redemption_quantity, all the units have to be sold.</param>
+            <param name="Tag">An optional tag to apply to an order to identify it (alphanumeric, max 8 chars).</param>
+        </member>
+        <member name="M:KiteConnect.Kite.CancelMFOrder(System.String)">
+            <summary>
+            Cancels the Mutual funds order.
+            </summary>
+            <returns>JSON response as nested string dictionary.</returns>
+            <param name="OrderId">Unique order id.</param>
+        </member>
+        <member name="M:KiteConnect.Kite.GetMFSIPs">
+            <summary>
+            Gets all Mutual funds SIPs.
+            </summary>
+            <returns>The list of all Mutual funds SIPs.</returns>
+        </member>
+        <member name="M:KiteConnect.Kite.GetMFSIPs(System.String)">
+            <summary>
+            Gets a single Mutual funds SIP by SIP id.
+            </summary>
+            <returns>The Mutual funds SIP.</returns>
+            <param name="SIPID">SIP id.</param>
+        </member>
+        <member name="M:KiteConnect.Kite.PlaceMFSIP(System.String,System.Nullable{System.Decimal},System.Nullable{System.Decimal},System.String,System.Nullable{System.Int32},System.Nullable{System.Int32},System.String)">
+            <summary>
+            Places a Mutual funds SIP order.
+            </summary>
+            <returns>JSON response as nested string dictionary.</returns>
+            <param name="TradingSymbol">ISIN of the fund.</param>
+            <param name="Amount">Amount worth of units to purchase. It should be equal to or greated than minimum_additional_purchase_amount and in multiple of purchase_amount_multiplier in the instrument master.</param>
+            <param name="InitialAmount">Amount worth of units to purchase before the SIP starts. Should be equal to or greater than minimum_purchase_amount and in multiple of purchase_amount_multiplier. This is only considered if there have been no prior investments in the target fund.</param>
+            <param name="Frequency">weekly, monthly, or quarterly.</param>
+            <param name="InstalmentDay">If Frequency is monthly, the day of the month (1, 5, 10, 15, 20, 25) to trigger the order on.</param>
+            <param name="Instalments">Number of instalments to trigger. If set to -1, instalments are triggered at fixed intervals until the SIP is cancelled.</param>
+            <param name="Tag">An optional tag to apply to an order to identify it (alphanumeric, max 8 chars).</param>
+        </member>
+        <member name="M:KiteConnect.Kite.ModifyMFSIP(System.String,System.Nullable{System.Decimal},System.String,System.Nullable{System.Int32},System.Nullable{System.Int32},System.String)">
+            <summary>
+            Modifies the Mutual funds SIP.
+            </summary>
+            <returns>JSON response as nested string dictionary.</returns>
+            <param name="SIPId">SIP id.</param>
+            <param name="Amount">Amount worth of units to purchase. It should be equal to or greated than minimum_additional_purchase_amount and in multiple of purchase_amount_multiplier in the instrument master.</param>
+            <param name="Frequency">weekly, monthly, or quarterly.</param>
+            <param name="InstalmentDay">If Frequency is monthly, the day of the month (1, 5, 10, 15, 20, 25) to trigger the order on.</param>
+            <param name="Instalments">Number of instalments to trigger. If set to -1, instalments are triggered idefinitely until the SIP is cancelled.</param>
+            <param name="Status">Pause or unpause an SIP (active or paused).</param>
+        </member>
+        <member name="M:KiteConnect.Kite.CancelMFSIP(System.String)">
+            <summary>
+            Cancels the Mutual funds SIP.
+            </summary>
+            <returns>JSON response as nested string dictionary.</returns>
+            <param name="SIPId">SIP id.</param>
+        </member>
+        <member name="M:KiteConnect.Kite.GetMFHoldings">
+            <summary>
+            Gets the Mutual funds holdings.
+            </summary>
+            <returns>The list of all Mutual funds holdings.</returns>
+        </member>
+        <member name="M:KiteConnect.Kite.Get(System.String,System.Collections.Generic.Dictionary{System.String,System.Object})">
+            <summary>
+            Alias for sending a GET request.
+            </summary>
+            <param name="Route">URL route of API</param>
+            <param name="Params">Additional paramerters</param>
+            <returns>Varies according to API endpoint</returns>
+        </member>
+        <member name="M:KiteConnect.Kite.Post(System.String,System.Collections.Generic.Dictionary{System.String,System.Object})">
+            <summary>
+            Alias for sending a POST request.
+            </summary>
+            <param name="Route">URL route of API</param>
+            <param name="Params">Additional paramerters</param>
+            <returns>Varies according to API endpoint</returns>
+        </member>
+        <member name="M:KiteConnect.Kite.Put(System.String,System.Collections.Generic.Dictionary{System.String,System.Object})">
+            <summary>
+            Alias for sending a PUT request.
+            </summary>
+            <param name="Route">URL route of API</param>
+            <param name="Params">Additional paramerters</param>
+            <returns>Varies according to API endpoint</returns>
+        </member>
+        <member name="M:KiteConnect.Kite.Delete(System.String,System.Collections.Generic.Dictionary{System.String,System.Object})">
+            <summary>
+            Alias for sending a DELETE request.
+            </summary>
+            <param name="Route">URL route of API</param>
+            <param name="Params">Additional paramerters</param>
+            <returns>Varies according to API endpoint</returns>
+        </member>
+        <member name="M:KiteConnect.Kite.AddExtraHeaders(System.Net.HttpWebRequest@)">
+            <summary>
+            Adds extra headers to request
+            </summary>
+            <param name="Req">Request object to add headers</param>
+        </member>
+        <member name="M:KiteConnect.Kite.Request(System.String,System.String,System.Collections.Generic.Dictionary{System.String,System.Object})">
+            <summary>
+            Make an HTTP request.
+            </summary>
+            <param name="Route">URL route of API</param>
+            <param name="Method">Method of HTTP request</param>
+            <param name="Params">Additional paramerters</param>
+            <returns>Varies according to API endpoint</returns>
+        </member>
+        <member name="T:KiteConnect.Tick">
+            <summary>
+            Tick data structure
+            </summary>
+        </member>
+        <member name="T:KiteConnect.DepthItem">
+            <summary>
+            Market depth item structure
+            </summary>
+        </member>
+        <member name="T:KiteConnect.Historical">
+            <summary>
+            Historical structure
+            </summary>
+        </member>
+        <member name="T:KiteConnect.Holding">
+            <summary>
+            Holding structure
+            </summary>
+        </member>
+        <member name="T:KiteConnect.AvailableMargin">
+            <summary>
+            Available margin structure
+            </summary>
+        </member>
+        <member name="T:KiteConnect.UtilisedMargin">
+            <summary>
+            Utilised margin structure
+            </summary>
+        </member>
+        <member name="T:KiteConnect.UserMargin">
+            <summary>
+            UserMargin structure
+            </summary>
+        </member>
+        <member name="T:KiteConnect.UserMarginsResponse">
+            <summary>
+            User margins response structure
+            </summary>
+        </member>
+        <member name="T:KiteConnect.InstrumentMargin">
+            <summary>
+            UserMargin structure
+            </summary>
+        </member>
+        <member name="T:KiteConnect.Position">
+            <summary>
+            Position structure
+            </summary>
+        </member>
+        <member name="T:KiteConnect.PositionResponse">
+            <summary>
+            Position response structure
+            </summary>
+        </member>
+        <member name="T:KiteConnect.Order">
+            <summary>
+            Order structure
+            </summary>
+        </member>
+        <member name="T:KiteConnect.GTT">
+            <summary>
+            GTTOrder structure
+            </summary>
+        </member>
+        <member name="T:KiteConnect.GTTMeta">
+            <summary>
+            GTTMeta structure
+            </summary>
+        </member>
+        <member name="T:KiteConnect.GTTCondition">
+            <summary>
+            GTTCondition structure
+            </summary>
+        </member>
+        <member name="T:KiteConnect.GTTOrder">
+            <summary>
+            GTTOrder structure
+            </summary>
+        </member>
+        <member name="T:KiteConnect.GTTResult">
+            <summary>
+            GTTResult structure
+            </summary>
+        </member>
+        <member name="T:KiteConnect.GTTOrderResult">
+            <summary>
+            GTTOrderResult structure
+            </summary>
+        </member>
+        <member name="T:KiteConnect.GTTParams">
+            <summary>
+            GTTParams structure
+            </summary>
+        </member>
+        <member name="T:KiteConnect.GTTOrderParams">
+            <summary>
+            GTTOrderParams structure
+            </summary>
+        </member>
+        <member name="T:KiteConnect.Instrument">
+            <summary>
+            Instrument structure
+            </summary>
+        </member>
+        <member name="T:KiteConnect.Trade">
+            <summary>
+            Trade structure
+            </summary>
+        </member>
+        <member name="T:KiteConnect.TrigerRange">
+            <summary>
+            Trigger range structure
+            </summary>
+        </member>
+        <member name="T:KiteConnect.User">
+            <summary>
+            User structure
+            </summary>
+        </member>
+        <member name="T:KiteConnect.Profile">
+            <summary>
+            User structure
+            </summary>
+        </member>
+        <member name="T:KiteConnect.Quote">
+            <summary>
+            Quote structure
+            </summary>
+        </member>
+        <member name="T:KiteConnect.OHLC">
+            <summary>
+            OHLC Quote structure
+            </summary>
+        </member>
+        <member name="T:KiteConnect.LTP">
+            <summary>
+            LTP Quote structure
+            </summary>
+        </member>
+        <member name="T:KiteConnect.MFHolding">
+            <summary>
+            Mutual funds holdings structure
+            </summary>
+        </member>
+        <member name="T:KiteConnect.MFInstrument">
+            <summary>
+            Mutual funds instrument structure
+            </summary>
+        </member>
+        <member name="T:KiteConnect.MFOrder">
+            <summary>
+            Mutual funds order structure
+            </summary>
+        </member>
+        <member name="T:KiteConnect.MFSIP">
+            <summary>
+            Mutual funds SIP structure
+            </summary>
+        </member>
+        <member name="T:KiteConnect.Ticker">
+            <summary>
+            The WebSocket client for connecting to Kite Connect's streaming quotes service.
+            </summary>
+        </member>
+        <member name="T:KiteConnect.Ticker.OnConnectHandler">
+            <summary>
+            Delegate for OnConnect event
+            </summary>
+        </member>
+        <member name="T:KiteConnect.Ticker.OnCloseHandler">
+            <summary>
+            Delegate for OnClose event
+            </summary>
+        </member>
+        <member name="T:KiteConnect.Ticker.OnTickHandler">
+            <summary>
+            Delegate for OnTick event
+            </summary>
+            <param name="TickData">Tick data</param>
+        </member>
+        <member name="T:KiteConnect.Ticker.OnOrderUpdateHandler">
+            <summary>
+            Delegate for OnOrderUpdate event
+            </summary>
+            <param name="OrderData">Order data</param>
+        </member>
+        <member name="T:KiteConnect.Ticker.OnErrorHandler">
+            <summary>
+            Delegate for OnError event
+            </summary>
+            <param name="Message">Error message</param>
+        </member>
+        <member name="T:KiteConnect.Ticker.OnReconnectHandler">
+            <summary>
+            Delegate for OnReconnect event
+            </summary>
+        </member>
+        <member name="T:KiteConnect.Ticker.OnNoReconnectHandler">
+            <summary>
+            Delegate for OnNoReconnect event
+            </summary>
+        </member>
+        <member name="E:KiteConnect.Ticker.OnConnect">
+            <summary>
+            Event triggered when ticker is connected
+            </summary>
+        </member>
+        <member name="E:KiteConnect.Ticker.OnClose">
+            <summary>
+            Event triggered when ticker is disconnected
+            </summary>
+        </member>
+        <member name="E:KiteConnect.Ticker.OnTick">
+            <summary>
+            Event triggered when ticker receives a tick
+            </summary>
+        </member>
+        <member name="E:KiteConnect.Ticker.OnOrderUpdate">
+            <summary>
+            Event triggered when ticker receives an order update
+            </summary>
+        </member>
+        <member name="E:KiteConnect.Ticker.OnError">
+            <summary>
+            Event triggered when ticker encounters an error
+            </summary>
+        </member>
+        <member name="E:KiteConnect.Ticker.OnReconnect">
+            <summary>
+            Event triggered when ticker is reconnected
+            </summary>
+        </member>
+        <member name="E:KiteConnect.Ticker.OnNoReconnect">
+            <summary>
+            Event triggered when ticker is not reconnecting after failure
+            </summary>
+        </member>
+        <member name="M:KiteConnect.Ticker.#ctor(System.String,System.String,System.String,System.Boolean,System.Int32,System.Int32,System.Boolean,KiteConnect.IWebSocket)">
+            <summary>
+            Initialize websocket client instance.
+            </summary>
+            <param name="APIKey">API key issued to you</param>
+            <param name="UserID">Zerodha client id of the authenticated user</param>
+            <param name="AccessToken">Token obtained after the login flow in 
+            exchange for the `request_token`.Pre-login, this will default to None,
+            but once you have obtained it, you should
+            persist it in a database or session to pass
+            to the Kite Connect class initialisation for subsequent requests.</param>
+            <param name="Root">Websocket API end point root. Unless you explicitly 
+            want to send API requests to a non-default endpoint, this can be ignored.</param>
+            <param name="Reconnect">Enables WebSocket autreconnect in case of network failure/disconnection.</param>
+            <param name="ReconnectInterval">Interval (in seconds) between auto reconnection attemptes. Defaults to 5 seconds.</param>
+            <param name="ReconnectTries">Maximum number reconnection attempts. Defaults to 50 attempts.</param>
+        </member>
+        <member name="M:KiteConnect.Ticker.ReadShort(System.Byte[],System.Int32@)">
+            <summary>
+            Reads 2 byte short int from byte stream
+            </summary>
+        </member>
+        <member name="M:KiteConnect.Ticker.ReadInt(System.Byte[],System.Int32@)">
+            <summary>
+            Reads 4 byte int32 from byte stream
+            </summary>
+        </member>
+        <member name="M:KiteConnect.Ticker.ReadLTP(System.Byte[],System.Int32@)">
+            <summary>
+            Reads an ltp mode tick from raw binary data
+            </summary>
+        </member>
+        <member name="M:KiteConnect.Ticker.ReadIndexQuote(System.Byte[],System.Int32@)">
+            <summary>
+            Reads a index's quote mode tick from raw binary data
+            </summary>
+        </member>
+        <member name="M:KiteConnect.Ticker.ReadQuote(System.Byte[],System.Int32@)">
+            <summary>
+            Reads a quote mode tick from raw binary data
+            </summary>
+        </member>
+        <member name="M:KiteConnect.Ticker.ReadFull(System.Byte[],System.Int32@)">
+            <summary>
+            Reads a full mode tick from raw binary data
+            </summary>
+        </member>
+        <member name="P:KiteConnect.Ticker.IsConnected">
+            <summary>
+            Tells whether ticker is connected to server not.
+            </summary>
+        </member>
+        <member name="M:KiteConnect.Ticker.Connect">
+            <summary>
+            Start a WebSocket connection
+            </summary>
+        </member>
+        <member name="M:KiteConnect.Ticker.Close">
+            <summary>
+            Close a WebSocket connection
+            </summary>
+        </member>
+        <member name="M:KiteConnect.Ticker.Reconnect">
+            <summary>
+            Reconnect WebSocket connection in case of failures
+            </summary>
+        </member>
+        <member name="M:KiteConnect.Ticker.Subscribe(System.UInt32[])">
+            <summary>
+            Subscribe to a list of instrument_tokens.
+            </summary>
+            <param name="Tokens">List of instrument instrument_tokens to subscribe</param>
+        </member>
+        <member name="M:KiteConnect.Ticker.UnSubscribe(System.UInt32[])">
+            <summary>
+            Unsubscribe the given list of instrument_tokens.
+            </summary>
+            <param name="Tokens">List of instrument instrument_tokens to unsubscribe</param>
+        </member>
+        <member name="M:KiteConnect.Ticker.SetMode(System.UInt32[],System.String)">
+            <summary>
+            Set streaming mode for the given list of tokens.
+            </summary>
+            <param name="Tokens">List of instrument tokens on which the mode should be applied</param>
+            <param name="Mode">Mode to set. It can be one of the following: ltp, quote, full.</param>
+        </member>
+        <member name="M:KiteConnect.Ticker.ReSubscribe">
+            <summary>
+            Resubscribe to all currently subscribed tokens. Used to restore all the subscribed tokens after successful reconnection.
+            </summary>
+        </member>
+        <member name="M:KiteConnect.Ticker.EnableReconnect(System.Int32,System.Int32)">
+            <summary>
+            Enable WebSocket autreconnect in case of network failure/disconnection.
+            </summary>
+            <param name="Interval">Interval between auto reconnection attemptes. `onReconnect` callback is triggered when reconnection is attempted.</param>
+            <param name="Retries">Maximum number reconnection attempts. Defaults to 50 attempts. `onNoReconnect` callback is triggered when number of retries exceeds this value.</param>
+        </member>
+        <member name="M:KiteConnect.Ticker.DisableReconnect">
+            <summary>
+            Disable WebSocket autreconnect.
+            </summary>
+        </member>
+        <member name="M:KiteConnect.Utils.StringToDate(System.String)">
+            <summary>
+            Convert string to Date object
+            </summary>
+            <param name="obj">Date string.</param>
+            <returns>Date object/</returns>
+        </member>
+        <member name="M:KiteConnect.Utils.JsonSerialize(System.Object)">
+            <summary>
+            Serialize C# object to JSON string.
+            </summary>
+            <param name="obj">C# object to serialize.</param>
+            <returns>JSON string/</returns>
+        </member>
+        <member name="M:KiteConnect.Utils.JsonDeserialize(System.String)">
+            <summary>
+            Deserialize Json string to nested string dictionary.
+            </summary>
+            <param name="Json">Json string to deserialize.</param>
+            <returns>Json in the form of nested string dictionary.</returns>
+        </member>
+        <member name="M:KiteConnect.Utils.ParseCSV(System.String)">
+            <summary>
+            Parse instruments API's CSV response.
+            </summary>
+            <param name="Data">Response of instruments API.</param>
+            <returns>CSV data as array of nested string dictionary.</returns>
+        </member>
+        <member name="M:KiteConnect.Utils.StreamFromString(System.String)">
+            <summary>
+            Wraps a string inside a stream
+            </summary>
+            <param name="value">string data</param>
+            <returns>Stream that reads input string</returns>
+        </member>
+        <member name="M:KiteConnect.Utils.AddIfNotNull(System.Collections.Generic.Dictionary{System.String,System.Object},System.String,System.String)">
+            <summary>
+            Helper function to add parameter to the request only if it is not null or empty
+            </summary>
+            <param name="Params">Dictionary to add the key-value pair</param>
+            <param name="Key">Key of the parameter</param>
+            <param name="Value">Value of the parameter</param>
+        </member>
+        <member name="M:KiteConnect.Utils.SHA256(System.String)">
+            <summary>
+            Generates SHA256 checksum for login.
+            </summary>
+            <param name="Data">Input data to generate checksum for.</param>
+            <returns>SHA256 checksum in hex format.</returns>
+        </member>
+        <member name="M:KiteConnect.Utils.BuildParam(System.String,System.Object)">
+            <summary>
+            Creates key=value with url encoded value
+            </summary>
+            <param name="Key">Key</param>
+            <param name="Value">Value</param>
+            <returns>Combined string</returns>
+        </member>
+        <member name="T:KiteConnect.WebSocket">
+            <summary>
+            A wrapper for .Net's ClientWebSocket with callbacks
+            </summary>
+        </member>
+        <member name="M:KiteConnect.WebSocket.#ctor(System.Int32)">
+            <summary>
+            Initialize WebSocket class
+            </summary>
+            <param name="BufferLength">Size of buffer to keep byte stream chunk.</param>
+        </member>
+        <member name="M:KiteConnect.WebSocket.IsConnected">
+            <summary>
+            Check if WebSocket is connected or not
+            </summary>
+            <returns>True if connection is live</returns>
+        </member>
+        <member name="M:KiteConnect.WebSocket.Connect(System.String,System.Collections.Generic.Dictionary{System.String,System.String})">
+            <summary>
+            Connect to WebSocket
+            </summary>
+        </member>
+        <member name="M:KiteConnect.WebSocket.Send(System.String)">
+            <summary>
+            Send message to socket connection
+            </summary>
+            <param name="Message">Message to send</param>
+        </member>
+        <member name="M:KiteConnect.WebSocket.Close(System.Boolean)">
+            <summary>
+            Close the WebSocket connection
+            </summary>
+            <param name="Abort">If true WebSocket will not send 'Close' signal to server. Used when connection is disconnected due to netork issues.</param>
+        </member>
+        <member name="M:System.ExceptionExtensions.Messages(System.Exception)">
+            <summary>
+            Returns a list of all the exception messages from the top-level
+            exception down through all the inner exceptions. Useful for making
+            logs and error pages easier to read when dealing with exceptions.
+            Usage: Exception.Messages()
+            </summary>
+        </member>
+    </members>
+</doc>
