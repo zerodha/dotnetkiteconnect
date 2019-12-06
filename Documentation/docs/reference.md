@@ -288,6 +288,7 @@ Retrieve historical data (candles) for an instrument.
 | ToDate | DateTime | Date in format yyyy-MM-dd for fetching candles between two days. Date in format yyyy-MM-dd hh:mm:ss for fetching candles between two timestamps. |
 | Interval | String | The candle record interval. Possible values are: minute, day, 3minute, 5minute, 10minute, 15minute, 30minute, 60minute |
 | Continuous | Boolean | Pass true to get continous data of expired instruments. |
+| OI | Boolean | Pass true to get open interest data. |
 
 **Returns:** List of Historical objects.
 

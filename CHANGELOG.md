@@ -1,3 +1,8 @@
+## 3.0.3
+
+* Added Open Interest data to historical API
+* Added Circuit Limit data to quote API
+
 ## 3.0.2
 
 * Added GTT support
