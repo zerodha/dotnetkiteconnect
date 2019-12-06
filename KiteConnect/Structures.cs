@@ -867,7 +867,7 @@ namespace KiteConnect
                 Open = data["ohlc"]["open"];
                 Close = data["ohlc"]["close"];
                 Low = data["ohlc"]["low"];
-                High = data["ohlc"]["high"];
+                High = data["ohlc"]["high"];                
 
                 if (data.ContainsKey("last_quantity"))
                 {
@@ -884,6 +884,9 @@ namespace KiteConnect
 
                     OIDayHigh = Convert.ToUInt32(data["oi_day_high"]);
                     OIDayLow = Convert.ToUInt32(data["oi_day_low"]);
+
+                    LowerCircuitLimit = data["lower_circuit_limit"];
+                    UpperCircuitLimit = data["upper_circuit_limit"];
 
                     Bids = new List<DepthItem>();
                     Offers = new List<DepthItem>();
@@ -916,6 +919,9 @@ namespace KiteConnect
                     OIDayHigh = 0;
                     OIDayLow = 0;
 
+                    LowerCircuitLimit = 0;
+                    UpperCircuitLimit = 0;
+
                     Bids = new List<DepthItem>();
                     Offers = new List<DepthItem>();
                 }
@@ -939,6 +945,8 @@ namespace KiteConnect
         public decimal Low { get; set; }
         public decimal Close { get; set; }
         public decimal Change { get; set; }
+        public decimal LowerCircuitLimit { get; set; }
+        public decimal UpperCircuitLimit { get; set; }
         public List<DepthItem> Bids { get; set; }
         public List<DepthItem> Offers { get; set; }
 

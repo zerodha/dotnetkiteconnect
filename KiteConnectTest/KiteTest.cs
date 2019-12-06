@@ -121,9 +121,10 @@ namespace KiteConnectTest
             string json = File.ReadAllText(@"responses\quote.json", Encoding.UTF8);
             MockServer ms = new MockServer("http://localhost:8080/", "application/json", json);
             Kite kite = new Kite("apikey", Root: "http://localhost:8080");
-            Dictionary<string, Quote> quotes = kite.GetQuote(new string[] { "NSE:INFY" });
+            Dictionary<string, Quote> quotes = kite.GetQuote(new string[] { "NSE:ASHOKLEY", "NSE:NIFTY 50" });
 
-            Assert.AreEqual(quotes["NSE:INFY"].LastPrice, (decimal)1034.25);
+            Assert.AreEqual(quotes["NSE:ASHOKLEY"].LastPrice, (decimal)76.6);
+            Assert.AreEqual(quotes["NSE:NIFTY 50"].LowerCircuitLimit, 0);
             ms.Stop();
         }
 
