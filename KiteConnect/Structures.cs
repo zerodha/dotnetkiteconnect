@@ -67,6 +67,7 @@ namespace KiteConnect
             Low = Convert.ToDecimal(data[3]);
             Close = Convert.ToDecimal(data[4]);
             Volume = Convert.ToUInt32(data[5]);
+            OI = data.Count > 6 ? Convert.ToUInt32(data[6]) : 0;
         }
 
         public DateTime TimeStamp { get; }
@@ -75,6 +76,7 @@ namespace KiteConnect
         public decimal Low { get; }
         public decimal Close { get; }
         public UInt32 Volume { get; }
+        public UInt32 OI { get; }
     }
 
     /// <summary>

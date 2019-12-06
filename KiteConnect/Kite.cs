@@ -628,13 +628,15 @@ namespace KiteConnect
         /// <param name="ToDate">Date in format yyyy-MM-dd for fetching candles between two days. Date in format yyyy-MM-dd hh:mm:ss for fetching candles between two timestamps.</param>
         /// <param name="Interval">The candle record interval. Possible values are: minute, day, 3minute, 5minute, 10minute, 15minute, 30minute, 60minute</param>
         /// <param name="Continuous">Pass true to get continous data of expired instruments.</param>
+        /// <param name="OI">Pass true to get open interest data.</param>
         /// <returns>List of Historical objects.</returns>
         public List<Historical> GetHistoricalData(
             string InstrumentToken,
             DateTime FromDate,
             DateTime ToDate,
             string Interval,
-            bool Continuous = false)
+            bool Continuous = false,
+            bool OI = false)
         {
             var param = new Dictionary<string, dynamic>();
 
@@ -643,6 +645,7 @@ namespace KiteConnect
             param.Add("to", ToDate.ToString("yyyy-MM-dd HH:mm:ss"));
             param.Add("interval", Interval);
             param.Add("continuous", Continuous ? "1" : "0");
+            param.Add("oi", OI ? "1" : "0");
 
             var historicalData = Get("market.historical", param);
 
