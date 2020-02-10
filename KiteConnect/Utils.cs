@@ -63,7 +63,42 @@ namespace KiteConnect
         {
             var jss = new JavaScriptSerializer();
             Dictionary<string, dynamic> dict = jss.Deserialize<Dictionary<string, dynamic>>(Json);
+            // Replace double with decimal in the map
+            dict = DoubleToDecimal(dict);
             return dict;
+        }
+
+        /// <summary>
+        /// Recursively traverses an object and converts double fields to decimal.
+        /// This is used in Json deserialization. JavaScriptSerializer converts floats
+        /// in exponential notation to double and everthing else to double. This function
+        /// makes everything decimal. Currently supports only Dictionary and Array as input.
+        /// </summary>
+        /// <param name="obj">Input object.</param>
+        /// <returns>Object with decimals instead of doubles</returns>
+        public static dynamic DoubleToDecimal(dynamic obj)
+        {
+            if (obj is double)
+            {
+                obj = Convert.ToDecimal(obj);
+            }
+            else if (obj is IDictionary)
+            {
+                var keys = new List<string>(obj.Keys);
+                for (int i = 0; i < keys.Count; i++)
+                {
+                    obj[keys[i]] = DoubleToDecimal(obj[keys[i]]);
+                }
+            }
+            else if (obj is ICollection)
+            {
+                obj = new ArrayList(obj);
+                for (int i = 0; i < obj.Count; i++)
+                {
+                    obj[i] = DoubleToDecimal(obj[i]);
+                }
+            }
+            return obj;
         }
 
         /// <summary>
