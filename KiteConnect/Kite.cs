@@ -1085,8 +1085,9 @@ namespace KiteConnect
         /// <param name="Req">Request object to add headers</param>
         private void AddExtraHeaders(ref HttpWebRequest Req)
         {
-            if (Assembly.GetEntryAssembly() != null)
-                Req.UserAgent = "KiteConnect.Net/" + Assembly.GetEntryAssembly().GetName().Version;
+            var KiteAssembly = System.Reflection.Assembly.GetAssembly(typeof(Kite));
+            if (KiteAssembly != null)
+                Req.UserAgent = "KiteConnect.Net/" + KiteAssembly.GetName().Version;
 
             Req.Headers.Add("X-Kite-Version", "3");
             Req.Headers.Add("Authorization", "token " + _apiKey + ":" + _accessToken);
