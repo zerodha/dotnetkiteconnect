@@ -309,6 +309,19 @@ namespace KiteConnectSample
             );
             Console.WriteLine(Utils.JsonSerialize(historical[0]));
 
+            // Historical Data for 1 Year, 2016/1/1 to 2016/12/31
+            historical = kite.GetHistoricalDataForYear(
+                "5633", 
+                2016);
+            Console.WriteLine(Utils.JsonSerialize(historical[0]));
+
+            // Historical Data for 2 Years, 2016/1/1 to 2017/12/31
+            historical = kite.GetHistoricalDataForRange(
+                "5633",
+                2016,
+                2017);
+            Console.WriteLine(Utils.JsonSerialize(historical[0]));
+
             // Mutual Funds Instruments
 
             List<MFInstrument> mfinstruments = kite.GetMFInstruments();

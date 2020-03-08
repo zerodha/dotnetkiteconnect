@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Collections;
 using System.Reflection;
+using System.Threading;
 
 namespace KiteConnect
 {
@@ -621,7 +622,7 @@ namespace KiteConnect
         }
 
         /// <summary>
-        /// Retrieve historical data (candles) for an instrument.
+        /// Retrieve maximum 60 days of historical data (candles) for an instrument.
         /// </summary>
         /// <param name="InstrumentToken">Identifier for the instrument whose historical records you want to fetch. This is obtained with the instrument list API.</param>
         /// <param name="FromDate">Date in format yyyy-MM-dd for fetching candles between two days. Date in format yyyy-MM-dd hh:mm:ss for fetching candles between two timestamps.</param>
@@ -655,6 +656,148 @@ namespace KiteConnect
                 historicals.Add(new Historical(item));
 
             return historicals;
+        }
+
+        /// <summary>
+        /// Retrieve maximum one year of historical data (candles) for an instrument.
+        /// </summary>
+        /// <param name="InstrumentToken">Identifier for the instrument whose historical records you want to fetch. This is obtained with the instrument list API.</param>
+        /// <param name="ForYear">Start year as number for example : 2016, to fetch candles starting from 2016/1/1 to 2016/12/31.</param>
+        /// <param name="Interval">The candle record interval. Possible values are: minute, day, 3minute, 5minute, 10minute, 15minute, 30minute, 60minute</param>
+        /// <param name="Continuous">Pass true to get continous data of expired instruments.</param>
+        /// <param name="OI">Pass true to get open interest data.</param>
+        /// <param name="SaveAsCsv">Pass true to save historical data in a .csv file.</param>
+        /// <returns>List of Historical objects.</returns>
+        public List<Historical> GetHistoricalDataForYear(
+            string InstrumentToken,
+            int ForYear,
+            string Interval = Constants.INTERVAL_MINUTE,
+            bool Continuous = false,
+            bool OI = false,
+            bool SaveAsCsv = false)
+        {
+            // create return list
+            var historicals = new List<Historical>();
+
+            // start from given year, ex: 2016/1/1, 09:00:00
+            var fromDate = new DateTime(ForYear, 1, 1, 09, 00, 0);
+
+            // init to date to start date, as it will re-set in loop
+            var toDate = fromDate;
+
+            // true, will be run only 6 or 7 (in some cases) times based on 365 / 60 days
+            while (true)
+            {
+                // check for last month, to break loop or get remaining data
+                if (toDate.Month == 12)
+                {
+                    // calculate remaining days, if any, ex: 31 - 27 = 4 days remaining
+                    var remainingDays = 31 - toDate.Day;
+
+                    // if any days are remaining
+                    if (remainingDays > 0)
+                    {
+                        // add those remaining days
+                        toDate = fromDate.AddDays(remainingDays);
+
+                        // add 6 hours 30min to timing to get 31st 15:30:00 data
+                        toDate = toDate.AddHours(6);
+                        toDate = toDate.AddMinutes(30);
+                    }
+                    else
+                    {
+                        // no remaining days
+                        break;
+                    }
+                }
+                else
+                {
+                    // add 60 days to starting date, max 60 days per request
+                    toDate = fromDate.AddDays(60);
+                }
+
+                // fetch data and add to return list
+                historicals.AddRange(GetHistoricalData(
+                    InstrumentToken: InstrumentToken,
+                    FromDate: fromDate,
+                    ToDate: toDate,
+                    Interval: Interval,
+                    Continuous: Continuous,
+                    OI: OI
+                ));
+
+                // set last date as new start date
+                fromDate = toDate;
+
+                // important to add delay between requests
+                Thread.Sleep(500);
+            }
+
+            if (SaveAsCsv)
+            {
+                var filename = string.Format("historicals_{0}_{1}.csv",
+                    InstrumentToken,
+                    ForYear);
+
+                var csv = Historical.MapToCsv(historicals, true);
+
+                csv.ExportToFile(filename);
+            }
+
+            return historicals;
+        }
+
+        /// <summary>
+        /// Retrieve range historical data (candles) for an instrument.
+        /// </summary>
+        /// <param name="InstrumentToken">Identifier for the instrument whose historical records you want to fetch. This is obtained with the instrument list API.</param>
+        /// <param name="FromYear">Start year as a number, data from this year/1/1</param>
+        /// <param name="ToYear">End year as a number, data fromyear/1/1 to this year/12/31</param>
+        /// <param name="Interval">The candle record interval. Possible values are: minute, day, 3minute, 5minute, 10minute, 15minute, 30minute, 60minute</param>
+        /// <param name="Continuous">Pass true to get continous data of expired instruments.</param>
+        /// <param name="OI">Pass true to get open interest data.</param>
+        /// <param name="SaveAsCsv">Pass true to save historical data in a .csv file.</param>
+        /// <returns>List of Historical objects.</returns>
+        public List<Historical> GetHistoricalDataForRange(
+            string InstrumentToken,
+            int FromYear,
+            int ToYear,
+            string Interval = Constants.INTERVAL_MINUTE,
+            bool Continuous = false,
+            bool OI = false,
+            bool SaveAsCsv = false)
+        {
+            var originalFromYear = FromYear;
+            var historicalData = new List<Historical>();
+
+            while (FromYear <= ToYear)
+            {
+                var hd = GetHistoricalDataForYear(
+                    InstrumentToken,
+                    FromYear,
+                    Interval,
+                    Continuous,
+                    OI,
+                    SaveAsCsv);
+
+                historicalData.AddRange(hd);
+
+                ++FromYear;
+            }
+
+            if (SaveAsCsv)
+            {
+                var filename = string.Format("historicals_{0}_{1}_to_{2}.csv",
+                    InstrumentToken,
+                    originalFromYear,
+                    ToYear);
+
+                var csv = Historical.MapToCsv(historicalData, true);
+
+                csv.ExportToFile(filename);
+            }
+
+            return historicalData;
         }
 
         /// <summary>

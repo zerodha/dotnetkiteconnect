@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Net;
 using System.Linq;
+using Jitbit.Utils;
 
 namespace KiteConnect
 {
@@ -77,6 +78,41 @@ namespace KiteConnect
         public decimal Close { get; }
         public UInt32 Volume { get; }
         public UInt32 OI { get; }
+
+        /// <summary>
+        /// Map data to a csv object
+        /// </summary>
+        /// <param name="DataList">Historical datalist</param>
+        /// <param name="IncludeVolume">Include volumne column in csv</param>
+        /// <param name="IncludeOI">Include oi column in csv</param>
+        public static CsvExport MapToCsv(IEnumerable<Historical> DataList,
+            bool IncludeVolume = false,
+            bool IncludeOI = false)
+        {
+            var csv = new CsvExport(includeColumnSeparatorDefinitionPreamble: false);
+
+            foreach (var d in DataList)
+            {
+                csv.AddRow();
+                csv["TimeStamp"] = d.TimeStamp;
+                csv["Open"] = d.Open;
+                csv["High"] = d.High;
+                csv["Low"] = d.Low;
+                csv["Close"] = d.Close;
+
+                if (IncludeVolume)
+                {
+                    csv["Volume"] = d.Volume;
+                }
+
+                if (IncludeOI)
+                {
+                    csv["OI"] = d.OI;
+                }
+            }
+
+            return csv;
+        }
     }
 
     /// <summary>
