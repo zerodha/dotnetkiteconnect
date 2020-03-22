@@ -1,6 +1,8 @@
 ﻿using System;
 using KiteConnect;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 
 namespace KiteConnectSample
 {
@@ -11,15 +13,144 @@ namespace KiteConnectSample
         static Kite kite;
 
         // Initialize key and secret of your app
-        static string MyAPIKey = "abcdefghijklmnopqrstuvwxyz";
-        static string MySecret = "abcdefghijklmnopqrstuvwxyz";
-        static string MyUserId = "ZR0000";
+        static string MyAPIKey = "7u58rvfegs660jpd";
+        static string MySecret = "hx5oh8h2xsq7p5ljyhvh42c13hwzvyak";
+        static string MyUserId = "TW9921";
 
         // persist these data in settings or db or file
-        static string MyPublicToken = "abcdefghijklmnopqrstuvwxyz";
-        static string MyAccessToken = "abcdefghijklmnopqrstuvwxyz";
+        static string MyPublicToken = "FztJ8Y0RjX8m7HGYeqL3D92J71ny1fDs";
+        static string MyAccessToken = "lnKKnhSSjPf53nFbILQGzkXtcEhmcXYu";
 
         static void Main(string[] args)
+        {
+            kite = new Kite(MyAPIKey, Debug: true);
+
+            // For handling 403 errors
+            kite.SetSessionExpiryHook(OnTokenExpire);
+
+            // Initializes the login flow
+            try
+            {
+                initSession();
+            }
+            catch (Exception e)
+            {
+                // Cannot continue without proper authentication
+                Console.WriteLine(e.Message);
+                Console.ReadKey();
+                Environment.Exit(0);
+            }
+
+            kite.SetAccessToken(MyAccessToken);
+
+            // Initialize ticker
+            initTicker();
+
+            for (var iCount = 1; iCount <= 100; iCount++)
+            {
+                // Holdings
+                List<Holding> holdings = kite.GetHoldings();
+
+                // Get all orders
+                List<Order> orders = kite.GetOrders();
+
+                BuyLowSellHigh(holdings, orders, "BANKBARODA", 50, 0.5m, 0.5m, 1);
+                //BuyLowSellHigh(holdings, orders, "YESBANK", 50, 0.5m, 0.5m, 1);
+
+                Thread.Sleep(5 * 60 * 1000);
+            }
+
+            Console.ReadKey();
+
+            // Disconnect from ticker
+            ticker.Close();
+        }
+
+        public static void BuyLowSellHigh(List<Holding> holdings, List<Order> orders, string instrumentId, int midTargetQuantity, decimal buyPercentage, decimal sellPercentage, int quantityInOrder)
+        {
+            var existingQuantity = holdings.FirstOrDefault(h => h.TradingSymbol == instrumentId);
+            Console.WriteLine(Utils.JsonSerialize(existingQuantity));
+
+            // Get quotes of upto 200 scrips
+            Dictionary<string, Quote> quotes = kite.GetQuote(InstrumentId: new string[] { "NSE:" + instrumentId });
+            var quote = quotes.FirstOrDefault();
+            Console.WriteLine(Utils.JsonSerialize(quote));
+
+            var latestCompletedOrder = orders.Where(o => o.Tradingsymbol == instrumentId && o.Status == "COMPLETE").OrderBy(o => o.OrderUpdateTimestamp).LastOrDefault();
+            Console.WriteLine(Utils.JsonSerialize(orders[0]));
+
+            var buyOrderPending = orders.FirstOrDefault(o => o.Tradingsymbol == instrumentId && (o.Status == "OPEN" || o.Status == "PENDING") && o.TransactionType == "BUY");
+            var sellOrderPending = orders.FirstOrDefault(o => o.Tradingsymbol == instrumentId && (o.Status == "OPEN" || o.Status == "PENDING") && o.TransactionType == "SELL");
+
+            var lastTradedPrice = quote.Value.LastPrice;
+            var latestCompletedOrderPrice = latestCompletedOrder.AveragePrice > 0 ? latestCompletedOrder.AveragePrice : lastTradedPrice;
+
+            var buyPrice = AdjustTick(latestCompletedOrderPrice * (1 - buyPercentage / 100), true);
+            var sellPrice = AdjustTick(latestCompletedOrderPrice * (1 + sellPercentage / 100), false);
+
+            if (string.IsNullOrWhiteSpace(buyOrderPending.OrderId))
+            {
+                // Place buy order
+                kite.PlaceOrder(
+                    Exchange: Constants.EXCHANGE_NSE,
+                    TradingSymbol: instrumentId,
+                    TransactionType: Constants.TRANSACTION_TYPE_BUY,
+                    Quantity: quantityInOrder,
+                    Price: buyPrice,
+                    OrderType: Constants.ORDER_TYPE_LIMIT,
+                    Product: Constants.PRODUCT_CNC
+                );
+            }
+            else
+            {
+                // Modify buy order
+                kite.ModifyOrder(
+                    OrderId: buyOrderPending.OrderId,
+                    Exchange: Constants.EXCHANGE_NSE,
+                    TradingSymbol: instrumentId,
+                    TransactionType: Constants.TRANSACTION_TYPE_BUY,
+                    Quantity: quantityInOrder.ToString(),
+                    Price: buyPrice,
+                    OrderType: Constants.ORDER_TYPE_LIMIT,
+                    Product: Constants.PRODUCT_CNC
+                    );
+            }
+
+            if (string.IsNullOrWhiteSpace(buyOrderPending.OrderId))
+            {
+                // Place buy order
+                kite.PlaceOrder(
+                    Exchange: Constants.EXCHANGE_NSE,
+                    TradingSymbol: instrumentId,
+                    TransactionType: Constants.TRANSACTION_TYPE_BUY,
+                    Quantity: quantityInOrder,
+                    Price: sellPrice,
+                    OrderType: Constants.ORDER_TYPE_LIMIT,
+                    Product: Constants.PRODUCT_CNC
+                );
+            }
+            else
+            {
+                // Modify buy order
+                kite.ModifyOrder(
+                    OrderId: buyOrderPending.OrderId,
+                    Exchange: Constants.EXCHANGE_NSE,
+                    TradingSymbol: instrumentId,
+                    TransactionType: Constants.TRANSACTION_TYPE_BUY,
+                    Quantity: quantityInOrder.ToString(),
+                    Price: sellPrice,
+                    OrderType: Constants.ORDER_TYPE_LIMIT,
+                    Product: Constants.PRODUCT_CNC
+                );
+            }
+        }
+
+        public static decimal AdjustTick(decimal originalValue, bool isLower)
+        {
+            return isLower ? (Math.Floor(originalValue * 20) / 20) : (Math.Ceiling(originalValue * 20) / 20);
+        }
+
+        static void MainFactory(string[] args)
         {
             kite = new Kite(MyAPIKey, Debug: true);
 
@@ -384,6 +515,8 @@ namespace KiteConnectSample
 
         private static void initSession()
         {
+            if (!string.IsNullOrWhiteSpace(MyAccessToken) && !string.IsNullOrWhiteSpace(MyPublicToken)) return;
+
             Console.WriteLine("Goto " + kite.GetLoginURL());
             Console.WriteLine("Enter request token: ");
             string requestToken = Console.ReadLine();

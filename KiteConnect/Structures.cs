@@ -384,6 +384,7 @@ namespace KiteConnect
                 InstrumentToken = Convert.ToUInt32(data["instrument_token"]);
                 OrderId = data["order_id"];
                 OrderTimestamp = Utils.StringToDate(data["order_timestamp"]);
+                OrderUpdateTimestamp = Utils.StringToDate(data["exchange_update_timestamp"]);
                 OrderType = data["order_type"];
                 ParentOrderId = data["parent_order_id"];
                 PendingQuantity = data["pending_quantity"];
@@ -417,6 +418,7 @@ namespace KiteConnect
         public UInt32 InstrumentToken { get; set; }
         public string OrderId { get; set; }
         public DateTime? OrderTimestamp { get; set; }
+        public DateTime? OrderUpdateTimestamp { get; set; }
         public string OrderType { get; set; }
         public string ParentOrderId { get; set; }
         public int PendingQuantity { get; set; }
