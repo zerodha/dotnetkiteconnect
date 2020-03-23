@@ -212,5 +212,10 @@ namespace KiteConnect
             }
             return res;
         }
+
+        internal static void AddIfNotNull(Dictionary<string, dynamic> param, string v, object p)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

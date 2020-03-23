@@ -18,8 +18,11 @@ namespace KiteConnectSample
         static string MyUserId = "TW9921";
 
         // persist these data in settings or db or file
-        static string MyPublicToken = "FztJ8Y0RjX8m7HGYeqL3D92J71ny1fDs";
-        static string MyAccessToken = "lnKKnhSSjPf53nFbILQGzkXtcEhmcXYu";
+        static string MyPublicToken = "XL0nG8IHgfpSeyqJ304JQtXdn34jALsb";
+        static string MyAccessToken = "H7KIrMxuJFDWILUi7G8ywsT5BioJanaF";
+
+        private static TimeZoneInfo INDIAN_ZONE = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
+
 
         static void Main(string[] args)
         {
@@ -48,16 +51,33 @@ namespace KiteConnectSample
 
             for (var iCount = 1; iCount <= 100; iCount++)
             {
-                // Holdings
-                List<Holding> holdings = kite.GetHoldings();
+                try
+                {
+                    PositionResponse positions = kite.GetPositions();
 
-                // Get all orders
-                List<Order> orders = kite.GetOrders();
+                    // Holdings
+                    List<Holding> holdings = kite.GetHoldings();
 
-                BuyLowSellHigh(holdings, orders, "BANKBARODA", 50, 0.5m, 0.5m, 1);
-                //BuyLowSellHigh(holdings, orders, "YESBANK", 50, 0.5m, 0.5m, 1);
+                    // Get all orders
+                    List<Order> orders = kite.GetOrders();
 
-                Thread.Sleep(5 * 60 * 1000);
+                    int minutesBeforeResettingOrder = 5;
+                    decimal buyPercentage = 0.2m;
+                    decimal sellPercentage = 0.2m;
+
+                    BuyLowSellHigh(positions, holdings, orders, "BANKBARODA", 140, buyPercentage, sellPercentage, 10, minutesBeforeResettingOrder);
+                    //BuyLowSellHigh(positions,holdings, orders, "YESBANK", 100, 0.25m, 0.25m, 5, minutesBeforeResettingOrder);
+                    BuyLowSellHigh(positions, holdings, orders, "ITC", 45, buyPercentage, sellPercentage, 2, minutesBeforeResettingOrder);
+                    BuyLowSellHigh(positions, holdings, orders, "IBULHSGFIN", 70, buyPercentage, sellPercentage, 2, minutesBeforeResettingOrder);
+
+                    Thread.Sleep(1 * 15 * 1000);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                    Thread.Sleep(1 * 15 * 1000);
+                    continue;
+                }
             }
 
             Console.ReadKey();
@@ -66,18 +86,24 @@ namespace KiteConnectSample
             ticker.Close();
         }
 
-        public static void BuyLowSellHigh(List<Holding> holdings, List<Order> orders, string instrumentId, int midTargetQuantity, decimal buyPercentage, decimal sellPercentage, int quantityInOrder)
+        public static void BuyLowSellHigh(PositionResponse positions, List<Holding> holdings, List<Order> orders, string instrumentId, int maxHoldingCapacity, decimal buyPercentage, decimal sellPercentage, int lotSize, int minutesBeforeResettingOrder)
         {
+            DateTime indianTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, INDIAN_ZONE);
+
+            var netPosition = positions.Net.FirstOrDefault(k => k.TradingSymbol == instrumentId);
+            var dayPosition = positions.Day.FirstOrDefault(k => k.TradingSymbol == instrumentId);
             var existingQuantity = holdings.FirstOrDefault(h => h.TradingSymbol == instrumentId);
-            Console.WriteLine(Utils.JsonSerialize(existingQuantity));
+            //Console.WriteLine(Utils.JsonSerialize(existingQuantity));
+
+            var netHoldingCount = netPosition.Quantity + existingQuantity.RealisedQuantity;
 
             // Get quotes of upto 200 scrips
             Dictionary<string, Quote> quotes = kite.GetQuote(InstrumentId: new string[] { "NSE:" + instrumentId });
             var quote = quotes.FirstOrDefault();
-            Console.WriteLine(Utils.JsonSerialize(quote));
+            //Console.WriteLine(Utils.JsonSerialize(quote));
 
             var latestCompletedOrder = orders.Where(o => o.Tradingsymbol == instrumentId && o.Status == "COMPLETE").OrderBy(o => o.OrderUpdateTimestamp).LastOrDefault();
-            Console.WriteLine(Utils.JsonSerialize(orders[0]));
+            //Console.WriteLine(Utils.JsonSerialize(orders[0]));
 
             var buyOrderPending = orders.FirstOrDefault(o => o.Tradingsymbol == instrumentId && (o.Status == "OPEN" || o.Status == "PENDING") && o.TransactionType == "BUY");
             var sellOrderPending = orders.FirstOrDefault(o => o.Tradingsymbol == instrumentId && (o.Status == "OPEN" || o.Status == "PENDING") && o.TransactionType == "SELL");
@@ -85,64 +111,128 @@ namespace KiteConnectSample
             var lastTradedPrice = quote.Value.LastPrice;
             var latestCompletedOrderPrice = latestCompletedOrder.AveragePrice > 0 ? latestCompletedOrder.AveragePrice : lastTradedPrice;
 
-            var buyPrice = AdjustTick(latestCompletedOrderPrice * (1 - buyPercentage / 100), true);
-            var sellPrice = AdjustTick(latestCompletedOrderPrice * (1 + sellPercentage / 100), false);
+            var buyDiffPercentageGraph = GetBuyPercentageGraph(maxHoldingCapacity, buyPercentage, netHoldingCount);
+            var sellDiffPercentageGraph = GetSellPercentageGraph(maxHoldingCapacity, buyPercentage, netHoldingCount);
 
-            if (string.IsNullOrWhiteSpace(buyOrderPending.OrderId))
+            if (buyDiffPercentageGraph != null)
             {
-                // Place buy order
-                kite.PlaceOrder(
-                    Exchange: Constants.EXCHANGE_NSE,
-                    TradingSymbol: instrumentId,
-                    TransactionType: Constants.TRANSACTION_TYPE_BUY,
-                    Quantity: quantityInOrder,
-                    Price: buyPrice,
-                    OrderType: Constants.ORDER_TYPE_LIMIT,
-                    Product: Constants.PRODUCT_CNC
-                );
-            }
-            else
-            {
-                // Modify buy order
-                kite.ModifyOrder(
-                    OrderId: buyOrderPending.OrderId,
-                    Exchange: Constants.EXCHANGE_NSE,
-                    TradingSymbol: instrumentId,
-                    TransactionType: Constants.TRANSACTION_TYPE_BUY,
-                    Quantity: quantityInOrder.ToString(),
-                    Price: buyPrice,
-                    OrderType: Constants.ORDER_TYPE_LIMIT,
-                    Product: Constants.PRODUCT_CNC
+                var buyPrice = AdjustTick(latestCompletedOrderPrice * (1 - buyDiffPercentageGraph.Value / 100), true);
+
+                if (string.IsNullOrWhiteSpace(buyOrderPending.OrderId) || buyOrderPending.OrderUpdateTimestamp == null)
+                {
+                    // Place buy order
+                    kite.PlaceOrder(
+                        Exchange: Constants.EXCHANGE_NSE,
+                        TradingSymbol: instrumentId,
+                        TransactionType: Constants.TRANSACTION_TYPE_BUY,
+                        Quantity: lotSize,
+                        Price: buyPrice,
+                        OrderType: Constants.ORDER_TYPE_LIMIT,
+                        Product: Constants.PRODUCT_CNC
                     );
+                }
+                else
+                {
+                    var difference = indianTime.Subtract(buyOrderPending.OrderUpdateTimestamp.Value);
+
+                    if (difference.CompareTo(TimeSpan.FromSeconds(minutesBeforeResettingOrder * 60)) > 0)
+                    {
+                        // Modify buy order
+                        kite.ModifyOrder(
+                            OrderId: buyOrderPending.OrderId,
+                            Exchange: Constants.EXCHANGE_NSE,
+                            TradingSymbol: instrumentId,
+                            TransactionType: Constants.TRANSACTION_TYPE_BUY,
+                            Quantity: lotSize.ToString(),
+                            Price: buyPrice,
+                            OrderType: Constants.ORDER_TYPE_LIMIT,
+                            Product: Constants.PRODUCT_CNC
+                            );
+                    }
+                }
             }
 
-            if (string.IsNullOrWhiteSpace(buyOrderPending.OrderId))
+            if (sellDiffPercentageGraph != null)
             {
-                // Place buy order
-                kite.PlaceOrder(
-                    Exchange: Constants.EXCHANGE_NSE,
-                    TradingSymbol: instrumentId,
-                    TransactionType: Constants.TRANSACTION_TYPE_BUY,
-                    Quantity: quantityInOrder,
-                    Price: sellPrice,
-                    OrderType: Constants.ORDER_TYPE_LIMIT,
-                    Product: Constants.PRODUCT_CNC
-                );
+                var sellPrice = AdjustTick(latestCompletedOrderPrice * (1 + sellDiffPercentageGraph.Value / 100), false);
+
+                if (string.IsNullOrWhiteSpace(sellOrderPending.OrderId) || sellOrderPending.OrderUpdateTimestamp == null)
+                {
+                    // Place buy order
+                    kite.PlaceOrder(
+                        Exchange: Constants.EXCHANGE_NSE,
+                        TradingSymbol: instrumentId,
+                        TransactionType: Constants.TRANSACTION_TYPE_SELL,
+                        Quantity: lotSize,
+                        Price: sellPrice,
+                        OrderType: Constants.ORDER_TYPE_LIMIT,
+                        Product: Constants.PRODUCT_CNC
+                    );
+                }
+                else
+                {
+                    var difference = indianTime.Subtract(sellOrderPending.OrderUpdateTimestamp.Value);
+
+                    if (difference.CompareTo(TimeSpan.FromSeconds(minutesBeforeResettingOrder * 60)) > 0)
+                    {
+                        // Modify buy order
+                        kite.ModifyOrder(
+                        OrderId: sellOrderPending.OrderId,
+                        Exchange: Constants.EXCHANGE_NSE,
+                        TradingSymbol: instrumentId,
+                        TransactionType: Constants.TRANSACTION_TYPE_BUY,
+                        Quantity: lotSize.ToString(),
+                        Price: sellPrice,
+                        OrderType: Constants.ORDER_TYPE_LIMIT,
+                        Product: Constants.PRODUCT_CNC
+                        );
+                    }
+                }
+            }
+        }
+
+        private static decimal? GetBuyPercentageGraph(int maxHoldingCapacity, decimal buyPercentage, int netHoldingCount)
+        {
+            var holdingPercentage = netHoldingCount / maxHoldingCapacity;
+
+            decimal? buyDiffPercentageGraph;
+
+            if (holdingPercentage < 0.05)
+            {
+                buyDiffPercentageGraph = 0;
+            }
+            else if (holdingPercentage > 0.95)
+            {
+                buyDiffPercentageGraph = null;
             }
             else
             {
-                // Modify buy order
-                kite.ModifyOrder(
-                    OrderId: buyOrderPending.OrderId,
-                    Exchange: Constants.EXCHANGE_NSE,
-                    TradingSymbol: instrumentId,
-                    TransactionType: Constants.TRANSACTION_TYPE_BUY,
-                    Quantity: quantityInOrder.ToString(),
-                    Price: sellPrice,
-                    OrderType: Constants.ORDER_TYPE_LIMIT,
-                    Product: Constants.PRODUCT_CNC
-                );
+                buyDiffPercentageGraph = 2 * buyPercentage * holdingPercentage;
             }
+
+            return buyDiffPercentageGraph;
+        }
+
+        private static decimal? GetSellPercentageGraph(int maxHoldingCapacity, decimal sellPercentage, int netHoldingCount)
+        {
+            var holdingPercentage = netHoldingCount / maxHoldingCapacity;
+
+            decimal? sellDiffPercentageGraph;
+
+            if (holdingPercentage < 0.05)
+            {
+                sellDiffPercentageGraph = null;
+            }
+            else if (holdingPercentage > 0.95)
+            {
+                sellDiffPercentageGraph = 0;
+            }
+            else
+            {
+                sellDiffPercentageGraph = 2 * sellPercentage * (1 - holdingPercentage);
+            }
+
+            return sellDiffPercentageGraph;
         }
 
         public static decimal AdjustTick(decimal originalValue, bool isLower)

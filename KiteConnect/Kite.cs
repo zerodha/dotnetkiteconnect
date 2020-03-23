@@ -315,7 +315,7 @@ namespace KiteConnect
             Utils.AddIfNotNull(param, "tradingsymbol", TradingSymbol);
             Utils.AddIfNotNull(param, "transaction_type", TransactionType);
             Utils.AddIfNotNull(param, "quantity", Quantity.ToString());
-            Utils.AddIfNotNull(param, "price", Price.ToString());
+            Utils.AddIfNotNull(param, "price", Price.ToString().Replace(',', '.'));
             Utils.AddIfNotNull(param, "product", Product);
             Utils.AddIfNotNull(param, "order_type", OrderType);
             Utils.AddIfNotNull(param, "validity", Validity);
@@ -387,7 +387,7 @@ namespace KiteConnect
                 Utils.AddIfNotNull(param, "tradingsymbol", TradingSymbol);
                 Utils.AddIfNotNull(param, "transaction_type", TransactionType);
                 Utils.AddIfNotNull(param, "quantity", Quantity);
-                Utils.AddIfNotNull(param, "price", Price.ToString());
+                Utils.AddIfNotNull(param, "price", Price.ToString().Replace(',', '.'));
                 Utils.AddIfNotNull(param, "product", Product);
                 Utils.AddIfNotNull(param, "order_type", OrderType);
                 Utils.AddIfNotNull(param, "validity", Validity);
@@ -1030,7 +1030,7 @@ namespace KiteConnect
 
             return holdingslist;
         }
-
+                
         #endregion
 
         #region HTTP Functions
