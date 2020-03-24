@@ -18,12 +18,10 @@ namespace KiteConnectSample
         static string MyUserId = "TW9921";
 
         // persist these data in settings or db or file
-        static string MyPublicToken = "XL0nG8IHgfpSeyqJ304JQtXdn34jALsb";
-        static string MyAccessToken = "H7KIrMxuJFDWILUi7G8ywsT5BioJanaF";
+        static string MyPublicToken = "owX9duqzq5aSOzg6VSoA6EUfVKC1CL2w";
+        static string MyAccessToken = "DPfTfN0UM9fc44DjR4BlxxMHRC6MLN6M";
 
         private static TimeZoneInfo INDIAN_ZONE = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
-
-
         static void Main(string[] args)
         {
             kite = new Kite(MyAPIKey, Debug: true);
@@ -49,7 +47,9 @@ namespace KiteConnectSample
             // Initialize ticker
             initTicker();
 
-            for (var iCount = 1; iCount <= 100; iCount++)
+            int orderFrequencySeconds = 5;
+
+            while (true)
             {
                 try
                 {
@@ -61,23 +61,32 @@ namespace KiteConnectSample
                     // Get all orders
                     List<Order> orders = kite.GetOrders();
 
-                    int minutesBeforeResettingOrder = 5;
+                    //Default 2, Minimum 1, More value means more chances to keep the holding quantity to mid level
+                    decimal capacityMaintainanceFactor = 2;
+
+                    int secondsBeforeResettingOrder = 0;
                     int lotSizePercentage = 5;
-                    decimal buyPercentage = 0.2m;
-                    decimal sellPercentage = 0.2m;
 
+                    decimal buyPercentage = 0.25m;
+                    decimal sellPercentage = 0.25m;
 
-                    BuyLowSellHigh(positions, holdings, orders, "BANKBARODA", 140, buyPercentage, sellPercentage, lotSizePercentage, minutesBeforeResettingOrder);
-                    //BuyLowSellHigh(positions,holdings, orders, "YESBANK", 100, 0.25m, 0.25m, 5, minutesBeforeResettingOrder);
-                    BuyLowSellHigh(positions, holdings, orders, "ITC", 45, buyPercentage, sellPercentage, lotSizePercentage, minutesBeforeResettingOrder);
-                    BuyLowSellHigh(positions, holdings, orders, "IBULHSGFIN", 70, buyPercentage, sellPercentage, lotSizePercentage, minutesBeforeResettingOrder);
+                    BuyLowSellHigh(positions, holdings, orders, "BANKBARODA", 140, buyPercentage, sellPercentage, lotSizePercentage, secondsBeforeResettingOrder, capacityMaintainanceFactor);
+                    BuyLowSellHigh(positions, holdings, orders, "CIPLA", 20, buyPercentage, sellPercentage, lotSizePercentage, secondsBeforeResettingOrder, capacityMaintainanceFactor);
+                    BuyLowSellHigh(positions, holdings, orders, "ITC", 45, buyPercentage, sellPercentage, lotSizePercentage, secondsBeforeResettingOrder, capacityMaintainanceFactor);
+                    BuyLowSellHigh(positions, holdings, orders, "IBULHSGFIN", 70, buyPercentage, sellPercentage, lotSizePercentage, secondsBeforeResettingOrder, capacityMaintainanceFactor);
+                    BuyLowSellHigh(positions, holdings, orders, "GAIL", 100, buyPercentage, sellPercentage, lotSizePercentage, secondsBeforeResettingOrder, capacityMaintainanceFactor);
+                    BuyLowSellHigh(positions, holdings, orders, "YESBANK", 200, buyPercentage, sellPercentage, lotSizePercentage, secondsBeforeResettingOrder, capacityMaintainanceFactor);
+                    BuyLowSellHigh(positions, holdings, orders, "ADANIPORTS", 20, buyPercentage, sellPercentage, lotSizePercentage, secondsBeforeResettingOrder, capacityMaintainanceFactor);
+                    BuyLowSellHigh(positions, holdings, orders, "RELIANCE", 12, buyPercentage, sellPercentage, lotSizePercentage, secondsBeforeResettingOrder, capacityMaintainanceFactor);
+                    BuyLowSellHigh(positions, holdings, orders, "IDEA", 1000, buyPercentage, sellPercentage, lotSizePercentage, secondsBeforeResettingOrder, capacityMaintainanceFactor);
+                    //BuyLowSellHigh(positions, holdings, orders, "SYNDIBANK", 200, buyPercentage, sellPercentage, lotSizePercentage, secondsBeforeResettingOrder, capacityMaintainanceFactor);
 
-                    Thread.Sleep(1 * 15 * 1000);
+                    Thread.Sleep(1 * orderFrequencySeconds * 1000);
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex.Message);
-                    Thread.Sleep(1 * 15 * 1000);
+                    Thread.Sleep(1 * orderFrequencySeconds * 1000);
                     continue;
                 }
             }
@@ -88,20 +97,20 @@ namespace KiteConnectSample
             ticker.Close();
         }
 
-        public static void BuyLowSellHigh(PositionResponse positions, List<Holding> holdings, List<Order> orders, string instrumentId, int maxHoldingCapacity, decimal buyPercentage, decimal sellPercentage, int lotSizePercentage, int minutesBeforeResettingOrder)
+        public static void BuyLowSellHigh(PositionResponse positions, List<Holding> holdings, List<Order> orders, string instrumentId, int maxHoldingCapacity, decimal buyPercentage, decimal sellPercentage, int lotSizePercentage, int secondsBeforeResettingOrder, decimal capacityMaintainanceFactor)
         {
             try
             {
                 DateTime indianTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, INDIAN_ZONE);
 
-                int lotSize = (int)Math.Round((double)(maxHoldingCapacity * lotSizePercentage / 100), 0);
+                int lotSize = (int)Math.Round(maxHoldingCapacity * (double)lotSizePercentage / 100, 0);
 
+                var existingQuantity = holdings.FirstOrDefault(h => h.TradingSymbol == instrumentId);
                 var netPosition = positions.Net.FirstOrDefault(k => k.TradingSymbol == instrumentId);
                 var dayPosition = positions.Day.FirstOrDefault(k => k.TradingSymbol == instrumentId);
-                var existingQuantity = holdings.FirstOrDefault(h => h.TradingSymbol == instrumentId);
                 //Console.WriteLine(Utils.JsonSerialize(existingQuantity));
 
-                var netHoldingCount = netPosition.Quantity + existingQuantity.RealisedQuantity;
+                var netHoldingCount = existingQuantity.RealisedQuantity + existingQuantity.T1Quantity + netPosition.Quantity;
 
                 // Get quotes of upto 200 scrips
                 Dictionary<string, Quote> quotes = kite.GetQuote(InstrumentId: new string[] { "NSE:" + instrumentId });
@@ -116,13 +125,20 @@ namespace KiteConnectSample
 
                 var lastTradedPrice = quote.Value.LastPrice;
                 var latestCompletedOrderPrice = latestCompletedOrder.AveragePrice > 0 ? latestCompletedOrder.AveragePrice : lastTradedPrice;
+                //var latestCompletedOrderPrice =  lastTradedPrice;
 
-                var buyDiffPercentageGraph = GetBuyPercentageGraph(maxHoldingCapacity, buyPercentage, netHoldingCount);
-                var sellDiffPercentageGraph = GetSellPercentageGraph(maxHoldingCapacity, buyPercentage, netHoldingCount);
+                var buyDiffPercentageGraph = GetBuyPercentageGraph(maxHoldingCapacity, buyPercentage, netHoldingCount, capacityMaintainanceFactor);
+                var sellDiffPercentageGraph = GetSellPercentageGraph(maxHoldingCapacity, buyPercentage, netHoldingCount, capacityMaintainanceFactor);
 
                 if (buyDiffPercentageGraph != null)
                 {
-                    var buyPrice = AdjustTick(latestCompletedOrderPrice * (1 - buyDiffPercentageGraph.Value / 100), true);
+                    var buyPrice = buyDiffPercentageGraph.Value == 0 ? lastTradedPrice : AdjustTick(latestCompletedOrderPrice * (1 - buyDiffPercentageGraph.Value / 100), true);
+
+                    if (buyPrice > lastTradedPrice)
+                    {
+                        buyPrice = lastTradedPrice;
+                    }
+
                     Console.WriteLine("Stock:{0}, LTP:{1}, Buy:{2}", instrumentId, lastTradedPrice, buyPrice);
 
                     if (string.IsNullOrWhiteSpace(buyOrderPending.OrderId) || buyOrderPending.OrderUpdateTimestamp == null)
@@ -142,7 +158,7 @@ namespace KiteConnectSample
                     {
                         var difference = indianTime.Subtract(buyOrderPending.OrderUpdateTimestamp.Value);
 
-                        if (difference.CompareTo(TimeSpan.FromSeconds(minutesBeforeResettingOrder * 60)) > 0)
+                        if (difference.CompareTo(TimeSpan.FromSeconds(secondsBeforeResettingOrder)) >= 0 && buyDiffPercentageGraph != buyOrderPending.Price)
                         {
                             // Modify buy order
                             kite.ModifyOrder(
@@ -161,7 +177,13 @@ namespace KiteConnectSample
 
                 if (sellDiffPercentageGraph != null)
                 {
-                    var sellPrice = AdjustTick(latestCompletedOrderPrice * (1 + sellDiffPercentageGraph.Value / 100), false);
+                    var sellPrice = sellDiffPercentageGraph.Value == 0 ? lastTradedPrice : AdjustTick(latestCompletedOrderPrice * (1 + sellDiffPercentageGraph.Value / 100), false);
+
+                    if (sellPrice < lastTradedPrice)
+                    {
+                        sellPrice = lastTradedPrice;
+                    }
+
                     Console.WriteLine("Stock:{0}, LTP:{1}, Sell:{2}", instrumentId, lastTradedPrice, sellPrice);
 
                     if (string.IsNullOrWhiteSpace(sellOrderPending.OrderId) || sellOrderPending.OrderUpdateTimestamp == null)
@@ -181,7 +203,7 @@ namespace KiteConnectSample
                     {
                         var difference = indianTime.Subtract(sellOrderPending.OrderUpdateTimestamp.Value);
 
-                        if (difference.CompareTo(TimeSpan.FromSeconds(minutesBeforeResettingOrder * 60)) > 0)
+                        if (difference.CompareTo(TimeSpan.FromSeconds(secondsBeforeResettingOrder * 60)) >= 0 && sellPrice != sellOrderPending.Price)
                         {
                             // Modify buy order
                             kite.ModifyOrder(
@@ -205,45 +227,49 @@ namespace KiteConnectSample
             }
         }
 
-        private static decimal? GetBuyPercentageGraph(int maxHoldingCapacity, decimal buyPercentage, int netHoldingCount)
+        private static decimal? GetBuyPercentageGraph(int maxHoldingCapacity, decimal buyPercentage, int netHoldingCount, decimal capacityMaintainanceFactor = 2)
         {
-            var holdingPercentage = netHoldingCount / maxHoldingCapacity;
+            var holdingPercentage = (decimal)netHoldingCount / (decimal)maxHoldingCapacity;
 
             decimal? buyDiffPercentageGraph;
 
-            if (holdingPercentage < 0.05)
+            if (capacityMaintainanceFactor < 1) capacityMaintainanceFactor = 1;
+
+            if (holdingPercentage < 0.05m)
             {
                 buyDiffPercentageGraph = 0;
             }
-            else if (holdingPercentage > 0.95)
+            else if (holdingPercentage > 0.95m)
             {
                 buyDiffPercentageGraph = null;
             }
             else
             {
-                buyDiffPercentageGraph = 2 * buyPercentage * holdingPercentage;
+                buyDiffPercentageGraph = capacityMaintainanceFactor * buyPercentage * holdingPercentage;
             }
 
             return buyDiffPercentageGraph;
         }
 
-        private static decimal? GetSellPercentageGraph(int maxHoldingCapacity, decimal sellPercentage, int netHoldingCount)
+        private static decimal? GetSellPercentageGraph(int maxHoldingCapacity, decimal sellPercentage, int netHoldingCount, decimal capacityMaintainanceFactor = 2)
         {
-            var holdingPercentage = netHoldingCount / maxHoldingCapacity;
+            var holdingPercentage = (decimal)netHoldingCount / (decimal)maxHoldingCapacity;
 
             decimal? sellDiffPercentageGraph;
 
-            if (holdingPercentage < 0.05)
+            if (capacityMaintainanceFactor < 1) capacityMaintainanceFactor = 1;
+
+            if (holdingPercentage < 0.05m)
             {
                 sellDiffPercentageGraph = null;
             }
-            else if (holdingPercentage > 0.95)
+            else if (holdingPercentage > 0.95m)
             {
                 sellDiffPercentageGraph = 0;
             }
             else
             {
-                sellDiffPercentageGraph = 2 * sellPercentage * (1 - holdingPercentage);
+                sellDiffPercentageGraph = capacityMaintainanceFactor * sellPercentage * (1 - holdingPercentage);
             }
 
             return sellDiffPercentageGraph;
