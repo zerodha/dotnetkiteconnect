@@ -222,11 +222,7 @@ namespace KiteConnect
         /// 
         /// </summary>
         public const string GTT_DELETED = "deleted";
-        /// <summary>
-        /// 
-        /// </summary>
-
-
+      
         // GTT trigger type
         /// <summary>
         /// 
