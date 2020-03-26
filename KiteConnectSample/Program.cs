@@ -78,6 +78,7 @@ namespace KiteConnectSample
                     BuyLowSellHigh(positions, holdings, orders, "GAIL", 100, buyPercentage, sellPercentage, lotSizePercentage, secondsBeforeResettingOrder, capacityMaintainanceFactor);
                     BuyLowSellHigh(positions, holdings, orders, "YESBANK", 200, buyPercentage, sellPercentage, lotSizePercentage, secondsBeforeResettingOrder, capacityMaintainanceFactor);
                     BuyLowSellHigh(positions, holdings, orders, "IDEA", 1000, buyPercentage, sellPercentage, lotSizePercentage, secondsBeforeResettingOrder, capacityMaintainanceFactor);
+                    BuyLowSellHigh(positions, holdings, orders, "NTPC", 50, buyPercentage, sellPercentage, lotSizePercentage, secondsBeforeResettingOrder, capacityMaintainanceFactor);
                     //BuyLowSellHigh(positions, holdings, orders, "SYNDIBANK", 200, buyPercentage, sellPercentage, lotSizePercentage, secondsBeforeResettingOrder, capacityMaintainanceFactor);
 
                     lotSizePercentage = 5;
