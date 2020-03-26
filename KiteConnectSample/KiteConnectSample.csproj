@@ -62,7 +62,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="Properties\webjob-publish-settings.json" />
     <None Include="Settings.job">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

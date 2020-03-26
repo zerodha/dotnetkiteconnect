@@ -19,8 +19,8 @@ namespace KiteConnectSample
         private static string appName = "betaZero";
 
         // persist these data in settings or db or file
-        static string MyPublicToken = "VKIP8Ke7HxtHpidv9dlkmMUPYQexaPKr";
-        static string MyAccessToken = "cy961zcFufq3SBLfw5sMheFGIpTt8Byi";
+        static string MyPublicToken = "9znXqMQrow9QTyTsBsxt5DtfRqNIG8jY";
+        static string MyAccessToken = "ulOKRCHz5GCCvt38dqMtA5cBvM8Y3uYK";
 
         private static TimeZoneInfo INDIAN_ZONE = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
         static void Main(string[] args)
