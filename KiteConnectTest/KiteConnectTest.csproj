@@ -120,18 +120,18 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\KiteConnect\KiteConnect.csproj">
-      <Project>{f5f75ad6-e72f-44da-8d3f-1360b000c684}</Project>
-      <Name>KiteConnect</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="responses\holdings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="responses\positions.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\KiteConnectStandard\KiteConnectStandard.csproj">
+      <Project>{a39575bd-63c4-4118-8471-c95a375e0d57}</Project>
+      <Name>KiteConnectStandard</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
