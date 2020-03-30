@@ -3,12 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Web.Script.Serialization;
-using Microsoft.VisualBasic.FileIO;
+
 using System.IO;
 using System.Web;
 using System.Security.Cryptography;
 using System.Text.RegularExpressions;
+using Newtonsoft.Json;
 
 namespace KiteConnect
 {
@@ -23,14 +23,14 @@ namespace KiteConnect
         {
             try
             {
-                if(DateString.Length == 10)
+                if (DateString.Length == 10)
                 {
                     return DateTime.ParseExact(DateString, "yyyy-MM-dd", null);
-                }else
+                } else
                 {
                     return DateTime.ParseExact(DateString, "yyyy-MM-dd HH:mm:ss", null);
                 }
-            }catch (Exception)
+            } catch (Exception)
             {
                 return null;
             }
@@ -43,8 +43,8 @@ namespace KiteConnect
         /// <returns>JSON string/</returns>
         public static string JsonSerialize(object obj)
         {
-            var jss = new JavaScriptSerializer();
-            string json = jss.Serialize(obj);
+
+            string json = JsonConvert.SerializeObject(obj);
             MatchCollection mc = Regex.Matches(json, @"\\/Date\((\d*?)\)\\/");
             foreach (Match m in mc)
             {
@@ -61,8 +61,10 @@ namespace KiteConnect
         /// <returns>Json in the form of nested string dictionary.</returns>
         public static Dictionary<string, dynamic> JsonDeserialize(string Json)
         {
-            var jss = new JavaScriptSerializer();
-            Dictionary<string, dynamic> dict = jss.Deserialize<Dictionary<string, dynamic>>(Json);
+
+     
+
+            Dictionary<string, dynamic> dict = JsonConvert.DeserializeObject<Dictionary<string, dynamic>>(Json);
             // Replace double with decimal in the map
             dict = DoubleToDecimal(dict);
             return dict;
@@ -108,33 +110,35 @@ namespace KiteConnect
         /// <returns>CSV data as array of nested string dictionary.</returns>
         public static List<Dictionary<string, dynamic>> ParseCSV(string Data)
         {
-            string[] lines = Data.Split('\n');
+            string[] lines = Data.Split(Environment.NewLine.ToCharArray());
 
             List<Dictionary<string, dynamic>> instruments = new List<Dictionary<string, dynamic>>();
 
-            using (TextFieldParser parser = new TextFieldParser(StreamFromString(Data)))
+
+            // parser.CommentTokens = new string[] { "#" };
+     
+
+            // Skip over header line.
+            string[] headers = lines[0].Split(',');
+
+            for (int i = 1; i < lines.Length; i++)
             {
-                // parser.CommentTokens = new string[] { "#" };
-                parser.SetDelimiters(new string[] { "," });
-                parser.HasFieldsEnclosedInQuotes = true;
 
-                // Skip over header line.
-                string[] headers = parser.ReadLine().Split(',');
+                string[] fields = lines[i].Split(',');
+                Dictionary<string, dynamic> item = new Dictionary<string, dynamic>();
 
-                while (!parser.EndOfData)
-                {
-                    string[] fields = parser.ReadFields();
-                    Dictionary<string, dynamic> item = new Dictionary<string, dynamic>();
+                for (var j = 0; i < headers.Length; j++)
+                    item.Add(headers[j], fields[j]);
 
-                    for (var i = 0; i < headers.Length; i++)
-                        item.Add(headers[i], fields[i]);
-
-                    instruments.Add(item);
-                }
+                instruments.Add(item);
             }
-
             return instruments;
+
         }
+
+
+
+    
 
         /// <summary>
         /// Wraps a string inside a stream
