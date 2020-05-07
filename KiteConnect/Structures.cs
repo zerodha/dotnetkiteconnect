@@ -865,7 +865,7 @@ namespace KiteConnect
                 Open = data["ohlc"]["open"];
                 Close = data["ohlc"]["close"];
                 Low = data["ohlc"]["low"];
-                High = data["ohlc"]["high"];                
+                High = data["ohlc"]["high"];
 
                 if (data.ContainsKey("last_quantity"))
                 {
