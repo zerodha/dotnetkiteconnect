@@ -368,7 +368,7 @@ namespace KiteConnect
             string ProductString = Product;
 
             if ((ProductString == "bo" || ProductString == "co") && VarietyString != ProductString)
-                throw new Exception(String.Format("Invalid variety. It should be: {}", ProductString));
+                throw new Exception(String.Format("Invalid variety. It should be: {0}", ProductString));
 
             Utils.AddIfNotNull(param, "order_id", OrderId);
             Utils.AddIfNotNull(param, "parent_order_id", ParentOrderId);
