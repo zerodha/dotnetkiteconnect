@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Net;
 using System.Linq;
 
@@ -640,17 +641,17 @@ namespace KiteConnect
                 ExchangeToken = Convert.ToUInt32(data["exchange_token"]);
                 TradingSymbol = data["tradingsymbol"];
                 Name = data["name"];
-                LastPrice = Convert.ToDecimal(data["last_price"]);
-                TickSize = Convert.ToDecimal(data["tick_size"]);
+                LastPrice = Decimal.Parse(data["last_price"], CultureInfo.InvariantCulture);
+                TickSize = Decimal.Parse(data["tick_size"], CultureInfo.InvariantCulture);
                 Expiry = Utils.StringToDate(data["expiry"]);
                 InstrumentType = data["instrument_type"];
                 Segment = data["segment"];
                 Exchange = data["exchange"];
 
                 if (data["strike"].Contains("e"))
-                    Strike = Decimal.Parse(data["strike"], System.Globalization.NumberStyles.Float);
+                    Strike = Decimal.Parse(data["strike"], NumberStyles.Float, CultureInfo.InvariantCulture);
                 else
-                    Strike = Convert.ToDecimal(data["strike"]);
+                    Strike = Decimal.Parse(data["strike"], CultureInfo.InvariantCulture);
 
                 LotSize = Convert.ToUInt32(data["lot_size"]);
             }
