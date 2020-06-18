@@ -1064,12 +1064,12 @@ namespace KiteConnect
                 PurchaseAllowed = data["purchase_allowed"] == "1";
                 RedemtpionAllowed = data["redemption_allowed"] == "1";
 
-                MinimumPurchaseAmount = Convert.ToDecimal(data["minimum_purchase_amount"]);
-                PurchaseAmountMultiplier = Convert.ToDecimal(data["purchase_amount_multiplier"]);
-                MinimumAdditionalPurchaseAmount = Convert.ToDecimal(data["minimum_additional_purchase_amount"]);
-                MinimumRedemptionQuantity = Convert.ToDecimal(data["minimum_redemption_quantity"]);
-                RedemptionQuantityMultiplier = Convert.ToDecimal(data["redemption_quantity_multiplier"]);
-                LastPrice = Convert.ToDecimal(data["last_price"]);
+                MinimumPurchaseAmount = Decimal.Parse(data["minimum_purchase_amount"], CultureInfo.InvariantCulture);
+                PurchaseAmountMultiplier = Decimal.Parse(data["purchase_amount_multiplier"], CultureInfo.InvariantCulture);
+                MinimumAdditionalPurchaseAmount = Decimal.Parse(data["minimum_additional_purchase_amount"], CultureInfo.InvariantCulture);
+                MinimumRedemptionQuantity = Decimal.Parse(data["minimum_redemption_quantity"], CultureInfo.InvariantCulture);
+                RedemptionQuantityMultiplier = Decimal.Parse(data["redemption_quantity_multiplier"], CultureInfo.InvariantCulture);
+                LastPrice = Decimal.Parse(data["last_price"], CultureInfo.InvariantCulture);
 
                 DividendType = data["dividend_type"];
                 SchemeType = data["scheme_type"];
