@@ -21,6 +21,9 @@ namespace KiteConnect
         /// <returns>Date object/</returns>
         public static DateTime? StringToDate(string DateString)
         {
+            if (String.IsNullOrEmpty(DateString))
+                return null;
+            
             try
             {
                 if(DateString.Length == 10)
