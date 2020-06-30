@@ -9,6 +9,7 @@ using System.IO;
 using System.Web;
 using System.Security.Cryptography;
 using System.Text.RegularExpressions;
+using System.Globalization;
 
 namespace KiteConnect
 {
@@ -83,7 +84,7 @@ namespace KiteConnect
         {
             if (obj is double)
             {
-                obj = Convert.ToDecimal(obj);
+                obj = Convert.ToDecimal(obj, CultureInfo.InvariantCulture);
             }
             else if (obj is IDictionary)
             {
@@ -102,6 +103,16 @@ namespace KiteConnect
                 }
             }
             return obj;
+        }
+
+        /// <summary>
+        /// Converts string to decimal. Handles culture and scientific notations.
+        /// </summary>
+        /// <param name="value">Input string.</param>
+        /// <returns>Decimal value</returns>
+        public static decimal StringToDecimal(String value)
+        {
+            return decimal.Parse(value, NumberStyles.Any, CultureInfo.InvariantCulture);
         }
 
         /// <summary>
@@ -198,22 +209,17 @@ namespace KiteConnect
             }
         }
 
+        /// <summary>
+        /// Converts Unix timestamp to DateTime
+        /// </summary>
+        /// <param name="unixTimeStamp">Unix timestamp in seconds.</param>
+        /// <returns>DateTime object.</returns>
         public static DateTime UnixToDateTime(UInt64 unixTimeStamp)
         {
             // Unix timestamp is seconds past epoch
             DateTime dateTime = new DateTime(1970, 1, 1, 5, 30, 0, 0, DateTimeKind.Unspecified);
             dateTime = dateTime.AddSeconds(unixTimeStamp);
             return dateTime;
-        }
-
-        public static List<decimal> ToDecimalList(ArrayList arrayList)
-        {
-            var res = new List<decimal>();
-            foreach(var i in arrayList)
-            {
-                res.Add(Convert.ToDecimal(i));
-            }
-            return res;
         }
     }
 }
