@@ -1,4 +1,5 @@
 tradingsymbol,amc,name,purchase_allowed,redemption_allowed,minimum_purchase_amount,purchase_amount_multiplier,minimum_additional_purchase_amount,minimum_redemption_quantity,redemption_quantity_multiplier,dividend_type,scheme_type,plan,settlement_type,last_price,last_price_date
+INF209K01157,FAKE_MF,FAKE_FUND,1,1,1234.0,1.314E+1,1000.0,0.001,0.001,payout,equity,regular,T3,106.8,2017-11-23
 INF209K01157,BirlaSunLifeMutualFund_MF,Aditya Birla Sun Life Advantage Fund,1,1,1000.0,1.0,1000.0,0.001,0.001,payout,equity,regular,T3,106.8,2017-11-23
 INF209K01165,BirlaSunLifeMutualFund_MF,Aditya Birla Sun Life Advantage Fund,1,1,1000.0,1.0,1000.0,0.001,0.001,growth,equity,regular,T3,436.72,2017-11-23
 INF209K01VG0,BirlaSunLifeMutualFund_MF,Aditya Birla Sun Life Advantage Fund - Direct Plan,1,1,1000.0,1.0,1000.0,0.001,0.001,payout,equity,direct,T3,134.2,2017-11-23

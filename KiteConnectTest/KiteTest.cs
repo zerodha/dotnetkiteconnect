@@ -149,6 +149,9 @@ namespace KiteConnectTest
             List<GTT> gtts = kite.GetGTTs();
 
             Assert.AreEqual(gtts[0].Id, 105099);
+            Assert.AreEqual(gtts[0].Condition?.TriggerValues[0], 102m);
+            Assert.AreEqual(gtts[0].Condition?.TriggerValues[1], 103.7m);
+
             ms.Stop();
         }
 
@@ -185,6 +188,8 @@ namespace KiteConnectTest
             List<Instrument> instruments = kite.GetInstruments();
 
             Assert.AreEqual(instruments[0].InstrumentToken, (uint)3813889);
+            Assert.AreEqual(instruments[0].LastPrice, 10.01m);
+            Assert.AreEqual(instruments[0].Strike, 13.14m);
             ms.Stop();
         }
 
@@ -281,6 +286,8 @@ namespace KiteConnectTest
             List<MFInstrument> instruments = kite.GetMFInstruments();
 
             Assert.AreEqual(instruments[0].TradingSymbol, "INF209K01157");
+            Assert.AreEqual(instruments[0].MinimumPurchaseAmount, 1234.0m);
+            Assert.AreEqual(instruments[0].PurchaseAmountMultiplier, 13.14m);
             ms.Stop();
         }
     }
