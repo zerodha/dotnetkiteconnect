@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Net;
 using System.Linq;
+using System.Net;
 
 namespace KiteConnect
 {
@@ -506,7 +506,7 @@ namespace KiteConnect
                 InstrumentToken = data["instrument_token"];
                 Exchange = data["exchange"];
                 TradingSymbol = data["tradingsymbol"];
-                TriggerValues = Utils.ToDecimalList(data["trigger_values"] as ArrayList);
+                TriggerValues = (data["trigger_values"] as ArrayList).Cast<decimal>().ToList();
                 LastPrice = data["last_price"];
             }
             catch (Exception e)
@@ -640,17 +640,13 @@ namespace KiteConnect
                 ExchangeToken = Convert.ToUInt32(data["exchange_token"]);
                 TradingSymbol = data["tradingsymbol"];
                 Name = data["name"];
-                LastPrice = Convert.ToDecimal(data["last_price"]);
-                TickSize = Convert.ToDecimal(data["tick_size"]);
+                LastPrice = Utils.StringToDecimal(data["last_price"]);
+                TickSize = Utils.StringToDecimal(data["tick_size"]);
                 Expiry = Utils.StringToDate(data["expiry"]);
                 InstrumentType = data["instrument_type"];
                 Segment = data["segment"];
                 Exchange = data["exchange"];
-
-                if (data["strike"].Contains("e"))
-                    Strike = Decimal.Parse(data["strike"], System.Globalization.NumberStyles.Float);
-                else
-                    Strike = Convert.ToDecimal(data["strike"]);
+                Strike = Utils.StringToDecimal(data["strike"]);
 
                 LotSize = Convert.ToUInt32(data["lot_size"]);
             }
@@ -1063,12 +1059,12 @@ namespace KiteConnect
                 PurchaseAllowed = data["purchase_allowed"] == "1";
                 RedemtpionAllowed = data["redemption_allowed"] == "1";
 
-                MinimumPurchaseAmount = Convert.ToDecimal(data["minimum_purchase_amount"]);
-                PurchaseAmountMultiplier = Convert.ToDecimal(data["purchase_amount_multiplier"]);
-                MinimumAdditionalPurchaseAmount = Convert.ToDecimal(data["minimum_additional_purchase_amount"]);
-                MinimumRedemptionQuantity = Convert.ToDecimal(data["minimum_redemption_quantity"]);
-                RedemptionQuantityMultiplier = Convert.ToDecimal(data["redemption_quantity_multiplier"]);
-                LastPrice = Convert.ToDecimal(data["last_price"]);
+                MinimumPurchaseAmount = Utils.StringToDecimal(data["minimum_purchase_amount"]);
+                PurchaseAmountMultiplier = Utils.StringToDecimal(data["purchase_amount_multiplier"]);
+                MinimumAdditionalPurchaseAmount = Utils.StringToDecimal(data["minimum_additional_purchase_amount"]);
+                MinimumRedemptionQuantity = Utils.StringToDecimal(data["minimum_redemption_quantity"]);
+                RedemptionQuantityMultiplier = Utils.StringToDecimal(data["redemption_quantity_multiplier"]);
+                LastPrice = Utils.StringToDecimal(data["last_price"]);
 
                 DividendType = data["dividend_type"];
                 SchemeType = data["scheme_type"];
