@@ -81,14 +81,7 @@ namespace KiteConnect
         {
             if (obj.ValueKind == JsonValueKind.Number)
             {
-                if (obj.GetRawText().Contains("."))
-                {
-                    return StringToDecimal(obj.GetRawText());
-                }
-                else
-                {
-                    return obj.GetInt32();
-                }
+                return StringToDecimal(obj.GetRawText());
             }
             else if (obj.ValueKind == JsonValueKind.String)
             {

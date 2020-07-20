@@ -92,17 +92,17 @@ namespace KiteConnect
                 Exchange = data["exchange"];
                 Price = data["price"];
                 LastPrice = data["last_price"];
-                CollateralQuantity = data["collateral_quantity"];
+                CollateralQuantity = Convert.ToInt32(data["collateral_quantity"]);
                 PNL = data["pnl"];
                 ClosePrice = data["close_price"];
                 AveragePrice = data["average_price"];
                 TradingSymbol = data["tradingsymbol"];
                 CollateralType = data["collateral_type"];
-                T1Quantity = data["t1_quantity"];
+                T1Quantity = Convert.ToInt32(data["t1_quantity"]);
                 InstrumentToken = Convert.ToUInt32(data["instrument_token"]);
                 ISIN = data["isin"];
-                RealisedQuantity = data["realised_quantity"];
-                Quantity = data["quantity"];
+                RealisedQuantity = Convert.ToInt32(data["realised_quantity"]);
+                Quantity = Convert.ToInt32(data["quantity"]);
             }
             catch (Exception e)
             {
@@ -278,7 +278,7 @@ namespace KiteConnect
             try
             {
                 Product = data["product"];
-                OvernightQuantity = data["overnight_quantity"];
+                OvernightQuantity = Convert.ToInt32(data["overnight_quantity"]);
                 Exchange = data["exchange"];
                 SellValue = data["sell_value"];
                 BuyM2M = data["buy_m2m"];
@@ -287,10 +287,10 @@ namespace KiteConnect
                 Realised = data["realised"];
                 PNL = data["pnl"];
                 Multiplier = data["multiplier"];
-                SellQuantity = data["sell_quantity"];
+                SellQuantity = Convert.ToInt32(data["sell_quantity"]);
                 SellM2M = data["sell_m2m"];
                 BuyValue = data["buy_value"];
-                BuyQuantity = data["buy_quantity"];
+                BuyQuantity = Convert.ToInt32(data["buy_quantity"]);
                 AveragePrice = data["average_price"];
                 Unrealised = data["unrealised"];
                 Value = data["value"];
@@ -299,11 +299,11 @@ namespace KiteConnect
                 M2M = data["m2m"];
                 InstrumentToken = Convert.ToUInt32(data["instrument_token"]);
                 ClosePrice = data["close_price"];
-                Quantity = data["quantity"];
-                DayBuyQuantity = data["day_buy_quantity"];
+                Quantity = Convert.ToInt32(data["quantity"]);
+                DayBuyQuantity = Convert.ToInt32(data["day_buy_quantity"]);
                 DayBuyValue = data["day_buy_value"];
                 DayBuyPrice = data["day_buy_price"];
-                DaySellQuantity = data["day_sell_quantity"];
+                DaySellQuantity = Convert.ToInt32(data["day_sell_quantity"]);
                 DaySellValue = data["day_sell_value"];
                 DaySellPrice = data["day_sell_price"];
             }
@@ -375,22 +375,22 @@ namespace KiteConnect
             try
             {
                 AveragePrice = data["average_price"];
-                CancelledQuantity = data["cancelled_quantity"];
-                DisclosedQuantity = data["disclosed_quantity"];
+                CancelledQuantity = Convert.ToInt32(data["cancelled_quantity"]);
+                DisclosedQuantity = Convert.ToInt32(data["disclosed_quantity"]);
                 Exchange = data["exchange"];
                 ExchangeOrderId = data["exchange_order_id"];
                 ExchangeTimestamp = Utils.StringToDate(data["exchange_timestamp"]);
-                FilledQuantity = data["filled_quantity"];
+                FilledQuantity = Convert.ToInt32(data["filled_quantity"]);
                 InstrumentToken = Convert.ToUInt32(data["instrument_token"]);
                 OrderId = data["order_id"];
                 OrderTimestamp = Utils.StringToDate(data["order_timestamp"]);
                 OrderType = data["order_type"];
                 ParentOrderId = data["parent_order_id"];
-                PendingQuantity = data["pending_quantity"];
+                PendingQuantity = Convert.ToInt32(data["pending_quantity"]);
                 PlacedBy = data["placed_by"];
                 Price = data["price"];
                 Product = data["product"];
-                Quantity = data["quantity"];
+                Quantity = Convert.ToInt32(data["quantity"]);
                 Status = data["status"];
                 StatusMessage = data["status_message"];
                 Tag = data["tag"];
@@ -443,7 +443,7 @@ namespace KiteConnect
         {
             try
             {
-                Id = data["id"];
+                Id = Convert.ToInt32(data["id"]);
                 Condition = new GTTCondition(data["condition"]);
                 TriggerType = data["type"];
 
@@ -503,7 +503,7 @@ namespace KiteConnect
         {
             try
             {
-                InstrumentToken = data["instrument_token"];
+                InstrumentToken = Convert.ToUInt32(data["instrument_token"]);
                 Exchange = data["exchange"];
                 TradingSymbol = data["tradingsymbol"];
                 TriggerValues = (data["trigger_values"] as ArrayList).Cast<decimal>().ToList();
@@ -515,7 +515,7 @@ namespace KiteConnect
             }
         }
 
-        public int InstrumentToken { get; set; }
+        public UInt32 InstrumentToken { get; set; }
         public string Exchange { get; set; }
         public string TradingSymbol { get; set; }
         public List<decimal> TriggerValues { get; set; }
@@ -534,7 +534,7 @@ namespace KiteConnect
                 TransactionType = data["transaction_type"];
                 Product = data["product"];
                 OrderType = data["order_type"];
-                Quantity = data["quantity"];
+                Quantity = Convert.ToInt32(data["quantity"]);
                 Price = data["price"];
                 Result = data["result"] == null ? null : new Nullable<GTTResult>(new GTTResult(data["result"]));
             }
@@ -605,7 +605,7 @@ namespace KiteConnect
     {
         public string TradingSymbol { get; set; }
         public string Exchange { get; set; }
-        public int InstrumentToken { get; set; }
+        public UInt32 InstrumentToken { get; set; }
         public string TriggerType { get; set; }
         public decimal LastPrice { get; set; }
         public List<GTTOrderParams> Orders { get; set; }
@@ -689,7 +689,7 @@ namespace KiteConnect
                 TransactionType = data["transaction_type"];
                 Product = data["product"];
                 AveragePrice = data["average_price"];
-                Quantity = data["quantity"];
+                Quantity = Convert.ToInt32(data["quantity"]);
                 FillTimestamp = Utils.StringToDate(data["fill_timestamp"]);
                 ExchangeTimestamp = Utils.StringToDate(data["exchange_timestamp"]);
             }
@@ -1167,18 +1167,18 @@ namespace KiteConnect
             try
             {
                 DividendType = data["dividend_type"];
-                PendingInstalments = data["pending_instalments"];
+                PendingInstalments = Convert.ToInt32(data["pending_instalments"]);
                 Created = Utils.StringToDate(data["created"]);
                 LastInstalment = Utils.StringToDate(data["last_instalment"]);
                 TransactionType = data["transaction_type"];
                 Frequency = data["frequency"];
-                InstalmentDate = data["instalment_date"];
+                InstalmentDate = Convert.ToInt32(data["instalment_date"]);
                 Fund = data["fund"];
                 SIPId = data["sip_id"];
                 Tradingsymbol = data["tradingsymbol"];
                 Tag = data["tag"];
-                InstalmentAmount = data["instalment_amount"];
-                Instalments = data["instalments"];
+                InstalmentAmount = Convert.ToInt32(data["instalment_amount"]);
+                Instalments = Convert.ToInt32(data["instalments"]);
                 Status = data["status"];
                 OrderId = data.ContainsKey(("order_id")) ? data["order_id"] : "";
             }
