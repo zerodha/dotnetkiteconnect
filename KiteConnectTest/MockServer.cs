@@ -14,14 +14,18 @@ namespace KiteConnectTest
         string contentType = "";
         string responseString = "";
 
-        public MockServer(string url, string contentType, string responseString)
+        public MockServer(string url)
         {
-            this.contentType = contentType;
-            this.responseString = responseString;
 
             httpListener.Prefixes.Add(url);
             httpListener.Start();
             Task.Run(() => HandleRequest());
+        }
+
+        public void SetResponse(string contentType, string responseString)
+        {
+            this.contentType = contentType;
+            this.responseString = responseString;
         }
 
         public void HandleRequest()
