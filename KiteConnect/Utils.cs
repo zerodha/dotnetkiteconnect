@@ -2,14 +2,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using NotVisualBasic.FileIO;
 using System.Text;
-using System.Web.Script.Serialization;
-using Microsoft.VisualBasic.FileIO;
 using System.IO;
 using System.Web;
 using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 using System.Globalization;
+using System.Text.Json;
 
 namespace KiteConnect
 {
@@ -24,17 +24,19 @@ namespace KiteConnect
         {
             if (String.IsNullOrEmpty(DateString))
                 return null;
-            
+
             try
             {
-                if(DateString.Length == 10)
+                if (DateString.Length == 10)
                 {
                     return DateTime.ParseExact(DateString, "yyyy-MM-dd", null);
-                }else
+                }
+                else
                 {
                     return DateTime.ParseExact(DateString, "yyyy-MM-dd HH:mm:ss", null);
                 }
-            }catch (Exception)
+            }
+            catch (Exception)
             {
                 return null;
             }
@@ -47,8 +49,7 @@ namespace KiteConnect
         /// <returns>JSON string/</returns>
         public static string JsonSerialize(object obj)
         {
-            var jss = new JavaScriptSerializer();
-            string json = jss.Serialize(obj);
+            string json = JsonSerializer.Serialize(obj);
             MatchCollection mc = Regex.Matches(json, @"\\/Date\((\d*?)\)\\/");
             foreach (Match m in mc)
             {
@@ -65,44 +66,55 @@ namespace KiteConnect
         /// <returns>Json in the form of nested string dictionary.</returns>
         public static Dictionary<string, dynamic> JsonDeserialize(string Json)
         {
-            var jss = new JavaScriptSerializer();
-            Dictionary<string, dynamic> dict = jss.Deserialize<Dictionary<string, dynamic>>(Json);
+            JsonElement elm = JsonSerializer.Deserialize<JsonElement>(Json);
             // Replace double with decimal in the map
-            dict = DoubleToDecimal(dict);
+            Dictionary<string, dynamic> dict = ElementToDict(elm);
             return dict;
         }
 
         /// <summary>
-        /// Recursively traverses an object and converts double fields to decimal.
-        /// This is used in Json deserialization. JavaScriptSerializer converts floats
-        /// in exponential notation to double and everthing else to double. This function
-        /// makes everything decimal. Currently supports only Dictionary and Array as input.
+        /// Recursively traverses an object and converts JsonElement objects to corresponding primitives.
         /// </summary>
-        /// <param name="obj">Input object.</param>
-        /// <returns>Object with decimals instead of doubles</returns>
-        public static dynamic DoubleToDecimal(dynamic obj)
+        /// <param name="obj">Input JsonElement object.</param>
+        /// <returns>Object with primitives</returns>
+        public static dynamic ElementToDict(JsonElement obj)
         {
-            if (obj is double)
+            if (obj.ValueKind == JsonValueKind.Number)
             {
-                obj = Convert.ToDecimal(obj, CultureInfo.InvariantCulture);
+                return StringToDecimal(obj.GetRawText());
             }
-            else if (obj is IDictionary)
+            else if (obj.ValueKind == JsonValueKind.String)
             {
-                var keys = new List<string>(obj.Keys);
-                for (int i = 0; i < keys.Count; i++)
+                return obj.GetString();
+            }
+            else if (obj.ValueKind == JsonValueKind.True || obj.ValueKind == JsonValueKind.False)
+            {
+                return obj.GetBoolean();
+            }
+            else if (obj.ValueKind == JsonValueKind.Object)
+            {
+                var map = obj.EnumerateObject().ToList();
+                var newMap = new Dictionary<String, dynamic>();
+                for (int i = 0; i < map.Count; i++)
                 {
-                    obj[keys[i]] = DoubleToDecimal(obj[keys[i]]);
+                    newMap.Add(map[i].Name, ElementToDict(map[i].Value));
                 }
+                return newMap;
             }
-            else if (obj is ICollection)
+            else if (obj.ValueKind == JsonValueKind.Array)
             {
-                obj = new ArrayList(obj);
-                for (int i = 0; i < obj.Count; i++)
+                var items = obj.EnumerateArray().ToList();
+                var newItems = new ArrayList();
+                for (int i = 0; i < items.Count; i++)
                 {
-                    obj[i] = DoubleToDecimal(obj[i]);
+                    newItems.Add(ElementToDict(obj[i]));
                 }
+                return newItems;
             }
-            return obj;
+            else
+            {
+                return null;
+            }
         }
 
         /// <summary>
@@ -126,14 +138,14 @@ namespace KiteConnect
 
             List<Dictionary<string, dynamic>> instruments = new List<Dictionary<string, dynamic>>();
 
-            using (TextFieldParser parser = new TextFieldParser(StreamFromString(Data)))
+            using (var parser = new CsvTextFieldParser(StreamFromString(Data)))
             {
                 // parser.CommentTokens = new string[] { "#" };
-                parser.SetDelimiters(new string[] { "," });
+                // parser.SetDelimiters(new string[] { "," });
                 parser.HasFieldsEnclosedInQuotes = true;
 
                 // Skip over header line.
-                string[] headers = parser.ReadLine().Split(',');
+                string[] headers = parser.ReadFields();
 
                 while (!parser.EndOfData)
                 {
@@ -179,7 +191,6 @@ namespace KiteConnect
         /// <returns>SHA256 checksum in hex format.</returns>
         public static string SHA256(string Data)
         {
-            Console.WriteLine(Data);
             SHA256Managed sha256 = new SHA256Managed();
             StringBuilder hexhash = new StringBuilder();
             byte[] hash = sha256.ComputeHash(Encoding.UTF8.GetBytes(Data), 0, Encoding.UTF8.GetByteCount(Data));

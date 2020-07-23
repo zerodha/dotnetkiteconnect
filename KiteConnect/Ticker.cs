@@ -4,7 +4,6 @@ using System.Linq;
 using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
-using System.Web.Script.Serialization;
 
 namespace KiteConnect
 {

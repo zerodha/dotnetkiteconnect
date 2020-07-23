@@ -233,7 +233,7 @@
             <param name="InstrumentId">Indentification of instrument in the form of EXCHANGE:TRADINGSYMBOL (eg: NSE:INFY) or InstrumentToken (eg: 408065)</param>
             <returns>Dictionary with InstrumentId as key and LTP as value.</returns>
         </member>
-        <member name="M:KiteConnect.Kite.GetHistoricalData(System.String,System.DateTime,System.DateTime,System.String,System.Boolean)">
+        <member name="M:KiteConnect.Kite.GetHistoricalData(System.String,System.DateTime,System.DateTime,System.String,System.Boolean,System.Boolean)">
             <summary>
             Retrieve historical data (candles) for an instrument.
             </summary>
@@ -242,6 +242,7 @@
             <param name="ToDate">Date in format yyyy-MM-dd for fetching candles between two days. Date in format yyyy-MM-dd hh:mm:ss for fetching candles between two timestamps.</param>
             <param name="Interval">The candle record interval. Possible values are: minute, day, 3minute, 5minute, 10minute, 15minute, 30minute, 60minute</param>
             <param name="Continuous">Pass true to get continous data of expired instruments.</param>
+            <param name="OI">Pass true to get open interest data.</param>
             <returns>List of Historical objects.</returns>
         </member>
         <member name="M:KiteConnect.Kite.GetTriggerRange(System.String[],System.String)">
@@ -784,6 +785,20 @@
             <param name="Json">Json string to deserialize.</param>
             <returns>Json in the form of nested string dictionary.</returns>
         </member>
+        <member name="M:KiteConnect.Utils.ElementToDict(System.Text.Json.JsonElement)">
+            <summary>
+            Recursively traverses an object and converts JsonElement objects to corresponding primitives.
+            </summary>
+            <param name="obj">Input JsonElement object.</param>
+            <returns>Object with primitives</returns>
+        </member>
+        <member name="M:KiteConnect.Utils.StringToDecimal(System.String)">
+            <summary>
+            Converts string to decimal. Handles culture and scientific notations.
+            </summary>
+            <param name="value">Input string.</param>
+            <returns>Decimal value</returns>
+        </member>
         <member name="M:KiteConnect.Utils.ParseCSV(System.String)">
             <summary>
             Parse instruments API's CSV response.
@@ -820,6 +835,13 @@
             <param name="Key">Key</param>
             <param name="Value">Value</param>
             <returns>Combined string</returns>
+        </member>
+        <member name="M:KiteConnect.Utils.UnixToDateTime(System.UInt64)">
+            <summary>
+            Converts Unix timestamp to DateTime
+            </summary>
+            <param name="unixTimeStamp">Unix timestamp in seconds.</param>
+            <returns>DateTime object.</returns>
         </member>
         <member name="T:KiteConnect.WebSocket">
             <summary>

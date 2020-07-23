@@ -1,3 +1,19 @@
+## 3.0.5
+
+* .Net Standard migration
+* Culture invariant parsing of decimals
+* Changed GTTCondition.InstrumentToken type to UInt32
+* Changed GTTParams.InstrumentToken type to UInt32
+
+## 3.0.4
+
+* Fixed parsing of doubles with scientific notations
+
+## 3.0.3
+
+* Added Circuit limits to quote
+* Added Open Interest to Historical data
+
 ## 3.0.2
 
 * Added GTT support
