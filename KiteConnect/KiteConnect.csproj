@@ -18,6 +18,8 @@
     <RepositoryType>git</RepositoryType>
     <PackageTags>zerodha kite connect client library</PackageTags>
     <PackageReleaseNotes>Release</PackageReleaseNotes>
+
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>

@@ -288,6 +288,7 @@ Retrieve historical data (candles) for an instrument.
 | ToDate | DateTime | Date in format yyyy-MM-dd for fetching candles between two days. Date in format yyyy-MM-dd hh:mm:ss for fetching candles between two timestamps. |
 | Interval | String | The candle record interval. Possible values are: minute, day, 3minute, 5minute, 10minute, 15minute, 30minute, 60minute |
 | Continuous | Boolean | Pass true to get continous data of expired instruments. |
+| OI | Boolean | Pass true to get open interest data. |
 
 **Returns:** List of Historical objects.
 
@@ -808,6 +809,26 @@ Deserialize Json string to nested string dictionary.
 
 **Returns:** Json in the form of nested string dictionary.
 
+### ![Method](/assets/method.jpg) &nbsp;&nbsp;Utils.ElementToDict
+
+Recursively traverses an object and converts JsonElement objects to corresponding primitives.
+
+| Argument | Type | Description |
+| --- | --- | --- |
+| obj | Text.Json.JsonElement | Input JsonElement object. |
+
+**Returns:** Object with primitives
+
+### ![Method](/assets/method.jpg) &nbsp;&nbsp;Utils.StringToDecimal
+
+Converts string to decimal. Handles culture and scientific notations.
+
+| Argument | Type | Description |
+| --- | --- | --- |
+| value | String | Input string. |
+
+**Returns:** Decimal value
+
 ### ![Method](/assets/method.jpg) &nbsp;&nbsp;Utils.ParseCSV
 
 Parse instruments API's CSV response.
@@ -858,6 +879,16 @@ Creates key=value with url encoded value
 | Value | Object | Value |
 
 **Returns:** Combined string
+
+### ![Method](/assets/method.jpg) &nbsp;&nbsp;Utils.UnixToDateTime
+
+Converts Unix timestamp to DateTime
+
+| Argument | Type | Description |
+| --- | --- | --- |
+| unixTimeStamp | UInt64 | Unix timestamp in seconds. |
+
+**Returns:** DateTime object.
 
 ## ![Class](/assets/class.jpg) &nbsp;&nbsp;WebSocket Class
 
