@@ -1,3 +1,7 @@
+## 3.0.6
+
+* Fixed an exception caused by missing `instrument_token` field in GTT response
+
 ## 3.0.5
 
 * .Net Standard migration
