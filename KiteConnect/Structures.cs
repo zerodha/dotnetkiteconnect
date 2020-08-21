@@ -503,7 +503,11 @@ namespace KiteConnect
         {
             try
             {
-                InstrumentToken = Convert.ToUInt32(data["instrument_token"]);
+                InstrumentToken = 0;
+                if (data.ContainsKey("instrument_token"))
+                {
+                    InstrumentToken = Convert.ToUInt32(data["instrument_token"]);
+                }
                 Exchange = data["exchange"];
                 TradingSymbol = data["tradingsymbol"];
                 TriggerValues = (data["trigger_values"] as ArrayList).Cast<decimal>().ToList();
