@@ -1,3 +1,7 @@
+## 3.0.7
+
+* Added order margins API
+
 ## 3.0.6
 
 * Fixed an exception caused by missing `instrument_token` field in GTT response
