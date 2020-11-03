@@ -16,6 +16,9 @@
 
 
 <ItemGroup>
+    <None Include="responses/order_margins.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="responses/commodity_margins.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

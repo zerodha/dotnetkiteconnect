@@ -35,6 +35,7 @@ namespace KiteConnect
             ["api.refresh"] = "/session/refresh_token",
 
             ["instrument.margins"] = "/margins/{segment}",
+            ["order.margins"] = "/margins/orders",
 
             ["user.profile"] = "/user/profile",
             ["user.margins"] = "/user/margins",
@@ -236,21 +237,39 @@ namespace KiteConnect
             return new Profile(profileData);
         }
 
-        ///// <summary>
-        ///// Margin data for intraday trading
-        ///// </summary>
-        ///// <param name="Segment">Tradingsymbols under this segment will be returned</param>
-        ///// <returns>List of margins of intruments</returns>
-        //public List<InstrumentMargin> GetInstrumentsMargins(string Segment)
-        //{
-        //    var instrumentsMarginsData = Get("instrument.margins", new Dictionary<string, dynamic> { { "segment", Segment } });
+        /// <summary>
+        /// Margin data for a specific order
+        /// </summary>
+        /// <param name="orderMarginParams">List of all order params to get margins for</param>
+        /// <returns>List of margins of order</returns>
+        public List<OrderMargin> GetOrderMargins(List<OrderMarginParams> orderMarginParams)
+        {
+            var paramList = new List<Dictionary<string, dynamic>>();
 
-        //    List<InstrumentMargin> instrumentsMargins = new List<InstrumentMargin>();
-        //    foreach (Dictionary<string, dynamic> item in instrumentsMarginsData["data"])
-        //        instrumentsMargins.Add(new InstrumentMargin(item));
+            foreach (var item in orderMarginParams)
+            {
+                var param = new Dictionary<string, dynamic>();
+                param["exchange"] = item.Exchange;
+                param["tradingsymbol"] = item.TradingSymbol;
+                param["transaction_type"] = item.TransactionType;
+                param["quantity"] = item.Quantity;
+                param["price"] = item.Price;
+                param["product"] = item.Product;
+                param["order_type"] = item.OrderType;
+                param["trigger_price"] = item.TriggerPrice;
+                param["variety"] = item.Variety;
 
-        //    return instrumentsMargins;
-        //}
+                paramList.Add(param);
+            }
+
+            var orderMarginsData = Post("order.margins", paramList, json: true);
+
+            List<OrderMargin> orderMargins = new List<OrderMargin>();
+            foreach (Dictionary<string, dynamic> item in orderMarginsData["data"])
+                orderMargins.Add(new OrderMargin(item));
+
+            return orderMargins;
+        }
 
         /// <summary>
         /// Get account balance and cash margin details for all segments.
@@ -1052,9 +1071,9 @@ namespace KiteConnect
         /// <param name="Route">URL route of API</param>
         /// <param name="Params">Additional paramerters</param>
         /// <returns>Varies according to API endpoint</returns>
-        private dynamic Post(string Route, Dictionary<string, dynamic> Params = null)
+        private dynamic Post(string Route, dynamic Params = null, bool json = false)
         {
-            return Request(Route, "POST", Params);
+            return Request(Route, "POST", Params, json);
         }
 
         /// <summary>
@@ -1063,7 +1082,7 @@ namespace KiteConnect
         /// <param name="Route">URL route of API</param>
         /// <param name="Params">Additional paramerters</param>
         /// <returns>Varies according to API endpoint</returns>
-        private dynamic Put(string Route, Dictionary<string, dynamic> Params = null)
+        private dynamic Put(string Route, dynamic Params = null)
         {
             return Request(Route, "PUT", Params);
         }
@@ -1074,7 +1093,7 @@ namespace KiteConnect
         /// <param name="Route">URL route of API</param>
         /// <param name="Params">Additional paramerters</param>
         /// <returns>Varies according to API endpoint</returns>
-        private dynamic Delete(string Route, Dictionary<string, dynamic> Params = null)
+        private dynamic Delete(string Route, dynamic Params = null)
         {
             return Request(Route, "DELETE", Params);
         }
@@ -1116,16 +1135,16 @@ namespace KiteConnect
         /// <param name="Method">Method of HTTP request</param>
         /// <param name="Params">Additional paramerters</param>
         /// <returns>Varies according to API endpoint</returns>
-        private dynamic Request(string Route, string Method, Dictionary<string, dynamic> Params = null)
+        private dynamic Request(string Route, string Method, dynamic Params = null, bool json = false)
         {
             string url = _root + _routes[Route];
 
             if (Params is null)
                 Params = new Dictionary<string, dynamic>();
 
-            if (url.Contains("{"))
+            if (url.Contains("{") && !json)
             {
-                var urlparams = Params.ToDictionary(entry => entry.Key, entry => entry.Value);
+                var urlparams = (Params as Dictionary<string, dynamic>).ToDictionary(entry => entry.Key, entry => entry.Value);
 
                 foreach (KeyValuePair<string, dynamic> item in urlparams)
                     if (url.Contains("{" + item.Key + "}"))
@@ -1142,14 +1161,18 @@ namespace KiteConnect
             //    Params.Add("access_token", _accessToken);
 
             HttpWebRequest request;
-            string paramString = String.Join("&", Params.Select(x => Utils.BuildParam(x.Key, x.Value)));
+            string paramString;
+            if (json)
+                paramString = Utils.JsonSerialize(Params);
+            else
+                paramString = String.Join("&", (Params as Dictionary<string, dynamic>).Select(x => Utils.BuildParam(x.Key, x.Value)));
 
             if (Method == "POST" || Method == "PUT")
             {
                 request = (HttpWebRequest)WebRequest.Create(url);
                 request.AllowAutoRedirect = true;
                 request.Method = Method;
-                request.ContentType = "application/x-www-form-urlencoded";
+                request.ContentType = json ? "application/json" : "application/x-www-form-urlencoded";
                 request.ContentLength = paramString.Length;
                 if (_enableLogging) Console.WriteLine("DEBUG: " + Method + " " + url + "\n" + paramString);
                 AddExtraHeaders(ref request);

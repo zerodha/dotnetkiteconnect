@@ -238,21 +238,42 @@ namespace KiteConnect
     }
 
     /// <summary>
-    /// UserMargin structure
+    /// OrderMarginParams structure
     /// </summary>
-    public struct InstrumentMargin
+    public struct OrderMarginParams
     {
-        public InstrumentMargin(Dictionary<string, dynamic> data)
+        public string Exchange { get; set; }
+        public string TradingSymbol { get; set; }
+        public string TransactionType { get; set; }
+        public int Quantity { get; set; }
+        public decimal? Price { get; set; }
+        public decimal? TriggerPrice { get; set; }
+        public string Product { get; set; }
+        public string OrderType { get; set; }
+        public string Variety { get; set; }
+    }
+
+    /// <summary>
+    /// OrderMargin structure
+    /// </summary>
+    public struct OrderMargin
+    {
+        public OrderMargin(Dictionary<string, dynamic> data)
         {
             try
             {
-                Margin = data["margin"];
-                COLower = data["co_lower"];
-                MISMultiplier = data["mis_multiplier"];
+                Type = data["type"];
+                Exchange = data["exchange"];
                 Tradingsymbol = data["tradingsymbol"];
-                COUpper = data["co_upper"];
-                NRMLMargin = data["nrml_margin"];
-                MISMargin = data["mis_margin"];
+                OptionPremium = data["option_premium"];
+                SPAN = data["span"];
+                Exposure = data["exposure"];
+                Additional = data["additional"];
+                BO = data["bo"];
+                Cash = data["cash"];
+                VAR = data["var"];
+                PNL = new OrderMarginPNL(data["pnl"]);
+                Total = data["total"];
             }
             catch (Exception e)
             {
@@ -260,14 +281,43 @@ namespace KiteConnect
             }
         }
 
+        public string Type { get; set; }
+        public string Exchange { get; set; }
         public string Tradingsymbol { get; set; }
-        public decimal Margin { get; set; }
-        public decimal COLower { get; set; }
-        public decimal COUpper { get; set; }
-        public decimal MISMultiplier { get; set; }
-        public decimal MISMargin { get; set; }
-        public decimal NRMLMargin { get; set; }
+        public decimal OptionPremium { get; set; }
+        public decimal SPAN { get; set; }
+        public decimal Exposure { get; set; }
+        public decimal Additional { get; set; }
+        public decimal BO { get; set; }
+        public decimal Cash { get; set; }
+        public decimal VAR { get; set; }
+        public OrderMarginPNL PNL { get; set; }
+        public decimal Total { get; set; }
     }
+
+
+    /// <summary>
+    /// OrderMarginPNL structure
+    /// </summary>
+    public struct OrderMarginPNL
+    {
+        public OrderMarginPNL(Dictionary<string, dynamic> data)
+        {
+            try
+            {
+                Realised = data["realised"];
+                Unrealised = data["unrealised"];
+            }
+            catch (Exception e)
+            {
+                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
+            }
+        }
+
+        public decimal Realised { get; set; }
+        public decimal Unrealised { get; set; }
+    }
+
     /// <summary>
     /// Position structure
     /// </summary>

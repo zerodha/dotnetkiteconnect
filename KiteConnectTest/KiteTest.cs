@@ -79,6 +79,28 @@ namespace KiteConnectTest
         }
 
         [TestMethod]
+        public void TestOrderMargins()
+        {
+            string json = File.ReadAllText(@"responses/order_margins.json", Encoding.UTF8);
+            ms.SetResponse("application/json", json);
+            Kite kite = new Kite("apikey", Root: "http://localhost:8080");
+
+            OrderMarginParams param = new OrderMarginParams();
+            param.Exchange = Constants.EXCHANGE_NFO;
+            param.TradingSymbol = "ASHOKLEY20NOVFUT";
+            param.TransactionType = Constants.TRANSACTION_TYPE_SELL;
+            param.Quantity = 1;
+            param.Price = 64.0000m;
+            param.OrderType = Constants.ORDER_TYPE_MARKET;
+            param.Product = Constants.PRODUCT_MIS;
+
+            List<OrderMargin> margins = kite.GetOrderMargins(new List<OrderMarginParams>() { param });
+
+            Assert.AreEqual(margins[0].Total, (decimal)8.36025);
+            Assert.AreEqual(margins[0].SPAN, (decimal)5.408);
+        }
+
+        [TestMethod]
         public void TestEquityMargins()
         {
             string json = File.ReadAllText(@"responses/equity_margins.json", Encoding.UTF8);

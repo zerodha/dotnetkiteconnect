@@ -1,0 +1,22 @@
+{
+    "status": "success",
+    "data": [
+        {
+            "type": "equity",
+            "tradingsymbol": "ASHOKLEY20NOVFUT",
+            "exchange": "NFO",
+            "span": 5.408,
+            "exposure": 2.9522500000000003,
+            "option_premium": 1,
+            "additional": 2,
+            "bo": 3,
+            "cash": 4,
+            "var": 5,
+            "pnl": {
+                "realised": 6,
+                "unrealised": 8
+            },
+            "total": 8.36025
+        }
+    ]
+}
