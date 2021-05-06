@@ -3,17 +3,11 @@ The official .Net client for communicating with [Kite Connect API](https://kite.
 
 Kite Connect is a set of REST-like APIs that expose many capabilities required to build a complete investment and trading platform. Execute orders in real time, manage user portfolio, stream live market data (WebSockets), and more, with the simple HTTP API collection.
 
-[Zerodha Technology Pvt. Ltd.](http://zerodha.com) &copy; 2019. Licensed under the [MIT License](/license/).
+[Zerodha Technology Pvt. Ltd.](http://zerodha.com) &copy; 2021. Licensed under the [MIT License](/license/).
 
 ## Requirements
 
-**.Net Framework**: 4.5
-
-**Visual Studio**: Visual Studio 2012 and onwards
-
-**Windows**: Limited support on Windows 7. Full support on Windows 8 and onwards.
-
-*Note: Ticker will not work in Windows 7 due to absense of support for WebSockets in .Net framework.*
+KiteConnect targets `netstandard2.0`. Minimum project target is .NET Framework 4.6.1 or .NET Core 2.0.
 
 ## Documentation
 
@@ -35,11 +29,6 @@ Install-Package Tech.Zerodha.KiteConnect
 ```
 dotnet add package Tech.Zerodha.KiteConnect
 ```
-
-### Manual Install
-
-- Download DLL from [releases](https://github.com/zerodhatech/dotnetkiteconnect/releases)
-- Right click on your project &raquo; **Add** &raquo; **Reference** &raquo; Click **Browse** &raquo; Select **KiteConnect.dll**
 
 ## Getting started
 ```csharp
