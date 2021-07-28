@@ -106,7 +106,7 @@ namespace KiteConnect
             }
             catch (Exception e)
             {
-                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
+                throw new DataException(e.Message + " " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
             }
         }
 
@@ -143,7 +143,7 @@ namespace KiteConnect
             }
             catch (Exception e)
             {
-                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
+                throw new DataException(e.Message + " " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
             }
         }
 
@@ -174,7 +174,7 @@ namespace KiteConnect
             }
             catch (Exception e)
             {
-                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
+                throw new DataException(e.Message + " " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
             }
         }
 
@@ -206,7 +206,7 @@ namespace KiteConnect
             }
             catch (Exception e)
             {
-                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
+                throw new DataException(e.Message + " " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
             }
         }
 
@@ -230,7 +230,7 @@ namespace KiteConnect
             }
             catch (Exception e)
             {
-                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
+                throw new DataException(e.Message + " " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
             }
         }
         public UserMargin Equity { get; set; }
@@ -279,7 +279,7 @@ namespace KiteConnect
             }
             catch (Exception e)
             {
-                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
+                throw new DataException(e.Message + " " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
             }
         }
 
@@ -315,7 +315,7 @@ namespace KiteConnect
             }
             catch (Exception e)
             {
-                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
+                throw new DataException(e.Message + " " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
             }
         }
 
@@ -340,7 +340,7 @@ namespace KiteConnect
             }
             catch (Exception e)
             {
-                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
+                throw new DataException(e.Message + " " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
             }
         }
 
@@ -389,7 +389,7 @@ namespace KiteConnect
             }
             catch (Exception e)
             {
-                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
+                throw new DataException(e.Message + " " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
             }
 
         }
@@ -482,7 +482,7 @@ namespace KiteConnect
             }
             catch (Exception e)
             {
-                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
+                throw new DataException(e.Message + " " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
             }
 
         }
@@ -539,7 +539,7 @@ namespace KiteConnect
             }
             catch (Exception e)
             {
-                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
+                throw new DataException(e.Message + " " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
             }
         }
 
@@ -567,7 +567,7 @@ namespace KiteConnect
             }
             catch (Exception e)
             {
-                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
+                throw new DataException(e.Message + " " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
             }
         }
 
@@ -595,7 +595,7 @@ namespace KiteConnect
             }
             catch (Exception e)
             {
-                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
+                throw new DataException(e.Message + " " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
             }
         }
 
@@ -624,7 +624,7 @@ namespace KiteConnect
             }
             catch (Exception e)
             {
-                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
+                throw new DataException(e.Message + " " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
             }
         }
 
@@ -651,7 +651,7 @@ namespace KiteConnect
             }
             catch (Exception e)
             {
-                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
+                throw new DataException(e.Message + " " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
             }
         }
 
@@ -674,7 +674,7 @@ namespace KiteConnect
             }
             catch (Exception e)
             {
-                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
+                throw new DataException(e.Message + " " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
             }
         }
 
@@ -736,7 +736,7 @@ namespace KiteConnect
             }
             catch (Exception e)
             {
-                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
+                throw new DataException(e.Message + " " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
             }
 
         }
@@ -779,7 +779,7 @@ namespace KiteConnect
             }
             catch (Exception e)
             {
-                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
+                throw new DataException(e.Message + " " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
             }
 
         }
@@ -814,7 +814,7 @@ namespace KiteConnect
             }
             catch (Exception e)
             {
-                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
+                throw new DataException(e.Message + " " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
             }
 
         }
@@ -851,7 +851,7 @@ namespace KiteConnect
             }
             catch (Exception e)
             {
-                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
+                throw new DataException(e.Message + " " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
             }
 
         }
@@ -885,7 +885,7 @@ namespace KiteConnect
             }
             catch (Exception e)
             {
-                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
+                throw new DataException(e.Message + " " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
             }
         }
         public string UserId { get; }
@@ -914,7 +914,7 @@ namespace KiteConnect
             }
             catch (Exception e)
             {
-                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
+                throw new DataException(e.Message + " " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
             }
 
         }
@@ -1010,7 +1010,7 @@ namespace KiteConnect
             }
             catch (Exception e)
             {
-                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
+                throw new DataException(e.Message + " " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
             }
 
         }
@@ -1060,7 +1060,7 @@ namespace KiteConnect
             }
             catch (Exception e)
             {
-                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
+                throw new DataException(e.Message + " " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
             }
 
         }
@@ -1086,7 +1086,7 @@ namespace KiteConnect
             }
             catch (Exception e)
             {
-                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
+                throw new DataException(e.Message + " " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
             }
 
         }
@@ -1113,7 +1113,7 @@ namespace KiteConnect
             }
             catch (Exception e)
             {
-                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
+                throw new DataException(e.Message + " " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
             }
 
         }
@@ -1158,7 +1158,7 @@ namespace KiteConnect
             }
             catch (Exception e)
             {
-                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
+                throw new DataException(e.Message + " " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
             }
 
         }
@@ -1215,7 +1215,7 @@ namespace KiteConnect
             }
             catch (Exception e)
             {
-                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
+                throw new DataException(e.Message + " " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
             }
 
         }
@@ -1268,7 +1268,7 @@ namespace KiteConnect
             }
             catch (Exception e)
             {
-                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
+                throw new DataException(e.Message + " " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
             }
 
         }
