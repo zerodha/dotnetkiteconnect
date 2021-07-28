@@ -1,0 +1,17 @@
+{
+    "status": "success",
+    "data": [
+        {
+            "type": "equity",
+            "tradingsymbol": "ASHOKLEY21JULFUT",
+            "exchange": "NFO",
+            "total": 30.2280825
+        },
+        {
+            "type": "equity",
+            "tradingsymbol": "NIFTY21JUL15000PE",
+            "exchange": "NFO",
+            "total": 22500
+        }
+    ]
+}

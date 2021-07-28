@@ -1,0 +1,31 @@
+{
+    "status": "success",
+    "data": {
+        "initial": {
+            "type": "",
+            "tradingsymbol": "",
+            "exchange": "",
+            "total": 22530.2280825
+        },
+        "final": {
+            "type": "",
+            "tradingsymbol": "",
+            "exchange": "",
+            "total": 22530.2280825
+        },
+        "orders": [
+            {
+                "type": "equity",
+                "tradingsymbol": "ASHOKLEY21JULFUT",
+                "exchange": "NFO",
+                "total": 30.2280825
+            },
+            {
+                "type": "equity",
+                "tradingsymbol": "NIFTY21JUL15000PE",
+                "exchange": "NFO",
+                "total": 22500
+            }
+        ]
+    }
+}

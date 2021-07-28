@@ -101,6 +101,99 @@ namespace KiteConnectTest
         }
 
         [TestMethod]
+        public void TestOrderMarginsCompact()
+        {
+            string json = File.ReadAllText(@"responses/order_margins_compact.json", Encoding.UTF8);
+            ms.SetResponse("application/json", json);
+            Kite kite = new Kite("apikey", Root: "http://localhost:8080");
+
+            OrderMarginParams param = new OrderMarginParams();
+            param.Exchange = Constants.EXCHANGE_NFO;
+            param.TradingSymbol = "ASHOKLEY21JULFUT";
+            param.TransactionType = Constants.TRANSACTION_TYPE_SELL;
+            param.Quantity = 1;
+            param.Price = 64.0000m;
+            param.OrderType = Constants.ORDER_TYPE_MARKET;
+            param.Product = Constants.PRODUCT_MIS;
+
+            OrderMarginParams param2 = new OrderMarginParams();
+            param2.Exchange = Constants.EXCHANGE_NFO;
+            param2.TradingSymbol = "NIFTY21JUL15000PE";
+            param.TransactionType = Constants.TRANSACTION_TYPE_BUY;
+            param2.Quantity = 75;
+            param2.Price = 300;
+            param2.Product = Constants.PRODUCT_MIS;
+            param2.OrderType = Constants.ORDER_TYPE_LIMIT;
+
+            List<OrderMargin> margins = kite.GetOrderMargins(new List<OrderMarginParams>() { param, param2 }, Mode: Constants.MARGIN_MODE_COMPACT);
+
+            Assert.AreEqual(margins[0].Total, (decimal)30.2280825);
+            Assert.AreEqual(margins[0].SPAN, (decimal)0);
+        }
+
+        [TestMethod]
+        public void TestBasketMargins()
+        {
+            string json = File.ReadAllText(@"responses/basket_margins.json", Encoding.UTF8);
+            ms.SetResponse("application/json", json);
+            Kite kite = new Kite("apikey", Root: "http://localhost:8080");
+
+            OrderMarginParams param = new OrderMarginParams();
+            param.Exchange = Constants.EXCHANGE_NFO;
+            param.TradingSymbol = "ASHOKLEY21JULFUT";
+            param.TransactionType = Constants.TRANSACTION_TYPE_SELL;
+            param.Quantity = 1;
+            param.Price = 64.0000m;
+            param.OrderType = Constants.ORDER_TYPE_MARKET;
+            param.Product = Constants.PRODUCT_MIS;
+
+            OrderMarginParams param2 = new OrderMarginParams();
+            param2.Exchange = Constants.EXCHANGE_NFO;
+            param2.TradingSymbol = "NIFTY21JUL15000PE";
+            param.TransactionType = Constants.TRANSACTION_TYPE_BUY;
+            param2.Quantity = 75;
+            param2.Price = 300;
+            param2.Product = Constants.PRODUCT_MIS;
+            param2.OrderType = Constants.ORDER_TYPE_LIMIT;
+
+            BasketMargin margins = kite.GetBasketMargins(new List<OrderMarginParams>() { param, param2 });
+
+            Assert.AreEqual(margins.Final.Total, (decimal)22530.221345);
+            Assert.AreEqual(margins.Final.SPAN, (decimal)26.9577);
+        }
+
+        [TestMethod]
+        public void TestBasketMarginsCompact()
+        {
+            string json = File.ReadAllText(@"responses/basket_margins_compact.json", Encoding.UTF8);
+            ms.SetResponse("application/json", json);
+            Kite kite = new Kite("apikey", Root: "http://localhost:8080");
+
+            OrderMarginParams param = new OrderMarginParams();
+            param.Exchange = Constants.EXCHANGE_NFO;
+            param.TradingSymbol = "ASHOKLEY21JULFUT";
+            param.TransactionType = Constants.TRANSACTION_TYPE_SELL;
+            param.Quantity = 1;
+            param.Price = 64.0000m;
+            param.OrderType = Constants.ORDER_TYPE_MARKET;
+            param.Product = Constants.PRODUCT_MIS;
+
+            OrderMarginParams param2 = new OrderMarginParams();
+            param2.Exchange = Constants.EXCHANGE_NFO;
+            param2.TradingSymbol = "NIFTY21JUL15000PE";
+            param.TransactionType = Constants.TRANSACTION_TYPE_BUY;
+            param2.Quantity = 75;
+            param2.Price = 300;
+            param2.Product = Constants.PRODUCT_MIS;
+            param2.OrderType = Constants.ORDER_TYPE_LIMIT;
+
+            BasketMargin margins = kite.GetBasketMargins(new List<OrderMarginParams>() { param, param2 }, Mode: Constants.MARGIN_MODE_COMPACT);
+
+            Assert.AreEqual(margins.Final.Total, (decimal)22530.2280825);
+            Assert.AreEqual(margins.Final.SPAN, (decimal)0);
+        }
+
+        [TestMethod]
         public void TestEquityMargins()
         {
             string json = File.ReadAllText(@"responses/equity_margins.json", Encoding.UTF8);

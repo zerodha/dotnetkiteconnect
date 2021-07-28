@@ -1,0 +1,75 @@
+{
+    "status": "success",
+    "data": {
+        "initial": {
+            "type": "",
+            "tradingsymbol": "",
+            "exchange": "",
+            "span": 26.9577,
+            "exposure": 3.2636450000000004,
+            "option_premium": 22500,
+            "additional": 0,
+            "bo": 0,
+            "cash": 0,
+            "var": 0,
+            "pnl": {
+                "realised": 0,
+                "unrealised": 0
+            },
+            "total": 22530.221345
+        },
+        "final": {
+            "type": "",
+            "tradingsymbol": "",
+            "exchange": "",
+            "span": 26.9577,
+            "exposure": 3.2636450000000004,
+            "option_premium": 22500,
+            "additional": 0,
+            "bo": 0,
+            "cash": 0,
+            "var": 0,
+            "pnl": {
+                "realised": 0,
+                "unrealised": 0
+            },
+            "total": 22530.221345
+        },
+        "orders": [
+            {
+                "type": "equity",
+                "tradingsymbol": "ASHOKLEY21JULFUT",
+                "exchange": "NFO",
+                "span": 26.9577,
+                "exposure": 3.2636450000000004,
+                "option_premium": 0,
+                "additional": 0,
+                "bo": 0,
+                "cash": 0,
+                "var": 0,
+                "pnl": {
+                    "realised": 0,
+                    "unrealised": 0
+                },
+                "total": 30.221345
+            },
+            {
+                "type": "equity",
+                "tradingsymbol": "NIFTY21JUL15000PE",
+                "exchange": "NFO",
+                "span": 0,
+                "exposure": 0,
+                "option_premium": 22500,
+                "additional": 0,
+                "bo": 0,
+                "cash": 0,
+                "var": 0,
+                "pnl": {
+                    "realised": 0,
+                    "unrealised": 0
+                },
+                "total": 22500
+            }
+        ]
+    }
+}

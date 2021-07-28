@@ -16,6 +16,15 @@
 
 
 <ItemGroup>
+    <None Include="responses/basket_margins_compact.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="responses/basket_margins.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="responses/order_margins_compact.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="responses/order_margins.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
