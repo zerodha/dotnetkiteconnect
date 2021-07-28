@@ -1,3 +1,9 @@
+## 3.0.8
+
+* Added basket margins API
+* Added response mode for both basket & order margins APIs
+* Better exception messages for DataExceptions
+
 ## 3.0.7
 
 * Added order margins API
