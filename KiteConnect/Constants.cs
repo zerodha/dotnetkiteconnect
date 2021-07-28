@@ -51,6 +51,9 @@ namespace KiteConnect
         public const string MARGIN_EQUITY = "equity";
         public const string MARGIN_COMMODITY = "commodity";
 
+        // Margin modes
+        public const string MARGIN_MODE_COMPACT = "compact";
+
         // Ticker modes
         public const string MODE_FULL = "full";
         public const string MODE_QUOTE = "quote";

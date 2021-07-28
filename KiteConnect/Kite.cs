@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -36,6 +36,7 @@ namespace KiteConnect
 
             ["instrument.margins"] = "/margins/{segment}",
             ["order.margins"] = "/margins/orders",
+            ["basket.margins"] = "/margins/basket",
 
             ["user.profile"] = "/user/profile",
             ["user.margins"] = "/user/margins",
@@ -242,7 +243,7 @@ namespace KiteConnect
         /// </summary>
         /// <param name="orderMarginParams">List of all order params to get margins for</param>
         /// <returns>List of margins of order</returns>
-        public List<OrderMargin> GetOrderMargins(List<OrderMarginParams> orderMarginParams)
+        public List<OrderMargin> GetOrderMargins(List<OrderMarginParams> orderMarginParams, string Mode = null)
         {
             var paramList = new List<Dictionary<string, dynamic>>();
 
@@ -262,13 +263,56 @@ namespace KiteConnect
                 paramList.Add(param);
             }
 
-            var orderMarginsData = Post("order.margins", paramList, json: true);
+            var queryParams = new Dictionary<string, dynamic>();
+            if (Mode != null)
+            {
+                queryParams["mode"] = Mode;
+            }
+
+            var orderMarginsData = Post("order.margins", paramList, QueryParams: queryParams, json: true);
 
             List<OrderMargin> orderMargins = new List<OrderMargin>();
             foreach (Dictionary<string, dynamic> item in orderMarginsData["data"])
                 orderMargins.Add(new OrderMargin(item));
 
             return orderMargins;
+        }
+
+        /// <summary>
+        /// Margin data for a specific order
+        /// </summary>
+        /// <param name="orderMarginParams">List of all order params to get margins for</param>
+        /// <returns>List of margins of order</returns>
+        public BasketMargin GetBasketMargins(List<OrderMarginParams> orderMarginParams, bool ConsiderPositions = true, string Mode = null)
+        {
+            var paramList = new List<Dictionary<string, dynamic>>();
+
+            foreach (var item in orderMarginParams)
+            {
+                var param = new Dictionary<string, dynamic>();
+                param["exchange"] = item.Exchange;
+                param["tradingsymbol"] = item.TradingSymbol;
+                param["transaction_type"] = item.TransactionType;
+                param["quantity"] = item.Quantity;
+                param["price"] = item.Price;
+                param["product"] = item.Product;
+                param["order_type"] = item.OrderType;
+                param["trigger_price"] = item.TriggerPrice;
+                param["variety"] = item.Variety;
+
+                paramList.Add(param);
+            }
+
+            var queryParams = new Dictionary<string, dynamic>();
+            queryParams["consider_positions"] = ConsiderPositions ? "true" : "false";
+            if (Mode != null)
+            {
+                queryParams["mode"] = Mode;
+            }
+
+            var basketMarginsData = Post("basket.margins", paramList, QueryParams: queryParams, json: true);
+
+            return new BasketMargin(basketMarginsData["data"]);
         }
 
         /// <summary>

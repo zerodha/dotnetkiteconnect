@@ -232,5 +232,12 @@ namespace KiteConnect
             dateTime = dateTime.AddSeconds(unixTimeStamp);
             return dateTime;
         }
+
+        /// <summary>
+        /// Returns a default value if key doesn't exist in dictionary
+        /// </summary>
+        public static V GetValueOrDefault<K, V>
+            (IDictionary<K, V> dictionary, K key, V defaultValue) =>
+            dictionary.TryGetValue(key, out var ret) ? ret : defaultValue;
     }
 }

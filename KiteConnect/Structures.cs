@@ -265,15 +265,17 @@ namespace KiteConnect
                 Type = data["type"];
                 Exchange = data["exchange"];
                 Tradingsymbol = data["tradingsymbol"];
-                OptionPremium = data["option_premium"];
-                SPAN = data["span"];
-                Exposure = data["exposure"];
-                Additional = data["additional"];
-                BO = data["bo"];
-                Cash = data["cash"];
-                VAR = data["var"];
-                PNL = new OrderMarginPNL(data["pnl"]);
                 Total = data["total"];
+
+                // available only in non compact mode
+                OptionPremium = Utils.GetValueOrDefault(data, "option_premium", 0m);
+                SPAN = Utils.GetValueOrDefault(data, "span", 0m);
+                Exposure = Utils.GetValueOrDefault(data, "exposure", 0m);
+                Additional = Utils.GetValueOrDefault(data, "additional", 0m);
+                BO = Utils.GetValueOrDefault(data, "bo", 0m);
+                Cash = Utils.GetValueOrDefault(data, "cash", 0m);
+                VAR = Utils.GetValueOrDefault(data, "var", 0m);
+                PNL = new OrderMarginPNL(Utils.GetValueOrDefault(data, "pnl", new Dictionary<string, dynamic>()));
             }
             catch (Exception e)
             {
@@ -295,6 +297,34 @@ namespace KiteConnect
         public decimal Total { get; set; }
     }
 
+    /// <summary>
+    /// BasketMargin structure
+    /// </summary>
+    public struct BasketMargin
+    {
+        public BasketMargin(Dictionary<string, dynamic> data)
+        {
+            try
+            {
+                Initial = new OrderMargin(data["initial"]);
+                Final = new OrderMargin(data["final"]);
+                Orders = new List<OrderMargin>();
+
+                foreach (Dictionary<string, dynamic> item in data["orders"])
+                    Orders.Add(new OrderMargin(item));
+            }
+            catch (Exception e)
+            {
+                throw new DataException("Unable to parse data. " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
+            }
+        }
+
+        public OrderMargin Initial { get; set; }
+        public OrderMargin Final { get; set; }
+        public List<OrderMargin> Orders { get; set; }
+
+    }
+
 
     /// <summary>
     /// OrderMarginPNL structure
@@ -305,8 +335,8 @@ namespace KiteConnect
         {
             try
             {
-                Realised = data["realised"];
-                Unrealised = data["unrealised"];
+                Realised = Utils.GetValueOrDefault(data, "realised", 0m);
+                Unrealised = Utils.GetValueOrDefault(data, "unrealised", 0m);
             }
             catch (Exception e)
             {
