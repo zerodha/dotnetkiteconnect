@@ -298,6 +298,32 @@ namespace KiteConnectSample
             UserMargin commodityMargins = kite.GetMargins(Constants.MARGIN_COMMODITY);
             UserMargin equityMargins = kite.GetMargins(Constants.MARGIN_EQUITY);
 
+            // Order margins
+
+            OrderMarginParams orderParam = new OrderMarginParams();
+            orderParam.Exchange = Constants.EXCHANGE_NFO;
+            orderParam.TradingSymbol = "ASHOKLEY21JULFUT";
+            orderParam.TransactionType = Constants.TRANSACTION_TYPE_SELL;
+            orderParam.Quantity = 1;
+            orderParam.Price = 64.0000m;
+            orderParam.OrderType = Constants.ORDER_TYPE_MARKET;
+            orderParam.Product = Constants.PRODUCT_MIS;
+
+            List<OrderMargin> margins = kite.GetOrderMargins(new List<OrderMarginParams>() { orderParam });
+
+            // Basket margins
+
+            OrderMarginParams basketParam = new OrderMarginParams();
+            basketParam.Exchange = Constants.EXCHANGE_NFO;
+            basketParam.TradingSymbol = "NIFTY21JUL15000PE";
+            basketParam.TransactionType = Constants.TRANSACTION_TYPE_BUY;
+            basketParam.Quantity = 75;
+            basketParam.Price = 300;
+            basketParam.Product = Constants.PRODUCT_MIS;
+            basketParam.OrderType = Constants.ORDER_TYPE_LIMIT;
+
+            BasketMargin basketMargins = kite.GetBasketMargins(new List<OrderMarginParams>() { basketParam }, ConsiderPositions: true);
+
             // Historical Data With Dates
 
             List<Historical> historical = kite.GetHistoricalData(
