@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -1060,9 +1060,9 @@ namespace KiteConnect
         /// <param name="Route">URL route of API</param>
         /// <param name="Params">Additional paramerters</param>
         /// <returns>Varies according to API endpoint</returns>
-        private dynamic Get(string Route, Dictionary<string, dynamic> Params = null)
+        private dynamic Get(string Route, Dictionary<string, dynamic> Params = null, Dictionary<string, dynamic> QueryParams = null)
         {
-            return Request(Route, "GET", Params);
+            return Request(Route, "GET", Params, QueryParams);
         }
 
         /// <summary>
@@ -1071,9 +1071,9 @@ namespace KiteConnect
         /// <param name="Route">URL route of API</param>
         /// <param name="Params">Additional paramerters</param>
         /// <returns>Varies according to API endpoint</returns>
-        private dynamic Post(string Route, dynamic Params = null, bool json = false)
+        private dynamic Post(string Route, dynamic Params = null, Dictionary<string, dynamic> QueryParams = null, bool json = false)
         {
-            return Request(Route, "POST", Params, json);
+            return Request(Route, "POST", Params, QueryParams: QueryParams, json: json);
         }
 
         /// <summary>
@@ -1133,60 +1133,81 @@ namespace KiteConnect
         /// </summary>
         /// <param name="Route">URL route of API</param>
         /// <param name="Method">Method of HTTP request</param>
-        /// <param name="Params">Additional paramerters</param>
+        /// <param name="Params">Additional paramerters. Can be dictionary, list etc.</param>
         /// <returns>Varies according to API endpoint</returns>
-        private dynamic Request(string Route, string Method, dynamic Params = null, bool json = false)
+        private dynamic Request(string Route, string Method, dynamic Params = null, Dictionary<string, dynamic> QueryParams = null, bool json = false)
         {
-            string url = _root + _routes[Route];
+            string route = _root + _routes[Route];
 
             if (Params is null)
                 Params = new Dictionary<string, dynamic>();
 
-            if (url.Contains("{") && !json)
-            {
-                var urlparams = (Params as Dictionary<string, dynamic>).ToDictionary(entry => entry.Key, entry => entry.Value);
+            if (QueryParams is null)
+                QueryParams = new Dictionary<string, dynamic>();
 
-                foreach (KeyValuePair<string, dynamic> item in urlparams)
-                    if (url.Contains("{" + item.Key + "}"))
+            if (route.Contains("{") && !json)
+            {
+                var routeParams = (Params as Dictionary<string, dynamic>).ToDictionary(entry => entry.Key, entry => entry.Value);
+
+                foreach (KeyValuePair<string, dynamic> item in routeParams)
+                    if (route.Contains("{" + item.Key + "}"))
                     {
-                        url = url.Replace("{" + item.Key + "}", (string)item.Value);
+                        route = route.Replace("{" + item.Key + "}", (string)item.Value);
                         Params.Remove(item.Key);
                     }
             }
 
-            //if (!Params.ContainsKey("api_key"))
-            //    Params.Add("api_key", _apiKey);
-
-            //if (!Params.ContainsKey("access_token") && !String.IsNullOrEmpty(_accessToken))
-            //    Params.Add("access_token", _accessToken);
-
             HttpWebRequest request;
-            string paramString;
-            if (json)
-                paramString = Utils.JsonSerialize(Params);
-            else
-                paramString = String.Join("&", (Params as Dictionary<string, dynamic>).Select(x => Utils.BuildParam(x.Key, x.Value)));
 
             if (Method == "POST" || Method == "PUT")
             {
+                string url = route;
+                if (QueryParams.Count > 0)
+                {
+                    url += "?" + String.Join("&", QueryParams.Select(x => Utils.BuildParam(x.Key, x.Value)));
+                }
+
+                string requestBody = "";
+                if (json)
+                    requestBody = Utils.JsonSerialize(Params);
+                else
+                    requestBody = String.Join("&", (Params as Dictionary<string, dynamic>).Select(x => Utils.BuildParam(x.Key, x.Value)));
+
                 request = (HttpWebRequest)WebRequest.Create(url);
                 request.AllowAutoRedirect = true;
                 request.Method = Method;
                 request.ContentType = json ? "application/json" : "application/x-www-form-urlencoded";
-                request.ContentLength = paramString.Length;
-                if (_enableLogging) Console.WriteLine("DEBUG: " + Method + " " + url + "\n" + paramString);
+                request.ContentLength = requestBody.Length;
+                if (_enableLogging) Console.WriteLine("DEBUG: " + Method + " " + url + "\n" + requestBody);
                 AddExtraHeaders(ref request);
 
                 using (Stream webStream = request.GetRequestStream())
                 using (StreamWriter requestWriter = new StreamWriter(webStream))
-                    requestWriter.Write(paramString);
+                    requestWriter.Write(requestBody);
             }
             else
             {
-                request = (HttpWebRequest)WebRequest.Create(url + "?" + paramString);
+                string url = route;
+                Dictionary<string, dynamic> allParams = new Dictionary<string, dynamic>();
+                // merge both params
+                foreach (KeyValuePair<string, dynamic> item in QueryParams)
+                {
+                    allParams[item.Key] = item.Value;
+                }
+                foreach (KeyValuePair<string, dynamic> item in Params)
+                {
+                    allParams[item.Key] = item.Value;
+                }
+                // build final url
+                if (allParams.Count > 0)
+                {
+                    url += "?" + String.Join("&", allParams.Select(x => Utils.BuildParam(x.Key, x.Value)));
+                }
+
+                request = (HttpWebRequest)WebRequest.Create(url);
                 request.AllowAutoRedirect = true;
                 request.Method = Method;
-                if (_enableLogging) Console.WriteLine("DEBUG: " + Method + " " + url + "?" + paramString);
+                if (_enableLogging) Console.WriteLine("DEBUG: " + Method + " " + url);
                 AddExtraHeaders(ref request);
             }
 
