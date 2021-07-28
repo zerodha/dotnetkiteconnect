@@ -105,6 +105,29 @@ Gets currently logged in user details
 
 **Returns:** User profile
 
+### ![Method](/assets/method.jpg) &nbsp;&nbsp;Kite.GetOrderMargins
+
+Margin data for a specific order
+
+| Argument | Type | Description |
+| --- | --- | --- |
+| OrderMarginParams | Collections.Generic.List{OrderMarginParams} | List of all order params to get margins for |
+| Mode | String | Mode of the returned response content. Eg: Constants.MARGIN_MODE_COMPACT |
+
+**Returns:** List of margins of order
+
+### ![Method](/assets/method.jpg) &nbsp;&nbsp;Kite.GetBasketMargins
+
+Margin data for a basket orders
+
+| Argument | Type | Description |
+| --- | --- | --- |
+| OrderMarginParams | Collections.Generic.List{OrderMarginParams} | List of all order params to get margins for |
+| ConsiderPositions | Boolean | Consider users positions while calculating margins |
+| Mode | String | Mode of the returned response content. Eg: Constants.MARGIN_MODE_COMPACT |
+
+**Returns:** List of margins of order
+
 ### ![Method](/assets/method.jpg) &nbsp;&nbsp;Kite.GetMargins
 
 Get account balance and cash margin details for all segments.
@@ -477,7 +500,7 @@ Alias for sending a POST request.
 | Argument | Type | Description |
 | --- | --- | --- |
 | Route | String | URL route of API |
-| Params | Collections.Generic.Dictionary{String:Object} | Additional paramerters |
+| Params | Object | Additional paramerters |
 
 **Returns:** Varies according to API endpoint
 
@@ -488,7 +511,7 @@ Alias for sending a PUT request.
 | Argument | Type | Description |
 | --- | --- | --- |
 | Route | String | URL route of API |
-| Params | Collections.Generic.Dictionary{String:Object} | Additional paramerters |
+| Params | Object | Additional paramerters |
 
 **Returns:** Varies according to API endpoint
 
@@ -499,7 +522,7 @@ Alias for sending a DELETE request.
 | Argument | Type | Description |
 | --- | --- | --- |
 | Route | String | URL route of API |
-| Params | Collections.Generic.Dictionary{String:Object} | Additional paramerters |
+| Params | Object | Additional paramerters |
 
 **Returns:** Varies according to API endpoint
 
@@ -519,7 +542,7 @@ Make an HTTP request.
 | --- | --- | --- |
 | Route | String | URL route of API |
 | Method | String | Method of HTTP request |
-| Params | Collections.Generic.Dictionary{String:Object} | Additional paramerters |
+| Params | Object | Additional paramerters. Can be dictionary, list etc. |
 
 **Returns:** Varies according to API endpoint
 
@@ -555,9 +578,21 @@ UserMargin structure
 
 User margins response structure
 
-## ![Class](/assets/class.jpg) &nbsp;&nbsp;InstrumentMargin Class
+## ![Class](/assets/class.jpg) &nbsp;&nbsp;OrderMarginParams Class
 
-UserMargin structure
+OrderMarginParams structure
+
+## ![Class](/assets/class.jpg) &nbsp;&nbsp;OrderMargin Class
+
+OrderMargin structure
+
+## ![Class](/assets/class.jpg) &nbsp;&nbsp;BasketMargin Class
+
+BasketMargin structure
+
+## ![Class](/assets/class.jpg) &nbsp;&nbsp;OrderMarginPNL Class
+
+OrderMarginPNL structure
 
 ## ![Class](/assets/class.jpg) &nbsp;&nbsp;Position Class
 
@@ -889,6 +924,10 @@ Converts Unix timestamp to DateTime
 | unixTimeStamp | UInt64 | Unix timestamp in seconds. |
 
 **Returns:** DateTime object.
+
+### ![Method](/assets/method.jpg) &nbsp;&nbsp;Utils.GetValueOrDefault``2
+
+Returns a default value if key doesn't exist in dictionary
 
 ## ![Class](/assets/class.jpg) &nbsp;&nbsp;WebSocket Class
 

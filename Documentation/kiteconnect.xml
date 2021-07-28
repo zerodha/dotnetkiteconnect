@@ -94,6 +94,23 @@
             </summary>
             <returns>User profile</returns>
         </member>
+        <member name="M:KiteConnect.Kite.GetOrderMargins(System.Collections.Generic.List{KiteConnect.OrderMarginParams},System.String)">
+            <summary>
+            Margin data for a specific order
+            </summary>
+            <param name="OrderMarginParams">List of all order params to get margins for</param>
+            <param name="Mode">Mode of the returned response content. Eg: Constants.MARGIN_MODE_COMPACT</param>
+            <returns>List of margins of order</returns>
+        </member>
+        <member name="M:KiteConnect.Kite.GetBasketMargins(System.Collections.Generic.List{KiteConnect.OrderMarginParams},System.Boolean,System.String)">
+            <summary>
+            Margin data for a basket orders
+            </summary>
+            <param name="OrderMarginParams">List of all order params to get margins for</param>
+            <param name="ConsiderPositions">Consider users positions while calculating margins</param>
+            <param name="Mode">Mode of the returned response content. Eg: Constants.MARGIN_MODE_COMPACT</param>
+            <returns>List of margins of order</returns>
+        </member>
         <member name="M:KiteConnect.Kite.GetMargins">
             <summary>
             Get account balance and cash margin details for all segments.
@@ -376,7 +393,7 @@
             </summary>
             <returns>The list of all Mutual funds holdings.</returns>
         </member>
-        <member name="M:KiteConnect.Kite.Get(System.String,System.Collections.Generic.Dictionary{System.String,System.Object})">
+        <member name="M:KiteConnect.Kite.Get(System.String,System.Collections.Generic.Dictionary{System.String,System.Object},System.Collections.Generic.Dictionary{System.String,System.Object})">
             <summary>
             Alias for sending a GET request.
             </summary>
@@ -384,7 +401,7 @@
             <param name="Params">Additional paramerters</param>
             <returns>Varies according to API endpoint</returns>
         </member>
-        <member name="M:KiteConnect.Kite.Post(System.String,System.Collections.Generic.Dictionary{System.String,System.Object})">
+        <member name="M:KiteConnect.Kite.Post(System.String,System.Object,System.Collections.Generic.Dictionary{System.String,System.Object},System.Boolean)">
             <summary>
             Alias for sending a POST request.
             </summary>
@@ -392,7 +409,7 @@
             <param name="Params">Additional paramerters</param>
             <returns>Varies according to API endpoint</returns>
         </member>
-        <member name="M:KiteConnect.Kite.Put(System.String,System.Collections.Generic.Dictionary{System.String,System.Object})">
+        <member name="M:KiteConnect.Kite.Put(System.String,System.Object)">
             <summary>
             Alias for sending a PUT request.
             </summary>
@@ -400,7 +417,7 @@
             <param name="Params">Additional paramerters</param>
             <returns>Varies according to API endpoint</returns>
         </member>
-        <member name="M:KiteConnect.Kite.Delete(System.String,System.Collections.Generic.Dictionary{System.String,System.Object})">
+        <member name="M:KiteConnect.Kite.Delete(System.String,System.Object)">
             <summary>
             Alias for sending a DELETE request.
             </summary>
@@ -414,13 +431,13 @@
             </summary>
             <param name="Req">Request object to add headers</param>
         </member>
-        <member name="M:KiteConnect.Kite.Request(System.String,System.String,System.Collections.Generic.Dictionary{System.String,System.Object})">
+        <member name="M:KiteConnect.Kite.Request(System.String,System.String,System.Object,System.Collections.Generic.Dictionary{System.String,System.Object},System.Boolean)">
             <summary>
             Make an HTTP request.
             </summary>
             <param name="Route">URL route of API</param>
             <param name="Method">Method of HTTP request</param>
-            <param name="Params">Additional paramerters</param>
+            <param name="Params">Additional paramerters. Can be dictionary, list etc.</param>
             <returns>Varies according to API endpoint</returns>
         </member>
         <member name="T:KiteConnect.Tick">
@@ -463,9 +480,24 @@
             User margins response structure
             </summary>
         </member>
-        <member name="T:KiteConnect.InstrumentMargin">
+        <member name="T:KiteConnect.OrderMarginParams">
             <summary>
-            UserMargin structure
+            OrderMarginParams structure
+            </summary>
+        </member>
+        <member name="T:KiteConnect.OrderMargin">
+            <summary>
+            OrderMargin structure
+            </summary>
+        </member>
+        <member name="T:KiteConnect.BasketMargin">
+            <summary>
+            BasketMargin structure
+            </summary>
+        </member>
+        <member name="T:KiteConnect.OrderMarginPNL">
+            <summary>
+            OrderMarginPNL structure
             </summary>
         </member>
         <member name="T:KiteConnect.Position">
@@ -842,6 +874,11 @@
             </summary>
             <param name="unixTimeStamp">Unix timestamp in seconds.</param>
             <returns>DateTime object.</returns>
+        </member>
+        <member name="M:KiteConnect.Utils.GetValueOrDefault``2(System.Collections.Generic.IDictionary{``0,``1},``0,``1)">
+            <summary>
+            Returns a default value if key doesn't exist in dictionary
+            </summary>
         </member>
         <member name="T:KiteConnect.WebSocket">
             <summary>
