@@ -241,13 +241,14 @@ namespace KiteConnect
         /// <summary>
         /// Margin data for a specific order
         /// </summary>
-        /// <param name="orderMarginParams">List of all order params to get margins for</param>
+        /// <param name="OrderMarginParams">List of all order params to get margins for</param>
+        /// <param name="Mode">Mode of the returned response content. Eg: Constants.MARGIN_MODE_COMPACT</param>
         /// <returns>List of margins of order</returns>
-        public List<OrderMargin> GetOrderMargins(List<OrderMarginParams> orderMarginParams, string Mode = null)
+        public List<OrderMargin> GetOrderMargins(List<OrderMarginParams> OrderMarginParams, string Mode = null)
         {
             var paramList = new List<Dictionary<string, dynamic>>();
 
-            foreach (var item in orderMarginParams)
+            foreach (var item in OrderMarginParams)
             {
                 var param = new Dictionary<string, dynamic>();
                 param["exchange"] = item.Exchange;
@@ -279,15 +280,17 @@ namespace KiteConnect
         }
 
         /// <summary>
-        /// Margin data for a specific order
+        /// Margin data for a basket orders
         /// </summary>
-        /// <param name="orderMarginParams">List of all order params to get margins for</param>
+        /// <param name="OrderMarginParams">List of all order params to get margins for</param>
+        /// <param name="ConsiderPositions">Consider users positions while calculating margins</param>
+        /// <param name="Mode">Mode of the returned response content. Eg: Constants.MARGIN_MODE_COMPACT</param>
         /// <returns>List of margins of order</returns>
-        public BasketMargin GetBasketMargins(List<OrderMarginParams> orderMarginParams, bool ConsiderPositions = true, string Mode = null)
+        public BasketMargin GetBasketMargins(List<OrderMarginParams> OrderMarginParams, bool ConsiderPositions = true, string Mode = null)
         {
             var paramList = new List<Dictionary<string, dynamic>>();
 
-            foreach (var item in orderMarginParams)
+            foreach (var item in OrderMarginParams)
             {
                 var param = new Dictionary<string, dynamic>();
                 param["exchange"] = item.Exchange;
