@@ -197,6 +197,23 @@ namespace KiteConnect
         }
 
         /// <summary>
+        /// Get the divisor to convert price values
+        /// </summary>
+        private decimal GetDivisor(uint InstrumentToken)
+        {
+            uint segment = InstrumentToken & 0xff;
+            switch (segment)
+            {
+                case 3: // CDS
+                    return 10000000.0m;
+                case 6: // BCD
+                    return 10000.0m;
+                default:
+                    return 100.0m;
+            }
+        }
+
+        /// <summary>
         /// Reads an ltp mode tick from raw binary data
         /// </summary>
         private Tick ReadLTP(byte[] b, ref int offset)
@@ -205,7 +222,7 @@ namespace KiteConnect
             tick.Mode = Constants.MODE_LTP;
             tick.InstrumentToken = ReadInt(b, ref offset);
 
-            decimal divisor = (tick.InstrumentToken & 0xff) == 3 ? 10000000.0m : 100.0m;
+            decimal divisor = GetDivisor(tick.InstrumentToken);
 
             tick.Tradable = (tick.InstrumentToken & 0xff) != 9;
             tick.LastPrice = ReadInt(b, ref offset) / divisor;
@@ -221,7 +238,7 @@ namespace KiteConnect
             tick.Mode = Constants.MODE_QUOTE;
             tick.InstrumentToken = ReadInt(b, ref offset);
 
-            decimal divisor = (tick.InstrumentToken & 0xff) == 3 ? 10000000.0m : 100.0m;
+            decimal divisor = GetDivisor(tick.InstrumentToken);
 
             tick.Tradable = (tick.InstrumentToken & 0xff) != 9;
             tick.LastPrice = ReadInt(b, ref offset) / divisor;
@@ -239,7 +256,7 @@ namespace KiteConnect
             tick.Mode = Constants.MODE_FULL;
             tick.InstrumentToken = ReadInt(b, ref offset);
 
-            decimal divisor = (tick.InstrumentToken & 0xff) == 3 ? 10000000.0m : 100.0m;
+            decimal divisor = GetDivisor(tick.InstrumentToken);
 
             tick.Tradable = (tick.InstrumentToken & 0xff) != 9;
             tick.LastPrice = ReadInt(b, ref offset) / divisor;
@@ -262,7 +279,7 @@ namespace KiteConnect
             tick.Mode = Constants.MODE_QUOTE;
             tick.InstrumentToken = ReadInt(b, ref offset);
 
-            decimal divisor = (tick.InstrumentToken & 0xff) == 3 ? 10000000.0m : 100.0m;
+            decimal divisor = GetDivisor(tick.InstrumentToken);
 
             tick.Tradable = (tick.InstrumentToken & 0xff) != 9;
             tick.LastPrice = ReadInt(b, ref offset) / divisor;
@@ -288,7 +305,7 @@ namespace KiteConnect
             tick.Mode = Constants.MODE_FULL;
             tick.InstrumentToken = ReadInt(b, ref offset);
 
-            decimal divisor = (tick.InstrumentToken & 0xff) == 3 ? 10000000.0m : 100.0m;
+            decimal divisor = GetDivisor(tick.InstrumentToken);
 
             tick.Tradable = (tick.InstrumentToken & 0xff) != 9;
             tick.LastPrice = ReadInt(b, ref offset) / divisor;
@@ -376,10 +393,11 @@ namespace KiteConnect
                 if (_debug) Console.WriteLine("WebSocket Message: " + message);
 
                 Dictionary<string, dynamic> messageDict = Utils.JsonDeserialize(message);
-                if(messageDict["type"] == "order")
+                if (messageDict["type"] == "order")
                 {
                     OnOrderUpdate?.Invoke(new Order(messageDict["data"]));
-                } else if (messageDict["type"] == "error")
+                }
+                else if (messageDict["type"] == "error")
                 {
                     OnError?.Invoke(messageDict["data"]);
                 }
