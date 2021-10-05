@@ -1,3 +1,7 @@
+## 3.0.9
+
+* Fix price conversion for BCD in ticker
+
 ## 3.0.8
 
 * Added basket margins API

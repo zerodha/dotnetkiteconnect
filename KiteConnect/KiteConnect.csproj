@@ -5,9 +5,9 @@
     <Authors>Ajin Asokan</Authors>
     <Company>Zerodha Technology Pvt. Ltd.</Company>
     <PackageId>Tech.Zerodha.KiteConnect</PackageId>
-    <Version>3.0.8</Version>
-    <AssemblyVersion>3.0.8</AssemblyVersion>
-    <FileVersion>3.0.8</FileVersion>
+    <Version>3.0.9</Version>
+    <AssemblyVersion>3.0.9</AssemblyVersion>
+    <FileVersion>3.0.9</FileVersion>
     <Description>The official .Net client for communicating with Kite Connect API.</Description>
     <Copyright>Copyright 2020</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
