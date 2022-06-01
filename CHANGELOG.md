@@ -1,3 +1,8 @@
+## 3.1.0
+
+* Added TTL validity for orders
+* Added support for Iceberg orders
+
 ## 3.0.9
 
 * Fix price conversion for BCD in ticker
