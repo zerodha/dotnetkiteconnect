@@ -257,7 +257,14 @@ namespace KiteConnectTest
             Kite kite = new Kite("apikey", Root: "http://localhost:8080");
             List<Order> orders = kite.GetOrders();
 
-            Assert.AreEqual(orders[0].Price, 90);
+            Assert.AreEqual(orders[0].Price, 72);
+
+            Assert.AreEqual(orders[2].Tag, "connect test order2");
+            Assert.AreEqual(orders[2].Tags[1], "XXXXX");
+
+            Assert.AreEqual(orders[3].ValidityTTL, 2);
+
+            Assert.AreEqual(orders[3].Meta["iceberg"]["legs"], 5);
         }
 
         [TestMethod]

@@ -288,6 +288,33 @@ namespace KiteConnectSample
                 ParentOrderId: "5678"
             );
 
+            // Place order with TTL validity
+            kite.PlaceOrder(
+                Exchange: Constants.EXCHANGE_NSE,
+                TradingSymbol: "INFY",
+                TransactionType: Constants.TRANSACTION_TYPE_BUY,
+                Quantity: 1,
+                Price: 1500.0m,
+                OrderType: Constants.ORDER_TYPE_LIMIT,
+                Product: Constants.PRODUCT_MIS,
+                Validity: Constants.VALIDITY_TTL,
+                ValidityTTL: 5
+            );
+
+            // Place an Iceberg order
+            kite.PlaceOrder(
+                Exchange: Constants.EXCHANGE_NSE,
+                TradingSymbol: "INFY",
+                TransactionType: Constants.TRANSACTION_TYPE_BUY,
+                Quantity: 10,
+                Price: 1500.0m,
+                OrderType: Constants.ORDER_TYPE_LIMIT,
+                Product: Constants.PRODUCT_MIS,
+                Variety: Constants.VARIETY_ICEBERG,
+                IcebergLegs: 2,
+                IcebergQuantity: 5
+            );
+
             // Trades
 
             List<Trade> trades = kite.GetOrderTrades("1234");

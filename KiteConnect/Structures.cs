@@ -474,11 +474,23 @@ namespace KiteConnect
                 Status = data["status"];
                 StatusMessage = data["status_message"];
                 Tag = data["tag"];
+                Tags = new List<string>();
+                if(data.ContainsKey("tags")) {
+                   Tags = ((data["tags"] ?? Tags) as ArrayList).Cast<string>().ToList();
+                }
                 Tradingsymbol = data["tradingsymbol"];
                 TransactionType = data["transaction_type"];
                 TriggerPrice = data["trigger_price"];
                 Validity = data["validity"];
+                ValidityTTL = 0;
+                if(data.ContainsKey("validity_ttl")) {
+                    ValidityTTL = Convert.ToInt32(data["validity_ttl"]);
+                }
                 Variety = data["variety"];
+                Meta = new Dictionary<string, dynamic>();
+                if(data.ContainsKey("meta")) {
+                    Meta = data["meta"];
+                }
             }
             catch (Exception e)
             {
@@ -507,11 +519,14 @@ namespace KiteConnect
         public string Status { get; set; }
         public string StatusMessage { get; set; }
         public string Tag { get; set; }
+        public List<string> Tags { get; set; }
         public string Tradingsymbol { get; set; }
         public string TransactionType { get; set; }
         public decimal TriggerPrice { get; set; }
         public string Validity { get; set; }
+        public int ValidityTTL { get; set; }
         public string Variety { get; set; }
+        public Dictionary<string, dynamic> Meta { get; set; }
     }
 
     /// <summary>

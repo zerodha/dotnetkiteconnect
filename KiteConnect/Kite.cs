@@ -349,14 +349,17 @@ namespace KiteConnect
         /// <param name="Price">For LIMIT orders</param>
         /// <param name="Product">Margin product applied to the order (margin is blocked based on this)</param>
         /// <param name="OrderType">Order type (MARKET, LIMIT etc.)</param>
-        /// <param name="Validity">Order validity</param>
+        /// <param name="Validity">Order validity (DAY, IOC and TTL)</param>
         /// <param name="DisclosedQuantity">Quantity to disclose publicly (for equity trades)</param>
         /// <param name="TriggerPrice">For SL, SL-M etc.</param>
         /// <param name="SquareOffValue">Price difference at which the order should be squared off and profit booked (eg: Order price is 100. Profit target is 102. So squareoff = 2)</param>
         /// <param name="StoplossValue">Stoploss difference at which the order should be squared off (eg: Order price is 100. Stoploss target is 98. So stoploss = 2)</param>
         /// <param name="TrailingStoploss">Incremental value by which stoploss price changes when market moves in your favor by the same incremental value from the entry price (optional)</param>
-        /// <param name="Variety">You can place orders of varieties; regular orders, after market orders, cover orders etc. </param>
-        /// <param name="Tag">An optional tag to apply to an order to identify it (alphanumeric, max 8 chars)</param>
+        /// <param name="Variety">You can place orders of varieties; regular orders, after market orders, cover orders, iceberg orders etc. </param>
+        /// <param name="Tag">An optional tag to apply to an order to identify it (alphanumeric, max 20 chars)</param>
+        /// <param name="ValidityTTL">Order life span in minutes for TTL validity orders</param>
+        /// <param name="IcebergLegs">Total number of legs for iceberg order type (number of legs per Iceberg should be between 2 and 10)</param>
+        /// <param name="IcebergQuantity">Split quantity for each iceberg leg order (Quantity/IcebergLegs)</param>
         /// <returns>Json response in the form of nested string dictionary.</returns>
         public Dictionary<string, dynamic> PlaceOrder(
             string Exchange,
@@ -373,7 +376,11 @@ namespace KiteConnect
             decimal? StoplossValue = null,
             decimal? TrailingStoploss = null,
             string Variety = Constants.VARIETY_REGULAR,
-            string Tag = "")
+            string Tag = "",
+            int? ValidityTTL = null,
+            int? IcebergLegs = null,
+            int? IcebergQuantity = null
+            )
         {
             var param = new Dictionary<string, dynamic>();
 
@@ -392,6 +399,9 @@ namespace KiteConnect
             Utils.AddIfNotNull(param, "trailing_stoploss", TrailingStoploss.ToString());
             Utils.AddIfNotNull(param, "variety", Variety);
             Utils.AddIfNotNull(param, "tag", Tag);
+            Utils.AddIfNotNull(param, "validity_ttl", ValidityTTL.ToString());
+            Utils.AddIfNotNull(param, "iceberg_legs", IcebergLegs.ToString());
+            Utils.AddIfNotNull(param, "iceberg_quantity", IcebergQuantity.ToString());
 
             return Post("orders.place", param);
         }

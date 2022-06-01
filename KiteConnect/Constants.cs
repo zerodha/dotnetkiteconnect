@@ -30,6 +30,7 @@ namespace KiteConnect
         public const string VARIETY_BO = "bo";
         public const string VARIETY_CO = "co";
         public const string VARIETY_AMO = "amo";
+        public const string VARIETY_ICEBERG = "iceberg";
 
         // Transaction type
         public const string TRANSACTION_TYPE_BUY = "BUY";
@@ -38,6 +39,7 @@ namespace KiteConnect
         // Validity
         public const string VALIDITY_DAY = "DAY";
         public const string VALIDITY_IOC = "IOC";
+        public const string VALIDITY_TTL = "TTL";
 
         // Exchanges
         public const string EXCHANGE_NSE = "NSE";
