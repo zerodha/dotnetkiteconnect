@@ -157,14 +157,17 @@ Place an order
 | Price | Nullable{Decimal} | For LIMIT orders |
 | Product | String | Margin product applied to the order (margin is blocked based on this) |
 | OrderType | String | Order type (MARKET, LIMIT etc.) |
-| Validity | String | Order validity |
+| Validity | String | Order validity (DAY, IOC and TTL) |
 | DisclosedQuantity | Nullable{Int32} | Quantity to disclose publicly (for equity trades) |
 | TriggerPrice | Nullable{Decimal} | For SL, SL-M etc. |
 | SquareOffValue | Nullable{Decimal} | Price difference at which the order should be squared off and profit booked (eg: Order price is 100. Profit target is 102. So squareoff = 2) |
 | StoplossValue | Nullable{Decimal} | Stoploss difference at which the order should be squared off (eg: Order price is 100. Stoploss target is 98. So stoploss = 2) |
 | TrailingStoploss | Nullable{Decimal} | Incremental value by which stoploss price changes when market moves in your favor by the same incremental value from the entry price (optional) |
-| Variety | String | You can place orders of varieties; regular orders, after market orders, cover orders etc. |
-| Tag | String | An optional tag to apply to an order to identify it (alphanumeric, max 8 chars) |
+| Variety | String | You can place orders of varieties; regular orders, after market orders, cover orders, iceberg orders etc. |
+| Tag | String | An optional tag to apply to an order to identify it (alphanumeric, max 20 chars) |
+| ValidityTTL | Nullable{Int32} | Order life span in minutes for TTL validity orders |
+| IcebergLegs | Nullable{Int32} | Total number of legs for iceberg order type (number of legs per Iceberg should be between 2 and 10) |
+| IcebergQuantity | Nullable{Int32} | Split quantity for each iceberg leg order (Quantity/IcebergLegs) |
 
 **Returns:** Json response in the form of nested string dictionary.
 
@@ -739,6 +742,10 @@ Reads 2 byte short int from byte stream
 ### ![Method](/assets/method.jpg) &nbsp;&nbsp;Ticker.ReadInt
 
 Reads 4 byte int32 from byte stream
+
+### ![Method](/assets/method.jpg) &nbsp;&nbsp;Ticker.GetDivisor
+
+Get the divisor to convert price values
 
 ### ![Method](/assets/method.jpg) &nbsp;&nbsp;Ticker.ReadLTP
 
