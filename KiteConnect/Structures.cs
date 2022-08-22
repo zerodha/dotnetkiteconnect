@@ -66,8 +66,8 @@ namespace KiteConnect
             High = Convert.ToDecimal(data[2]);
             Low = Convert.ToDecimal(data[3]);
             Close = Convert.ToDecimal(data[4]);
-            Volume = Convert.ToUInt32(data[5]);
-            OI = data.Count > 6 ? Convert.ToUInt32(data[6]) : 0;
+            Volume = Convert.ToUInt64(data[5]);
+            OI = data.Count > 6 ? Convert.ToUInt64(data[6]) : 0;
         }
 
         public DateTime TimeStamp { get; }
@@ -75,8 +75,8 @@ namespace KiteConnect
         public decimal High { get; }
         public decimal Low { get; }
         public decimal Close { get; }
-        public UInt32 Volume { get; }
-        public UInt32 OI { get; }
+        public UInt64 Volume { get; }
+        public UInt64 OI { get; }
     }
 
     /// <summary>
@@ -475,20 +475,23 @@ namespace KiteConnect
                 StatusMessage = data["status_message"];
                 Tag = data["tag"];
                 Tags = new List<string>();
-                if(data.ContainsKey("tags")) {
-                   Tags = ((data["tags"] ?? Tags) as ArrayList).Cast<string>().ToList();
+                if (data.ContainsKey("tags"))
+                {
+                    Tags = ((data["tags"] ?? Tags) as ArrayList).Cast<string>().ToList();
                 }
                 Tradingsymbol = data["tradingsymbol"];
                 TransactionType = data["transaction_type"];
                 TriggerPrice = data["trigger_price"];
                 Validity = data["validity"];
                 ValidityTTL = 0;
-                if(data.ContainsKey("validity_ttl")) {
+                if (data.ContainsKey("validity_ttl"))
+                {
                     ValidityTTL = Convert.ToInt32(data["validity_ttl"]);
                 }
                 Variety = data["variety"];
                 Meta = new Dictionary<string, dynamic>();
-                if(data.ContainsKey("meta")) {
+                if (data.ContainsKey("meta"))
+                {
                     Meta = data["meta"];
                 }
             }
