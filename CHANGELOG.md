@@ -1,3 +1,7 @@
+## 4.0.0-pre
+
+* Changed data type of Volume, OI fields in Historical to UInt64
+
 ## 3.1.0
 
 * Added TTL validity for orders
