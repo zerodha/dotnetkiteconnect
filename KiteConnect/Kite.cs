@@ -16,7 +16,7 @@ namespace KiteConnect
         // Default root API endpoint. It's possible to
         // override this by passing the `Root` parameter during initialisation.
         private string _root = "https://api.kite.trade";
-        private string _login = "https://kite.trade/connect/login";
+        private string _login = "https://kite.zerodha.com/connect/login";
 
         private string _apiKey;
         private string _accessToken;
