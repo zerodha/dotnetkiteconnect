@@ -1,3 +1,7 @@
+## 4.0.1
+
+* Updated login URL to https://kite.zerodha.com
+
 ## 4.0.0-pre
 
 * Changed data type of Volume, OI fields in Historical to UInt64
