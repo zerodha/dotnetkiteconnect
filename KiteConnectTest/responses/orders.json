@@ -31,7 +31,8 @@
       "market_protection": 0,
       "meta": {},
       "tag": null,
-      "guid": "XXXXX"
+      "guid": "XXXXX",
+      "auction_number": 10
     },
     {
       "placed_by": "XXXXXX",

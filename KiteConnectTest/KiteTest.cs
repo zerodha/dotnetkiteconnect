@@ -67,6 +67,16 @@ namespace KiteConnectTest
         }
 
         [TestMethod]
+        public void TestAuctionInstruments()
+        {
+            string json = File.ReadAllText(@"responses/auction_instruments.json", Encoding.UTF8);
+            ms.SetResponse("application/json", json);
+            Kite kite = new Kite("apikey", Root: "http://localhost:8080");
+            List<AuctionInstrument> instruments = kite.GetAuctionInstruments();
+            Assert.AreEqual(instruments[0].PNL, 564.8000000000002m);
+        }
+
+        [TestMethod]
         public void TestMargins()
         {
             string json = File.ReadAllText(@"responses/margins.json", Encoding.UTF8);
@@ -268,6 +278,8 @@ namespace KiteConnectTest
             Assert.AreEqual(orders[3].ValidityTTL, 2);
 
             Assert.AreEqual(orders[3].Meta["iceberg"]["legs"], 5);
+
+            Assert.AreEqual(orders[0].AuctionNumber, 10);
         }
 
         [TestMethod]

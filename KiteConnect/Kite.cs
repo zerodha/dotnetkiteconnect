@@ -60,6 +60,7 @@ namespace KiteConnect
             ["portfolio.positions"] = "/portfolio/positions",
             ["portfolio.holdings"] = "/portfolio/holdings",
             ["portfolio.positions.modify"] = "/portfolio/positions",
+            ["portfolio.auction.instruments"] = "/portfolio/holdings/auctions",
 
             ["market.instruments.all"] = "/instruments",
             ["market.instruments"] = "/instruments/{exchange}",
@@ -578,6 +579,22 @@ namespace KiteConnect
                 holdings.Add(new Holding(item));
 
             return holdings;
+        }
+
+        /// <summary>
+        /// Retrieve the list of auction instruments.
+        /// </summary>
+        /// <returns>List of auction instruments.</returns>
+        public List<AuctionInstrument> GetAuctionInstruments()
+        {
+            var instrumentsData = Get("portfolio.auction.instruments");
+
+            List<AuctionInstrument> instruments = new List<AuctionInstrument>();
+
+            foreach (Dictionary<string, dynamic> item in instrumentsData["data"])
+                instruments.Add(new AuctionInstrument(item));
+
+            return instruments;
         }
 
         /// <summary>

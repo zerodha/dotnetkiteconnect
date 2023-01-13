@@ -128,6 +128,68 @@ namespace KiteConnect
     }
 
     /// <summary>
+    /// AuctionInstrument structure
+    /// </summary>
+    public struct AuctionInstrument
+    {
+        public AuctionInstrument(Dictionary<string, dynamic> data)
+        {
+            try
+            {
+                TradingSymbol = data["tradingsymbol"];
+                Exchange = data["exchange"];
+                InstrumentToken = Convert.ToUInt32(data["instrument_token"]);
+                ISIN = data["isin"];
+                Product = data["product"];
+                Price = data["price"];
+                Quantity = Convert.ToInt32(data["quantity"]);
+                T1Quantity = Convert.ToInt32(data["t1_quantity"]);
+                RealisedQuantity = Convert.ToInt32(data["realised_quantity"]);
+                AuthorisedQuantity = Convert.ToInt32(data["authorised_quantity"]);
+                AuthorisedDate = data["authorised_date"];
+                OpeningQuantity = Convert.ToInt32(data["opening_quantity"]);
+                CollateralQuantity = Convert.ToInt32(data["collateral_quantity"]);
+                CollateralType = data["collateral_type"];
+                Discrepancy = data["discrepancy"];
+                AveragePrice = data["average_price"];
+                LastPrice = data["last_price"];
+                ClosePrice = data["close_price"];
+                PNL = data["pnl"];
+                DayChange = data["day_change"];
+                DayChangePercentage = data["day_change_percentage"];
+                AuctionNumber = data["auction_number"];
+            }
+            catch (Exception e)
+            {
+                throw new DataException(e.Message + " " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
+            }
+        }
+
+        public string TradingSymbol { get; set; }
+        public string Exchange { get; set; }
+        public UInt32 InstrumentToken { get; set; }
+        public string ISIN { get; set; }
+        public string Product { get; set; }
+        public decimal Price { get; set; }
+        public int Quantity { get; set; }
+        public int T1Quantity { get; set; }
+        public int RealisedQuantity { get; set; }
+        public int AuthorisedQuantity { get; set; }
+        public string AuthorisedDate { get; set; }
+        public int OpeningQuantity { get; set; }
+        public int CollateralQuantity { get; set; }
+        public string CollateralType { get; set; }
+        public bool Discrepancy { get; set; }
+        public decimal AveragePrice { get; set; }
+        public decimal LastPrice { get; set; }
+        public decimal ClosePrice { get; set; }
+        public decimal PNL { get; set; }
+        public decimal DayChange { get; set; }
+        public decimal DayChangePercentage { get; set; }
+        public string AuctionNumber { get; set; }
+    }
+
+    /// <summary>
     /// Available margin structure
     /// </summary>
     public struct AvailableMargin
@@ -554,6 +616,13 @@ namespace KiteConnect
                     ValidityTTL = Convert.ToInt32(data["validity_ttl"]);
                 }
                 Variety = data["variety"];
+
+                AuctionNumber = 0;
+                if (data.ContainsKey("auction_number"))
+                {
+                    AuctionNumber = Convert.ToInt32(data["auction_number"]);
+                }
+
                 Meta = new Dictionary<string, dynamic>();
                 if (data.ContainsKey("meta"))
                 {
@@ -593,6 +662,7 @@ namespace KiteConnect
         public decimal TriggerPrice { get; set; }
         public string Validity { get; set; }
         public int ValidityTTL { get; set; }
+        public int AuctionNumber { get; set; }
         public string Variety { get; set; }
         public Dictionary<string, dynamic> Meta { get; set; }
     }

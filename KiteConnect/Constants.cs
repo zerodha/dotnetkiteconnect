@@ -31,6 +31,7 @@ namespace KiteConnect
         public const string VARIETY_CO = "co";
         public const string VARIETY_AMO = "amo";
         public const string VARIETY_ICEBERG = "iceberg";
+        public const string VARIETY_AUCTION = "auction";
 
         // Transaction type
         public const string TRANSACTION_TYPE_BUY = "BUY";
