@@ -3,11 +3,7 @@ The official .Net client for communicating with [Kite Connect API](https://kite.
 
 Kite Connect is a set of REST-like APIs that expose many capabilities required to build a complete investment and trading platform. Execute orders in real time, manage user portfolio, stream live market data (WebSockets), and more, with the simple HTTP API collection.
 
-[Zerodha Technology Pvt. Ltd.](http://zerodha.com) &copy; 2021. Licensed under the [MIT License](/license/).
-
-## Requirements
-
-KiteConnect targets `netstandard2.0`. Minimum project target is .NET Framework 4.6.1 or .NET Core 2.0.
+[Zerodha Technology Pvt. Ltd.](http://zerodha.com) &copy; 2023. Licensed under the [MIT License](/license/).
 
 ## Documentation
 

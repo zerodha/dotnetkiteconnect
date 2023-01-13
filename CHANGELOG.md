@@ -1,3 +1,11 @@
+## 4.1.0
+
+* .NET target is now `net6.0`. Previous target `netstandard2.0` has reached end-of-life as of Dec 2022.
+* Charges data in the `GetMargins` API.
+* New API to get Auctions data - `GetAuctionInstruments`.
+* New variety `VARIETY_AUCTION` supported in `PlaceOrder`.
+* New fields in `Holding` struct.
+
 ## 4.0.1
 
 * Updated login URL to https://kite.zerodha.com
