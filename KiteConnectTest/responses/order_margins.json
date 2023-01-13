@@ -6,15 +6,31 @@
             "tradingsymbol": "ASHOKLEY20NOVFUT",
             "exchange": "NFO",
             "span": 5.408,
-            "exposure": 2.9522500000000003,
-            "option_premium": 1,
-            "additional": 2,
-            "bo": 3,
-            "cash": 4,
-            "var": 5,
+            "exposure": 0,
+            "option_premium": 0,
+            "additional": 0,
+            "bo": 0,
+            "cash": 0,
+            "var": 1280,
             "pnl": {
-                "realised": 6,
-                "unrealised": 8
+                "realised": 0,
+                "unrealised": 0
+            },
+            "leverage": 5,
+            "charges": {
+                "transaction_tax": 0.5,
+                "transaction_tax_type": "stt",
+                "exchange_turnover_charge": 0.2208,
+                "sebi_turnover_charge": 0.0063999999999999994,
+                "brokerage": 1.92,
+                "stamp_duty": 0.19,
+                "gst": {
+                    "igst": 0.386496,
+                    "cgst": 0.1,
+                    "sgst": 0.2,
+                    "total": 0.386496
+                },
+                "total": 2.723696
             },
             "total": 8.36025
         }

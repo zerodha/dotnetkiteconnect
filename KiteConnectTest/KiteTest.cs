@@ -98,6 +98,9 @@ namespace KiteConnectTest
 
             Assert.AreEqual(margins[0].Total, (decimal)8.36025);
             Assert.AreEqual(margins[0].SPAN, (decimal)5.408);
+            Assert.AreEqual(margins[0].Leverage, (decimal)5);
+            Assert.AreEqual(margins[0].Charges.TransactionTax, (decimal)0.5);
+            Assert.AreEqual(margins[0].Charges.GST.IGST, (decimal)0.386496);
         }
 
         [TestMethod]

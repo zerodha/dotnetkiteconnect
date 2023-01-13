@@ -275,6 +275,8 @@ namespace KiteConnect
                 BO = Utils.GetValueOrDefault(data, "bo", 0m);
                 Cash = Utils.GetValueOrDefault(data, "cash", 0m);
                 VAR = Utils.GetValueOrDefault(data, "var", 0m);
+                Leverage = Utils.GetValueOrDefault(data, "leverage", 0m);
+                Charges = new OrderCharges(Utils.GetValueOrDefault(data, "charges", new Dictionary<string, dynamic>()));
                 PNL = new OrderMarginPNL(Utils.GetValueOrDefault(data, "pnl", new Dictionary<string, dynamic>()));
             }
             catch (Exception e)
@@ -294,6 +296,69 @@ namespace KiteConnect
         public decimal Cash { get; set; }
         public decimal VAR { get; set; }
         public OrderMarginPNL PNL { get; set; }
+        public OrderCharges Charges { get; set; }
+        public decimal Leverage { get; set; }
+        public decimal Total { get; set; }
+    }
+
+
+    /// <summary>
+    /// OrderCharges structure
+    /// </summary>
+    public struct OrderCharges
+    {
+        public OrderCharges(Dictionary<string, dynamic> data)
+        {
+            try
+            {
+                TransactionTax = Utils.GetValueOrDefault(data, "transaction_tax", 0m);
+                TransactionTaxType = Utils.GetValueOrDefault(data, "transaction_tax_type", "");
+                ExchangeTurnoverCharge = Utils.GetValueOrDefault(data, "exchange_turnover_charge", 0m);
+                SEBITurnoverCharge = Utils.GetValueOrDefault(data, "sebi_turnover_charge", 0m);
+                Brokerage = Utils.GetValueOrDefault(data, "brokerage", 0m);
+                StampDuty = Utils.GetValueOrDefault(data, "stamp_duty", 0m);
+                Total = Utils.GetValueOrDefault(data, "total", 0m);
+                GST = new OrderChargesGST(Utils.GetValueOrDefault(data, "gst", new Dictionary<string, dynamic>()));
+            }
+            catch (Exception e)
+            {
+                throw new DataException(e.Message + " " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
+            }
+        }
+
+        public decimal TransactionTax { get; set; }
+        public string TransactionTaxType { get; set; }
+        public decimal ExchangeTurnoverCharge { get; set; }
+        public decimal SEBITurnoverCharge { get; set; }
+        public decimal Brokerage { get; set; }
+        public decimal StampDuty { get; set; }
+        public decimal Total { get; set; }
+        public OrderChargesGST GST { get; set; }
+    }
+
+    /// <summary>
+    /// OrderChargesGST structure
+    /// </summary>
+    public struct OrderChargesGST
+    {
+        public OrderChargesGST(Dictionary<string, dynamic> data)
+        {
+            try
+            {
+                IGST = Utils.GetValueOrDefault(data, "igst", 0m);
+                CGST = Utils.GetValueOrDefault(data, "cgst", 0m);
+                SGST = Utils.GetValueOrDefault(data, "sgst", 0m);
+                Total = Utils.GetValueOrDefault(data, "total", 0m);
+            }
+            catch (Exception e)
+            {
+                throw new DataException(e.Message + " " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
+            }
+        }
+
+        public decimal IGST { get; set; }
+        public decimal CGST { get; set; }
+        public decimal SGST { get; set; }
         public decimal Total { get; set; }
     }
 

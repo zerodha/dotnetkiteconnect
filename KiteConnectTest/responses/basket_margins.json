@@ -5,9 +5,9 @@
             "type": "",
             "tradingsymbol": "",
             "exchange": "",
-            "span": 26.9577,
-            "exposure": 3.2636450000000004,
-            "option_premium": 22500,
+            "span": 0,
+            "exposure": 0,
+            "option_premium": 112.5,
             "additional": 0,
             "bo": 0,
             "cash": 0,
@@ -16,15 +16,31 @@
                 "realised": 0,
                 "unrealised": 0
             },
-            "total": 22530.221345
+            "leverage": 0,
+            "charges": {
+                "transaction_tax": 0,
+                "transaction_tax_type": "",
+                "exchange_turnover_charge": 0,
+                "sebi_turnover_charge": 0,
+                "brokerage": 0,
+                "stamp_duty": 0,
+                "gst": {
+                    "igst": 0,
+                    "cgst": 0,
+                    "sgst": 0,
+                    "total": 0
+                },
+                "total": 0
+            },
+            "total": 112.5
         },
         "final": {
             "type": "",
             "tradingsymbol": "",
             "exchange": "",
             "span": 26.9577,
-            "exposure": 3.2636450000000004,
-            "option_premium": 22500,
+            "exposure": 0,
+            "option_premium": 112.5,
             "additional": 0,
             "bo": 0,
             "cash": 0,
@@ -33,33 +49,32 @@
                 "realised": 0,
                 "unrealised": 0
             },
+            "leverage": 0,
+            "charges": {
+                "transaction_tax": 0,
+                "transaction_tax_type": "",
+                "exchange_turnover_charge": 0,
+                "sebi_turnover_charge": 0,
+                "brokerage": 0,
+                "stamp_duty": 0,
+                "gst": {
+                    "igst": 0,
+                    "cgst": 0,
+                    "sgst": 0,
+                    "total": 0
+                },
+                "total": 0
+            },
             "total": 22530.221345
         },
         "orders": [
             {
                 "type": "equity",
-                "tradingsymbol": "ASHOKLEY21JULFUT",
-                "exchange": "NFO",
-                "span": 26.9577,
-                "exposure": 3.2636450000000004,
-                "option_premium": 0,
-                "additional": 0,
-                "bo": 0,
-                "cash": 0,
-                "var": 0,
-                "pnl": {
-                    "realised": 0,
-                    "unrealised": 0
-                },
-                "total": 30.221345
-            },
-            {
-                "type": "equity",
-                "tradingsymbol": "NIFTY21JUL15000PE",
+                "tradingsymbol": "NIFTY23JAN14750PE",
                 "exchange": "NFO",
                 "span": 0,
                 "exposure": 0,
-                "option_premium": 22500,
+                "option_premium": 112.5,
                 "additional": 0,
                 "bo": 0,
                 "cash": 0,
@@ -68,7 +83,23 @@
                     "realised": 0,
                     "unrealised": 0
                 },
-                "total": 22500
+                "leverage": 1,
+                "charges": {
+                    "transaction_tax": 0,
+                    "transaction_tax_type": "",
+                    "exchange_turnover_charge": 0,
+                    "sebi_turnover_charge": 0,
+                    "brokerage": 0,
+                    "stamp_duty": 0,
+                    "gst": {
+                        "igst": 0,
+                        "cgst": 0,
+                        "sgst": 0,
+                        "total": 0
+                    },
+                    "total": 0
+                },
+                "total": 112.5
             }
         ]
     }
