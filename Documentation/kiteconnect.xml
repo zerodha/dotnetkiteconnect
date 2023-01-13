@@ -210,6 +210,12 @@
             </summary>
             <returns>List of holdings.</returns>
         </member>
+        <member name="M:KiteConnect.Kite.GetAuctionInstruments">
+            <summary>
+            Retrieve the list of auction instruments.
+            </summary>
+            <returns>List of auction instruments.</returns>
+        </member>
         <member name="M:KiteConnect.Kite.ConvertPosition(System.String,System.String,System.String,System.String,System.Nullable{System.Int32},System.String,System.String)">
             <summary>
             Modify an open position's product type.
@@ -463,6 +469,11 @@
             Holding structure
             </summary>
         </member>
+        <member name="T:KiteConnect.AuctionInstrument">
+            <summary>
+            AuctionInstrument structure
+            </summary>
+        </member>
         <member name="T:KiteConnect.AvailableMargin">
             <summary>
             Available margin structure
@@ -491,6 +502,16 @@
         <member name="T:KiteConnect.OrderMargin">
             <summary>
             OrderMargin structure
+            </summary>
+        </member>
+        <member name="T:KiteConnect.OrderCharges">
+            <summary>
+            OrderCharges structure
+            </summary>
+        </member>
+        <member name="T:KiteConnect.OrderChargesGST">
+            <summary>
+            OrderChargesGST structure
             </summary>
         </member>
         <member name="T:KiteConnect.BasketMargin">

@@ -245,6 +245,12 @@ Retrieve the list of equity holdings.
 
 **Returns:** List of holdings.
 
+### ![Method](/assets/method.jpg) &nbsp;&nbsp;Kite.GetAuctionInstruments
+
+Retrieve the list of auction instruments.
+
+**Returns:** List of auction instruments.
+
 ### ![Method](/assets/method.jpg) &nbsp;&nbsp;Kite.ConvertPosition
 
 Modify an open position's product type.
@@ -565,6 +571,10 @@ Historical structure
 
 Holding structure
 
+## ![Class](/assets/class.jpg) &nbsp;&nbsp;AuctionInstrument Class
+
+AuctionInstrument structure
+
 ## ![Class](/assets/class.jpg) &nbsp;&nbsp;AvailableMargin Class
 
 Available margin structure
@@ -588,6 +598,14 @@ OrderMarginParams structure
 ## ![Class](/assets/class.jpg) &nbsp;&nbsp;OrderMargin Class
 
 OrderMargin structure
+
+## ![Class](/assets/class.jpg) &nbsp;&nbsp;OrderCharges Class
+
+OrderCharges structure
+
+## ![Class](/assets/class.jpg) &nbsp;&nbsp;OrderChargesGST Class
+
+OrderChargesGST structure
 
 ## ![Class](/assets/class.jpg) &nbsp;&nbsp;BasketMargin Class
 
