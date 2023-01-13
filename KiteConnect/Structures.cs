@@ -103,6 +103,10 @@ namespace KiteConnect
                 ISIN = data["isin"];
                 RealisedQuantity = Convert.ToInt32(data["realised_quantity"]);
                 Quantity = Convert.ToInt32(data["quantity"]);
+                UsedQuantity = Convert.ToInt32(data["used_quantity"]);
+                AuthorisedQuantity = Convert.ToInt32(data["authorised_quantity"]);
+                AuthorisedDate = Utils.StringToDate(data["authorised_date"]);
+                Discrepancy = data["discrepancy"];
             }
             catch (Exception e)
             {
@@ -125,6 +129,10 @@ namespace KiteConnect
         public string ISIN { get; set; }
         public int RealisedQuantity { get; set; }
         public int Quantity { get; set; }
+        public int UsedQuantity { get; set; }
+        public int AuthorisedQuantity { get; set; }
+        public DateTime? AuthorisedDate { get; set; }
+        public bool Discrepancy { get; set; }
     }
 
     /// <summary>
@@ -146,7 +154,7 @@ namespace KiteConnect
                 T1Quantity = Convert.ToInt32(data["t1_quantity"]);
                 RealisedQuantity = Convert.ToInt32(data["realised_quantity"]);
                 AuthorisedQuantity = Convert.ToInt32(data["authorised_quantity"]);
-                AuthorisedDate = data["authorised_date"];
+                AuthorisedDate = Utils.StringToDate(data["authorised_date"]);
                 OpeningQuantity = Convert.ToInt32(data["opening_quantity"]);
                 CollateralQuantity = Convert.ToInt32(data["collateral_quantity"]);
                 CollateralType = data["collateral_type"];
@@ -175,7 +183,7 @@ namespace KiteConnect
         public int T1Quantity { get; set; }
         public int RealisedQuantity { get; set; }
         public int AuthorisedQuantity { get; set; }
-        public string AuthorisedDate { get; set; }
+        public DateTime? AuthorisedDate { get; set; }
         public int OpeningQuantity { get; set; }
         public int CollateralQuantity { get; set; }
         public string CollateralType { get; set; }

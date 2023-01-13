@@ -63,7 +63,7 @@ namespace KiteConnectTest
             ms.SetResponse("application/json", json);
             Kite kite = new Kite("apikey", Root: "http://localhost:8080");
             List<Holding> holdings = kite.GetHoldings();
-            Assert.AreEqual(holdings.Count, 1);
+            Assert.AreEqual(holdings[0].AveragePrice, 40.67m);
         }
 
         [TestMethod]
