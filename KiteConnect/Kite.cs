@@ -380,7 +380,8 @@ namespace KiteConnect
             string Tag = "",
             int? ValidityTTL = null,
             int? IcebergLegs = null,
-            int? IcebergQuantity = null
+            int? IcebergQuantity = null,
+            string AuctionNumber = null
             )
         {
             var param = new Dictionary<string, dynamic>();
@@ -403,6 +404,7 @@ namespace KiteConnect
             Utils.AddIfNotNull(param, "validity_ttl", ValidityTTL.ToString());
             Utils.AddIfNotNull(param, "iceberg_legs", IcebergLegs.ToString());
             Utils.AddIfNotNull(param, "iceberg_quantity", IcebergQuantity.ToString());
+            Utils.AddIfNotNull(param, "auction_number", AuctionNumber);
 
             return Post("orders.place", param);
         }
