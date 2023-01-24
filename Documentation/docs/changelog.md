@@ -1,3 +1,7 @@
+## 4.1.1
+
+* AuctionNumber param in PlaceOrder
+
 ## 4.1.0
 
 * .NET target is now `net6.0`. Previous target `netstandard2.0` has reached end-of-life as of Dec 2022.
