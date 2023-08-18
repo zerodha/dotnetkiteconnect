@@ -124,7 +124,7 @@
             <param name="Segment">Trading segment (eg: equity or commodity)</param>
             <returns>Margins for specified segment.</returns>
         </member>
-        <member name="M:KiteConnect.Kite.PlaceOrder(System.String,System.String,System.String,System.Int32,System.Nullable{System.Decimal},System.String,System.String,System.String,System.Nullable{System.Int32},System.Nullable{System.Decimal},System.Nullable{System.Decimal},System.Nullable{System.Decimal},System.Nullable{System.Decimal},System.String,System.String,System.Nullable{System.Int32},System.Nullable{System.Int32},System.Nullable{System.Int32})">
+        <member name="M:KiteConnect.Kite.PlaceOrder(System.String,System.String,System.String,System.Int32,System.Nullable{System.Decimal},System.String,System.String,System.String,System.Nullable{System.Int32},System.Nullable{System.Decimal},System.Nullable{System.Decimal},System.Nullable{System.Decimal},System.Nullable{System.Decimal},System.String,System.String,System.Nullable{System.Int32},System.Nullable{System.Int32},System.Nullable{System.Int32},System.String)">
             <summary>
             Place an order
             </summary>
@@ -497,6 +497,51 @@
         <member name="T:KiteConnect.OrderMarginParams">
             <summary>
             OrderMarginParams structure
+            </summary>
+        </member>
+        <member name="P:KiteConnect.OrderMarginParams.Exchange">
+            <summary>
+            Exchange in which instrument is listed (Constants.EXCHANGE_NSE, Constants.EXCHANGE_BSE, etc.)
+            </summary>
+        </member>
+        <member name="P:KiteConnect.OrderMarginParams.TradingSymbol">
+            <summary>
+            Tradingsymbol of the instrument  (ex. RELIANCE, INFY)
+            </summary>
+        </member>
+        <member name="P:KiteConnect.OrderMarginParams.TransactionType">
+            <summary>
+            Transaction type (Constants.TRANSACTION_TYPE_BUY or Constants.TRANSACTION_TYPE_SELL)
+            </summary>
+        </member>
+        <member name="P:KiteConnect.OrderMarginParams.Quantity">
+            <summary>
+            Order quantity
+            </summary>
+        </member>
+        <member name="P:KiteConnect.OrderMarginParams.Price">
+            <summary>
+            Order Price
+            </summary>
+        </member>
+        <member name="P:KiteConnect.OrderMarginParams.TriggerPrice">
+            <summary>
+            Trigger price
+            </summary>
+        </member>
+        <member name="P:KiteConnect.OrderMarginParams.Product">
+            <summary>
+            Product code (Constants.PRODUCT_CNC, Constants.PRODUCT_MIS, Constants.PRODUCT_NRML)
+            </summary>
+        </member>
+        <member name="P:KiteConnect.OrderMarginParams.OrderType">
+            <summary>
+            Order type (Constants.ORDER_TYPE_MARKET, Constants.ORDER_TYPE_SL, etc.)
+            </summary>
+        </member>
+        <member name="P:KiteConnect.OrderMarginParams.Variety">
+            <summary>
+            Variety (Constants.VARIETY_REGULAR, Constants.VARIETY_AMO, etc.)
             </summary>
         </member>
         <member name="T:KiteConnect.OrderMargin">

@@ -595,6 +595,42 @@ User margins response structure
 
 OrderMarginParams structure
 
+### ![Field](/assets/pubfield.jpg) &nbsp;&nbsp;OrderMarginParams.Exchange
+
+Exchange in which instrument is listed (Constants.EXCHANGE_NSE, Constants.EXCHANGE_BSE, etc.)
+
+### ![Field](/assets/pubfield.jpg) &nbsp;&nbsp;OrderMarginParams.TradingSymbol
+
+Tradingsymbol of the instrument  (ex. RELIANCE, INFY)
+
+### ![Field](/assets/pubfield.jpg) &nbsp;&nbsp;OrderMarginParams.TransactionType
+
+Transaction type (Constants.TRANSACTION_TYPE_BUY or Constants.TRANSACTION_TYPE_SELL)
+
+### ![Field](/assets/pubfield.jpg) &nbsp;&nbsp;OrderMarginParams.Quantity
+
+Order quantity
+
+### ![Field](/assets/pubfield.jpg) &nbsp;&nbsp;OrderMarginParams.Price
+
+Order Price
+
+### ![Field](/assets/pubfield.jpg) &nbsp;&nbsp;OrderMarginParams.TriggerPrice
+
+Trigger price
+
+### ![Field](/assets/pubfield.jpg) &nbsp;&nbsp;OrderMarginParams.Product
+
+Product code (Constants.PRODUCT_CNC, Constants.PRODUCT_MIS, Constants.PRODUCT_NRML)
+
+### ![Field](/assets/pubfield.jpg) &nbsp;&nbsp;OrderMarginParams.OrderType
+
+Order type (Constants.ORDER_TYPE_MARKET, Constants.ORDER_TYPE_SL, etc.)
+
+### ![Field](/assets/pubfield.jpg) &nbsp;&nbsp;OrderMarginParams.Variety
+
+Variety (Constants.VARIETY_REGULAR, Constants.VARIETY_AMO, etc.)
+
 ## ![Class](/assets/class.jpg) &nbsp;&nbsp;OrderMargin Class
 
 OrderMargin structure

@@ -312,14 +312,49 @@ namespace KiteConnect
     /// </summary>
     public struct OrderMarginParams
     {
+        /// <summary>
+        /// Exchange in which instrument is listed (Constants.EXCHANGE_NSE, Constants.EXCHANGE_BSE, etc.)
+        /// </summary>
         public string Exchange { get; set; }
+
+        /// <summary>
+        /// Tradingsymbol of the instrument  (ex. RELIANCE, INFY)
+        /// </summary>
         public string TradingSymbol { get; set; }
+
+        /// <summary>
+        /// Transaction type (Constants.TRANSACTION_TYPE_BUY or Constants.TRANSACTION_TYPE_SELL)
+        /// </summary>
         public string TransactionType { get; set; }
+
+        /// <summary>
+        /// Order quantity
+        /// </summary>
         public int Quantity { get; set; }
+
+        /// <summary>
+        /// Order Price
+        /// </summary>
         public decimal? Price { get; set; }
+
+        /// <summary>
+        /// Trigger price
+        /// </summary>
         public decimal? TriggerPrice { get; set; }
+
+        /// <summary>
+        /// Product code (Constants.PRODUCT_CNC, Constants.PRODUCT_MIS, Constants.PRODUCT_NRML)
+        /// </summary>
         public string Product { get; set; }
+
+        /// <summary>
+        /// Order type (Constants.ORDER_TYPE_MARKET, Constants.ORDER_TYPE_SL, etc.)
+        /// </summary>
         public string OrderType { get; set; }
+
+        /// <summary>
+        /// Variety (Constants.VARIETY_REGULAR, Constants.VARIETY_AMO, etc.)
+        /// </summary>
         public string Variety { get; set; }
     }
 
