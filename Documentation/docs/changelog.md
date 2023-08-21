@@ -1,3 +1,7 @@
+## 4.2.0
+
+* New API to get Virtual contract notes
+
 ## 4.1.1
 
 * AuctionNumber param in PlaceOrder

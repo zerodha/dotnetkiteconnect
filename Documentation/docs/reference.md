@@ -105,6 +105,16 @@ Gets currently logged in user details
 
 **Returns:** User profile
 
+### ![Method](/assets/method.jpg) &nbsp;&nbsp;Kite.GetVirtualContractNote
+
+A virtual contract provides detailed charges order-wise for brokerage, STT, stamp duty, exchange transaction charges, SEBI turnover charge, and GST.
+
+| Argument | Type | Description |
+| --- | --- | --- |
+| ContractNoteParams | Collections.Generic.List{ContractNoteParams} | List of all order params to get contract notes for |
+
+**Returns:** List of contract notes for the params
+
 ### ![Method](/assets/method.jpg) &nbsp;&nbsp;Kite.GetOrderMargins
 
 Margin data for a specific order
@@ -634,6 +644,86 @@ Variety (Constants.VARIETY_REGULAR, Constants.VARIETY_AMO, etc.)
 ## ![Class](/assets/class.jpg) &nbsp;&nbsp;OrderMargin Class
 
 OrderMargin structure
+
+## ![Class](/assets/class.jpg) &nbsp;&nbsp;ContractNoteParams Class
+
+ContractNoteParams structure
+
+### ![Field](/assets/pubfield.jpg) &nbsp;&nbsp;ContractNoteParams.OrderID
+
+Order ID that is received in the orderbook
+
+### ![Field](/assets/pubfield.jpg) &nbsp;&nbsp;ContractNoteParams.Exchange
+
+Exchange in which instrument is listed (Constants.EXCHANGE_NSE, Constants.EXCHANGE_BSE, etc.)
+
+### ![Field](/assets/pubfield.jpg) &nbsp;&nbsp;ContractNoteParams.TradingSymbol
+
+Tradingsymbol of the instrument  (ex. RELIANCE, INFY)
+
+### ![Field](/assets/pubfield.jpg) &nbsp;&nbsp;ContractNoteParams.TransactionType
+
+Transaction type (Constants.TRANSACTION_TYPE_BUY or Constants.TRANSACTION_TYPE_SELL)
+
+### ![Field](/assets/pubfield.jpg) &nbsp;&nbsp;ContractNoteParams.Quantity
+
+Order quantity
+
+### ![Field](/assets/pubfield.jpg) &nbsp;&nbsp;ContractNoteParams.AveragePrice
+
+Average price
+
+### ![Field](/assets/pubfield.jpg) &nbsp;&nbsp;ContractNoteParams.Product
+
+Product code (Constants.PRODUCT_CNC, Constants.PRODUCT_MIS, Constants.PRODUCT_NRML)
+
+### ![Field](/assets/pubfield.jpg) &nbsp;&nbsp;ContractNoteParams.OrderType
+
+Order type (Constants.ORDER_TYPE_MARKET, Constants.ORDER_TYPE_SL, etc.)
+
+### ![Field](/assets/pubfield.jpg) &nbsp;&nbsp;ContractNoteParams.Variety
+
+Variety (Constants.VARIETY_REGULAR, Constants.VARIETY_AMO, etc.)
+
+## ![Class](/assets/class.jpg) &nbsp;&nbsp;ContractNote Class
+
+ContractNote structure
+
+### ![Field](/assets/pubfield.jpg) &nbsp;&nbsp;ContractNote.Exchange
+
+Exchange in which instrument is listed (Constants.EXCHANGE_NSE, Constants.EXCHANGE_BSE, etc.)
+
+### ![Field](/assets/pubfield.jpg) &nbsp;&nbsp;ContractNote.TradingSymbol
+
+Tradingsymbol of the instrument  (ex. RELIANCE, INFY)
+
+### ![Field](/assets/pubfield.jpg) &nbsp;&nbsp;ContractNote.TransactionType
+
+Transaction type (Constants.TRANSACTION_TYPE_BUY or Constants.TRANSACTION_TYPE_SELL)
+
+### ![Field](/assets/pubfield.jpg) &nbsp;&nbsp;ContractNote.Quantity
+
+Order quantity
+
+### ![Field](/assets/pubfield.jpg) &nbsp;&nbsp;ContractNote.Price
+
+Order price
+
+### ![Field](/assets/pubfield.jpg) &nbsp;&nbsp;ContractNote.Product
+
+Product code (Constants.PRODUCT_CNC, Constants.PRODUCT_MIS, Constants.PRODUCT_NRML)
+
+### ![Field](/assets/pubfield.jpg) &nbsp;&nbsp;ContractNote.OrderType
+
+Order type (Constants.ORDER_TYPE_MARKET, Constants.ORDER_TYPE_SL, etc.)
+
+### ![Field](/assets/pubfield.jpg) &nbsp;&nbsp;ContractNote.Variety
+
+Variety (Constants.VARIETY_REGULAR, Constants.VARIETY_AMO, etc.)
+
+### ![Field](/assets/pubfield.jpg) &nbsp;&nbsp;ContractNote.Charges
+
+Order charges
 
 ## ![Class](/assets/class.jpg) &nbsp;&nbsp;OrderCharges Class
 

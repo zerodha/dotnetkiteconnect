@@ -94,6 +94,13 @@
             </summary>
             <returns>User profile</returns>
         </member>
+        <member name="M:KiteConnect.Kite.GetVirtualContractNote(System.Collections.Generic.List{KiteConnect.ContractNoteParams})">
+            <summary>
+            A virtual contract provides detailed charges order-wise for brokerage, STT, stamp duty, exchange transaction charges, SEBI turnover charge, and GST.
+            </summary>
+            <param name="ContractNoteParams">List of all order params to get contract notes for</param>
+            <returns>List of contract notes for the params</returns>
+        </member>
         <member name="M:KiteConnect.Kite.GetOrderMargins(System.Collections.Generic.List{KiteConnect.OrderMarginParams},System.String)">
             <summary>
             Margin data for a specific order
@@ -547,6 +554,106 @@
         <member name="T:KiteConnect.OrderMargin">
             <summary>
             OrderMargin structure
+            </summary>
+        </member>
+        <member name="T:KiteConnect.ContractNoteParams">
+            <summary>
+            ContractNoteParams structure
+            </summary>
+        </member>
+        <member name="P:KiteConnect.ContractNoteParams.OrderID">
+            <summary>
+            Order ID that is received in the orderbook
+            </summary>
+        </member>
+        <member name="P:KiteConnect.ContractNoteParams.Exchange">
+            <summary>
+            Exchange in which instrument is listed (Constants.EXCHANGE_NSE, Constants.EXCHANGE_BSE, etc.)
+            </summary>
+        </member>
+        <member name="P:KiteConnect.ContractNoteParams.TradingSymbol">
+            <summary>
+            Tradingsymbol of the instrument  (ex. RELIANCE, INFY)
+            </summary>
+        </member>
+        <member name="P:KiteConnect.ContractNoteParams.TransactionType">
+            <summary>
+            Transaction type (Constants.TRANSACTION_TYPE_BUY or Constants.TRANSACTION_TYPE_SELL)
+            </summary>
+        </member>
+        <member name="P:KiteConnect.ContractNoteParams.Quantity">
+            <summary>
+            Order quantity
+            </summary>
+        </member>
+        <member name="P:KiteConnect.ContractNoteParams.AveragePrice">
+            <summary>
+            Average price
+            </summary>
+        </member>
+        <member name="P:KiteConnect.ContractNoteParams.Product">
+            <summary>
+            Product code (Constants.PRODUCT_CNC, Constants.PRODUCT_MIS, Constants.PRODUCT_NRML)
+            </summary>
+        </member>
+        <member name="P:KiteConnect.ContractNoteParams.OrderType">
+            <summary>
+            Order type (Constants.ORDER_TYPE_MARKET, Constants.ORDER_TYPE_SL, etc.)
+            </summary>
+        </member>
+        <member name="P:KiteConnect.ContractNoteParams.Variety">
+            <summary>
+            Variety (Constants.VARIETY_REGULAR, Constants.VARIETY_AMO, etc.)
+            </summary>
+        </member>
+        <member name="T:KiteConnect.ContractNote">
+            <summary>
+            ContractNote structure
+            </summary>
+        </member>
+        <member name="P:KiteConnect.ContractNote.Exchange">
+            <summary>
+            Exchange in which instrument is listed (Constants.EXCHANGE_NSE, Constants.EXCHANGE_BSE, etc.)
+            </summary>
+        </member>
+        <member name="P:KiteConnect.ContractNote.TradingSymbol">
+            <summary>
+            Tradingsymbol of the instrument  (ex. RELIANCE, INFY)
+            </summary>
+        </member>
+        <member name="P:KiteConnect.ContractNote.TransactionType">
+            <summary>
+            Transaction type (Constants.TRANSACTION_TYPE_BUY or Constants.TRANSACTION_TYPE_SELL)
+            </summary>
+        </member>
+        <member name="P:KiteConnect.ContractNote.Quantity">
+            <summary>
+            Order quantity
+            </summary>
+        </member>
+        <member name="P:KiteConnect.ContractNote.Price">
+            <summary>
+            Order price
+            </summary>
+        </member>
+        <member name="P:KiteConnect.ContractNote.Product">
+            <summary>
+            Product code (Constants.PRODUCT_CNC, Constants.PRODUCT_MIS, Constants.PRODUCT_NRML)
+            </summary>
+        </member>
+        <member name="P:KiteConnect.ContractNote.OrderType">
+            <summary>
+            Order type (Constants.ORDER_TYPE_MARKET, Constants.ORDER_TYPE_SL, etc.)
+            </summary>
+        </member>
+        <member name="P:KiteConnect.ContractNote.Variety">
+            <summary>
+            Variety (Constants.VARIETY_REGULAR, Constants.VARIETY_AMO, etc.)
+            </summary>
+        </member>
+        <member name="P:KiteConnect.ContractNote.Charges">
+            <summary>
+            Order charges
             </summary>
         </member>
         <member name="T:KiteConnect.OrderCharges">
