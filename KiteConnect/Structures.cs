@@ -406,6 +406,127 @@ namespace KiteConnect
         public decimal Total { get; set; }
     }
 
+    /// <summary>
+    /// ContractNoteParams structure
+    /// </summary>
+    public struct ContractNoteParams
+    {
+        /// <summary>
+        /// Order ID that is received in the orderbook
+        /// </summary>
+        public string OrderID { get; set; }
+
+        /// <summary>
+        /// Exchange in which instrument is listed (Constants.EXCHANGE_NSE, Constants.EXCHANGE_BSE, etc.)
+        /// </summary>
+        public string Exchange { get; set; }
+
+        /// <summary>
+        /// Tradingsymbol of the instrument  (ex. RELIANCE, INFY)
+        /// </summary>
+        public string TradingSymbol { get; set; }
+
+        /// <summary>
+        /// Transaction type (Constants.TRANSACTION_TYPE_BUY or Constants.TRANSACTION_TYPE_SELL)
+        /// </summary>
+        public string TransactionType { get; set; }
+
+        /// <summary>
+        /// Order quantity
+        /// </summary>
+        public int Quantity { get; set; }
+
+        /// <summary>
+        /// Average price
+        /// </summary>
+        public decimal? AveragePrice { get; set; }
+
+        /// <summary>
+        /// Product code (Constants.PRODUCT_CNC, Constants.PRODUCT_MIS, Constants.PRODUCT_NRML)
+        /// </summary>
+        public string Product { get; set; }
+
+        /// <summary>
+        /// Order type (Constants.ORDER_TYPE_MARKET, Constants.ORDER_TYPE_SL, etc.)
+        /// </summary>
+        public string OrderType { get; set; }
+
+        /// <summary>
+        /// Variety (Constants.VARIETY_REGULAR, Constants.VARIETY_AMO, etc.)
+        /// </summary>
+        public string Variety { get; set; }
+    }
+
+    /// <summary>
+    /// ContractNote structure
+    /// </summary>
+    public struct ContractNote
+    {
+        public ContractNote(Dictionary<string, dynamic> data)
+        {
+            try
+            {
+                Exchange = data["exchange"];
+                TradingSymbol = data["tradingsymbol"];
+                TransactionType = data["transaction_type"];
+                Quantity = Convert.ToInt32(data["quantity"]);
+                Price = Utils.GetValueOrDefault(data, "price", 0m);
+                Product = data["product"];
+                OrderType = data["order_type"];
+                Variety = data["variety"];
+                Charges = new OrderCharges(Utils.GetValueOrDefault(data, "charges", new Dictionary<string, dynamic>()));
+            }
+            catch (Exception e)
+            {
+                throw new DataException(e.Message + " " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
+            }
+        }
+    
+        /// <summary>
+        /// Exchange in which instrument is listed (Constants.EXCHANGE_NSE, Constants.EXCHANGE_BSE, etc.)
+        /// </summary>
+        public string Exchange { get; set; }
+
+        /// <summary>
+        /// Tradingsymbol of the instrument  (ex. RELIANCE, INFY)
+        /// </summary>
+        public string TradingSymbol { get; set; }
+
+        /// <summary>
+        /// Transaction type (Constants.TRANSACTION_TYPE_BUY or Constants.TRANSACTION_TYPE_SELL)
+        /// </summary>
+        public string TransactionType { get; set; }
+
+        /// <summary>
+        /// Order quantity
+        /// </summary>
+        public int Quantity { get; set; }
+
+        /// <summary>
+        /// Order price
+        /// </summary>
+        public decimal? Price { get; set; }
+
+        /// <summary>
+        /// Product code (Constants.PRODUCT_CNC, Constants.PRODUCT_MIS, Constants.PRODUCT_NRML)
+        /// </summary>
+        public string Product { get; set; }
+
+        /// <summary>
+        /// Order type (Constants.ORDER_TYPE_MARKET, Constants.ORDER_TYPE_SL, etc.)
+        /// </summary>
+        public string OrderType { get; set; }
+
+        /// <summary>
+        /// Variety (Constants.VARIETY_REGULAR, Constants.VARIETY_AMO, etc.)
+        /// </summary>
+        public string Variety { get; set; }
+
+        /// <summary>
+        /// Order charges
+        /// </summary>
+        public OrderCharges Charges { get; set; }
+    }
 
     /// <summary>
     /// OrderCharges structure

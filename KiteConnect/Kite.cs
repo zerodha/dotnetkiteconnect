@@ -37,6 +37,7 @@ namespace KiteConnect
             ["instrument.margins"] = "/margins/{segment}",
             ["order.margins"] = "/margins/orders",
             ["basket.margins"] = "/margins/basket",
+            ["order.contractnote"] = "/charges/orders",
 
             ["user.profile"] = "/user/profile",
             ["user.margins"] = "/user/margins",
@@ -237,6 +238,40 @@ namespace KiteConnect
             var profileData = Get("user.profile");
 
             return new Profile(profileData);
+        }
+
+        /// <summary>
+        /// A virtual contract provides detailed charges order-wise for brokerage, STT, stamp duty, exchange transaction charges, SEBI turnover charge, and GST.
+        /// </summary>
+        /// <param name="ContractNoteParams">List of all order params to get contract notes for</param>
+        /// <returns>List of contract notes for the params</returns>
+        public List<ContractNote> GetVirtualContractNote(List<ContractNoteParams> ContractNoteParams)
+        {
+            var paramList = new List<Dictionary<string, dynamic>>();
+
+            foreach (var item in ContractNoteParams)
+            {
+                var param = new Dictionary<string, dynamic>();
+                param["order_id"] = item.OrderID;
+                param["exchange"] = item.Exchange;
+                param["tradingsymbol"] = item.TradingSymbol;
+                param["transaction_type"] = item.TransactionType;
+                param["quantity"] = item.Quantity;
+                param["average_price"] = item.AveragePrice;
+                param["product"] = item.Product;
+                param["order_type"] = item.OrderType;
+                param["variety"] = item.Variety;
+
+                paramList.Add(param);
+            }
+
+            var contractNoteData = Post("order.contractnote", paramList, json: true);
+
+            List<ContractNote> contractNotes = new List<ContractNote>();
+            foreach (Dictionary<string, dynamic> item in contractNoteData["data"])
+                contractNotes.Add(new ContractNote(item));
+
+            return contractNotes;
         }
 
         /// <summary>

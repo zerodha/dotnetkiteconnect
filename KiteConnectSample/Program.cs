@@ -351,6 +351,21 @@ namespace KiteConnectSample
 
             BasketMargin basketMargins = kite.GetBasketMargins(new List<OrderMarginParams>() { basketParam }, ConsiderPositions: true);
 
+            // Virtual contract notes
+
+            ContractNoteParams contractNoteParam = new ContractNoteParams();
+            contractNoteParam.OrderID = "230821101633675";
+            contractNoteParam.Quantity = 1;
+            contractNoteParam.AveragePrice = 99.7m;
+            contractNoteParam.Exchange = "NSE";
+            contractNoteParam.TradingSymbol = "BHEL";
+            contractNoteParam.TransactionType = Constants.TRANSACTION_TYPE_BUY;
+            contractNoteParam.Variety = Constants.VARIETY_REGULAR;
+            contractNoteParam.OrderType = Constants.ORDER_TYPE_LIMIT;
+            contractNoteParam.Product = Constants.PRODUCT_MIS;
+            List<ContractNote> contractNotes = kite.GetVirtualContractNote(new List<ContractNoteParams>() { contractNoteParam });
+            Console.WriteLine(Utils.JsonSerialize(contractNotes));
+            
             // Historical Data With Dates
 
             List<Historical> historical = kite.GetHistoricalData(
