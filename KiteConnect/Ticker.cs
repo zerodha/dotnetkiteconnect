@@ -264,7 +264,10 @@ namespace KiteConnect
             tick.Low = ReadInt(b, ref offset) / divisor;
             tick.Open = ReadInt(b, ref offset) / divisor;
             tick.Close = ReadInt(b, ref offset) / divisor;
-            tick.Change = ReadInt(b, ref offset) / divisor;
+            // ignore this int
+            ReadInt(b, ref offset);
+            // calculate the change based on existing values
+            tick.Change = tick.LastPrice - tick.Close;
             uint time = ReadInt(b, ref offset);
             tick.Timestamp = Utils.UnixToDateTime(time);
             return tick;
