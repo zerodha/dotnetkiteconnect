@@ -1,3 +1,7 @@
+## 4.2.1
+
+* Fixed Tick.Change value for MODE_FULL
+
 ## 4.2.0
 
 * New API to get Virtual contract notes
