@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -189,11 +189,10 @@ namespace KiteConnect
         /// </summary>
         /// <param name="Data">Input data to generate checksum for.</param>
         /// <returns>SHA256 checksum in hex format.</returns>
-        public static string SHA256(string Data)
+        public static string SHA256Hash(string Data)
         {
-            SHA256Managed sha256 = new SHA256Managed();
             StringBuilder hexhash = new StringBuilder();
-            byte[] hash = sha256.ComputeHash(Encoding.UTF8.GetBytes(Data), 0, Encoding.UTF8.GetByteCount(Data));
+            byte[] hash = SHA256.HashData(Encoding.UTF8.GetBytes(Data));
             foreach (byte b in hash)
             {
                 hexhash.Append(b.ToString("x2"));
