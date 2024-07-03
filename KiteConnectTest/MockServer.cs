@@ -10,9 +10,10 @@ namespace KiteConnectTest
 
     class MockServer
     {
-        HttpListener httpListener = new HttpListener();
+        readonly HttpListener httpListener = new();
         string contentType = "";
         string responseString = "";
+        int statusCode = 200;
 
         public MockServer(string url)
         {
@@ -20,6 +21,10 @@ namespace KiteConnectTest
             httpListener.Prefixes.Add(url);
             httpListener.Start();
             Task.Run(() => HandleRequest());
+        }
+
+        public void SetStatusCode(int code) {
+            statusCode = code;
         }
 
         public void SetResponse(string contentType, string responseString)
@@ -32,6 +37,7 @@ namespace KiteConnectTest
         {
             var context = httpListener.GetContext();
             var response = context.Response;
+            response.StatusCode = statusCode;
             response.ContentType = contentType;
 
             var buffer = System.Text.Encoding.UTF8.GetBytes(responseString);

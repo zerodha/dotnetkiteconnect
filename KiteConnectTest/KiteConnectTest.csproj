@@ -16,6 +16,9 @@
 
 
 <ItemGroup>
+  <None Include="responses/error.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="responses/basket_margins_compact.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

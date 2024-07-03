@@ -35,6 +35,16 @@ namespace KiteConnectTest
 
 
         [TestMethod]
+        public void TestError()
+        {
+            string json = File.ReadAllText(@"responses/error.json", Encoding.UTF8);
+            ms.SetStatusCode(403);
+            ms.SetResponse("application/json", json);
+            Kite kite = new Kite("apikey", Root: "http://localhost:8080", Debug: true);
+            Assert.ThrowsException<GeneralException>(() => kite.GetProfile());
+        }
+
+        [TestMethod]
         public void TestProfile()
         {
             string json = File.ReadAllText(@"responses/profile.json", Encoding.UTF8);
