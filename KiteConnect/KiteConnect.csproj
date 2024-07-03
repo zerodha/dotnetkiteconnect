@@ -5,11 +5,11 @@
     <Authors>Ajin Asokan</Authors>
     <Company>Zerodha Technology Pvt. Ltd.</Company>
     <PackageId>Tech.Zerodha.KiteConnect</PackageId>
-    <Version>4.2.1</Version>
-    <AssemblyVersion>4.2.1</AssemblyVersion>
-    <FileVersion>4.2.1</FileVersion>
+    <Version>4.3.0</Version>
+    <AssemblyVersion>4.3.0</AssemblyVersion>
+    <FileVersion>4.3.0</FileVersion>
     <Description>The official .Net client for communicating with Kite Connect API.</Description>
-    <Copyright>Copyright 2023</Copyright>
+    <Copyright>Copyright 2024</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/zerodhatech/dotnetkiteconnect</PackageProjectUrl>
     <PackageIconUrl>https://kite.zerodha.com/static/images/kite-logo.svg</PackageIconUrl>

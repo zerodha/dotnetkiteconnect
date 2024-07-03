@@ -1,3 +1,8 @@
+## 4.3.0
+
+* Using HttpClient for HTTP requests. Fixes #36 and #39.
+* Using SHA256.HashData instead of SHA256Managed. Fixes #41.
+
 ## 4.2.1
 
 * Fixed Tick.Change value for MODE_FULL
