@@ -412,12 +412,12 @@ namespace KiteConnect
             string Exchange,
             string TradingSymbol,
             string TransactionType,
-            int Quantity,
+            decimal Quantity,
             decimal? Price = null,
             string Product = null,
             string OrderType = null,
             string Validity = null,
-            int? DisclosedQuantity = null,
+            decimal? DisclosedQuantity = null,
             decimal? TriggerPrice = null,
             decimal? SquareOffValue = null,
             decimal? StoplossValue = null,
@@ -426,7 +426,7 @@ namespace KiteConnect
             string Tag = "",
             int? ValidityTTL = null,
             int? IcebergLegs = null,
-            int? IcebergQuantity = null,
+            decimal? IcebergQuantity = null,
             string AuctionNumber = null
             )
         {
@@ -478,12 +478,12 @@ namespace KiteConnect
             string Exchange = null,
             string TradingSymbol = null,
             string TransactionType = null,
-            string Quantity = null,
+            decimal? Quantity = null,
             decimal? Price = null,
             string Product = null,
             string OrderType = null,
             string Validity = Constants.VALIDITY_DAY,
-            int? DisclosedQuantity = null,
+            decimal? DisclosedQuantity = null,
             decimal? TriggerPrice = null,
             string Variety = Constants.VARIETY_REGULAR)
         {
@@ -502,7 +502,7 @@ namespace KiteConnect
 
             if (VarietyString == "bo" && ProductString == "bo")
             {
-                Utils.AddIfNotNull(param, "quantity", Quantity);
+                Utils.AddIfNotNull(param, "quantity", Quantity.ToString());
                 Utils.AddIfNotNull(param, "price", Price.ToString());
                 Utils.AddIfNotNull(param, "disclosed_quantity", DisclosedQuantity.ToString());
             }
@@ -511,7 +511,7 @@ namespace KiteConnect
                 Utils.AddIfNotNull(param, "exchange", Exchange);
                 Utils.AddIfNotNull(param, "tradingsymbol", TradingSymbol);
                 Utils.AddIfNotNull(param, "transaction_type", TransactionType);
-                Utils.AddIfNotNull(param, "quantity", Quantity);
+                Utils.AddIfNotNull(param, "quantity", Quantity.ToString());
                 Utils.AddIfNotNull(param, "price", Price.ToString());
                 Utils.AddIfNotNull(param, "product", Product);
                 Utils.AddIfNotNull(param, "order_type", OrderType);
@@ -661,7 +661,7 @@ namespace KiteConnect
             string TradingSymbol,
             string TransactionType,
             string PositionType,
-            int? Quantity,
+            decimal? Quantity,
             string OldProduct,
             string NewProduct)
         {
