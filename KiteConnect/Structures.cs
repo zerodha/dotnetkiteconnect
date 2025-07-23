@@ -118,19 +118,19 @@ namespace KiteConnect
         public string Exchange { get; set; }
         public decimal Price { get; set; }
         public decimal LastPrice { get; set; }
-        public int CollateralQuantity { get; set; }
+        public decimal CollateralQuantity { get; set; }
         public decimal PNL { get; set; }
         public decimal ClosePrice { get; set; }
         public decimal AveragePrice { get; set; }
         public string TradingSymbol { get; set; }
         public string CollateralType { get; set; }
-        public int T1Quantity { get; set; }
+        public decimal T1Quantity { get; set; }
         public UInt32 InstrumentToken { get; set; }
         public string ISIN { get; set; }
-        public int RealisedQuantity { get; set; }
-        public int Quantity { get; set; }
-        public int UsedQuantity { get; set; }
-        public int AuthorisedQuantity { get; set; }
+        public decimal RealisedQuantity { get; set; }
+        public decimal Quantity { get; set; }
+        public decimal UsedQuantity { get; set; }
+        public decimal AuthorisedQuantity { get; set; }
         public DateTime? AuthorisedDate { get; set; }
         public bool Discrepancy { get; set; }
     }
@@ -179,13 +179,13 @@ namespace KiteConnect
         public string ISIN { get; set; }
         public string Product { get; set; }
         public decimal Price { get; set; }
-        public int Quantity { get; set; }
-        public int T1Quantity { get; set; }
-        public int RealisedQuantity { get; set; }
-        public int AuthorisedQuantity { get; set; }
+        public decimal Quantity { get; set; }
+        public decimal T1Quantity { get; set; }
+        public decimal RealisedQuantity { get; set; }
+        public decimal AuthorisedQuantity { get; set; }
         public DateTime? AuthorisedDate { get; set; }
-        public int OpeningQuantity { get; set; }
-        public int CollateralQuantity { get; set; }
+        public decimal OpeningQuantity { get; set; }
+        public decimal CollateralQuantity { get; set; }
         public string CollateralType { get; set; }
         public bool Discrepancy { get; set; }
         public decimal AveragePrice { get; set; }
