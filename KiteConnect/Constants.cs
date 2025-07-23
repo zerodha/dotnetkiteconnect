@@ -13,6 +13,7 @@ namespace KiteConnect
         public const string PRODUCT_MIS = "MIS";
         public const string PRODUCT_CNC = "CNC";
         public const string PRODUCT_NRML = "NRML";
+        public const string PRODUCT_MTF = "MTF";
 
         // Order types
         public const string ORDER_TYPE_MARKET = "MARKET";

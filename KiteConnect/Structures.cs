@@ -107,6 +107,7 @@ namespace KiteConnect
                 AuthorisedQuantity = Convert.ToInt32(data["authorised_quantity"]);
                 AuthorisedDate = Utils.StringToDate(data["authorised_date"]);
                 Discrepancy = data["discrepancy"];
+                MTF = new MTFHolding(data["mtf"]);
             }
             catch (Exception e)
             {
@@ -133,6 +134,35 @@ namespace KiteConnect
         public decimal AuthorisedQuantity { get; set; }
         public DateTime? AuthorisedDate { get; set; }
         public bool Discrepancy { get; set; }
+        public MTFHolding MTF { get; set; }
+    }
+
+    /// <summary>
+    /// MTF Holding structure
+    /// </summary>
+    public struct MTFHolding
+    {
+        public MTFHolding(Dictionary<string, dynamic> data)
+        {
+            try
+            {
+                Quantity = data["quantity"];
+                UsedQuantity = data["used_quantity"];
+                AveragePrice = data["average_price"];
+                Value = data["value"];
+                InitialMargin = data["initial_margin"];
+            }
+            catch (Exception e)
+            {
+                throw new DataException(e.Message + " " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
+            }
+        }
+
+        public decimal Quantity { get; set; }
+        public decimal UsedQuantity { get; set; }
+        public decimal AveragePrice { get; set; }
+        public decimal Value { get; set; }
+        public decimal InitialMargin { get; set; }
     }
 
     /// <summary>

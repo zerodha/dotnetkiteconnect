@@ -74,6 +74,7 @@ namespace KiteConnectTest
             Kite kite = new Kite("apikey", Root: "http://localhost:8080");
             List<Holding> holdings = kite.GetHoldings();
             Assert.AreEqual(holdings[0].AveragePrice, 40.67m);
+            Assert.AreEqual(holdings[0].MTF.Quantity, 1000m);
         }
 
         [TestMethod]
@@ -302,6 +303,8 @@ namespace KiteConnectTest
             Assert.AreEqual(orders[3].Meta["iceberg"]["legs"], 5);
 
             Assert.AreEqual(orders[0].AuctionNumber, 10);
+
+            Assert.AreEqual(orders[4].Product, Constants.PRODUCT_MTF);
         }
 
         [TestMethod]
