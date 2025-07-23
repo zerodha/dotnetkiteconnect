@@ -99,6 +99,18 @@ namespace KiteConnectTest
         }
 
         [TestMethod]
+        public void TestMarginsNoTurnover()
+        {
+            string json = File.ReadAllText(@"responses/margins_noturnover.json", Encoding.UTF8);
+            ms.SetResponse("application/json", json);
+            Kite kite = new Kite("apikey", Root: "http://localhost:8080");
+            UserMarginsResponse margins = kite.GetMargins();
+
+            Assert.AreEqual(margins.Equity.Utilised.Turnover, (decimal)0);
+            Assert.AreEqual(margins.Commodity.Utilised.Turnover, (decimal)0);
+        }
+
+        [TestMethod]
         public void TestOrderMargins()
         {
             string json = File.ReadAllText(@"responses/order_margins.json", Encoding.UTF8);
