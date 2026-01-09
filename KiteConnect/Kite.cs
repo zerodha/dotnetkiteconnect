@@ -1,12 +1,17 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Collections;
-using System.Reflection;
-using System.Net.Http;
-using System.Text;
-using System.Net.Mime;
 using System.Net;
+using System.Net.Http;
+using System.Net.Http.Json;
+using System.Net.Mime;
+using System.Reflection;
+using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace KiteConnect
 {
@@ -15,6 +20,7 @@ namespace KiteConnect
     /// </summary>
     public class Kite
     {
+        private static readonly JsonSerializerOptions jsonSerializerOptions = new JsonSerializerOptions() { PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower, Converters = { new JsonStringEnumConverter() } };
         // Default root API endpoint. It's possible to
         // override this by passing the `Root` parameter during initialisation.
         private string _root = "https://api.kite.trade";
@@ -186,11 +192,9 @@ namespace KiteConnect
         /// Gets currently logged in user details
         /// </summary>
         /// <returns>User profile</returns>
-        public Profile GetProfile()
+        public Task<Profile> GetProfileAsync(CancellationToken cancellationToken = default)
         {
-            var profileData = Get(Routes.User.Profile);
-
-            return new Profile(profileData);
+            return GetAsync<Profile>("/user/profile", cancellationToken);
         }
 
         /// <summary>
@@ -310,22 +314,22 @@ namespace KiteConnect
         /// <summary>
         /// Get account balance and cash margin details for all segments.
         /// </summary>
+        /// <param name="cancellationToken"></param>
         /// <returns>User margin response with both equity and commodity margins.</returns>
-        public UserMarginsResponse GetMargins()
+        public Task<UserMarginsResponse> GetMarginsAsync(CancellationToken cancellationToken = default)
         {
-            var marginsData = Get(Routes.User.Margins);
-            return new UserMarginsResponse(marginsData["data"]);
+            return GetAsync<UserMarginsResponse>("/user/margins", cancellationToken);
         }
 
         /// <summary>
         /// Get account balance and cash margin details for a particular segment.
         /// </summary>
         /// <param name="Segment">Trading segment (eg: equity or commodity)</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Margins for specified segment.</returns>
-        public UserMargin GetMargins(string Segment)
+        public Task<UserMargin> GetMarginsAsync(string Segment, CancellationToken cancellationToken = default)
         {
-            var userMarginData = Get(Routes.User.SegmentMargins, new Dictionary<string, dynamic> { { "segment", Segment } });
-            return new UserMargin(userMarginData["data"]);
+            return GetAsync<UserMargin>($"/user/margins/{Segment}", cancellationToken);
         }
 
         /// <summary>
@@ -1309,6 +1313,45 @@ namespace KiteConnect
             else
                 throw new DataException("Unexpected content type " + response.Content.Headers.ContentType.MediaType + " " + response);
 
+        }
+
+        private async Task<T> GetAsync<T>(string path, CancellationToken cancellationToken)
+        {
+            string url = _root + path;
+            var httpResponse = await httpClient.GetAsync(url, cancellationToken);
+            if (httpResponse.IsSuccessStatusCode)
+            {
+                var response = await httpResponse.Content.ReadFromJsonAsync<SucessResponse<T>>(jsonSerializerOptions, cancellationToken);
+                if (response.Status == ResponseStatus.Success)
+                    return response.Data;
+                else
+                    throw new KiteException($"Expected sucess status, got {response.Status}.", httpResponse.StatusCode);
+            }
+            else
+            {
+                await ThrowErrorAsync(httpResponse, cancellationToken);
+                throw new KiteException("Something went wrong.", httpResponse.StatusCode);
+            }
+        }
+
+        private async Task ThrowErrorAsync(HttpResponseMessage httpResponse, CancellationToken cancellationToken)
+        {
+            var response = await httpResponse.Content.ReadFromJsonAsync<ErrorResponse>(jsonSerializerOptions, cancellationToken);
+            switch (response.ErrorType)
+            {
+                case "GeneralException": throw new GeneralException(response.Message, httpResponse.StatusCode);
+                case "TokenException":
+                    {
+                        _sessionHook?.Invoke();
+                        throw new TokenException(response.Message, httpResponse.StatusCode);
+                    }
+                case "PermissionException": throw new PermissionException(response.Message, httpResponse.StatusCode);
+                case "OrderException": throw new OrderException(response.Message, httpResponse.StatusCode);
+                case "InputException": throw new InputException(response.Message, httpResponse.StatusCode);
+                case "DataException": throw new DataException(response.Message, httpResponse.StatusCode);
+                case "NetworkException": throw new NetworkException(response.Message, httpResponse.StatusCode);
+                default: throw new GeneralException(response.Message, httpResponse.StatusCode);
+            }
         }
 
         #endregion

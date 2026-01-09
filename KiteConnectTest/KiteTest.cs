@@ -1,16 +1,20 @@
-﻿using System;
+﻿using KiteConnect;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using KiteConnect;
-using System.Net;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.Threading.Tasks;
 
 namespace KiteConnectTest
 {
     [TestClass]
     public class KiteTest
     {
+        private static readonly JsonSerializerOptions jsonSerializerOptions = new JsonSerializerOptions() { PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower, Converters = { new JsonStringEnumConverter() } };
+
         MockServer ms;
 
         [TestInitialize]
@@ -30,7 +34,7 @@ namespace KiteConnectTest
         {
             Kite kite = new Kite("apikey");
             kite.SetAccessToken("access_token");
-            Assert.ThrowsException<TokenException>(() => kite.GetPositions());
+            Assert.Throws<TokenException>(() => kite.GetPositions());
         }
 
 
@@ -41,16 +45,16 @@ namespace KiteConnectTest
             ms.SetStatusCode(403);
             ms.SetResponse("application/json", json);
             Kite kite = new Kite("apikey", Root: "http://localhost:8080", Debug: true);
-            Assert.ThrowsException<GeneralException>(() => kite.GetProfile());
+            Assert.ThrowsAsync<GeneralException>(async () => await kite.GetProfileAsync());
         }
 
         [TestMethod]
-        public void TestProfile()
+        public async Task TestProfile()
         {
             string json = File.ReadAllText(@"responses/profile.json", Encoding.UTF8);
             ms.SetResponse("application/json", json);
             Kite kite = new Kite("apikey", Root: "http://localhost:8080");
-            Profile profile = kite.GetProfile();
+            Profile profile = await kite.GetProfileAsync();
             Console.WriteLine(profile.Email);
             Assert.AreEqual(profile.Email, "xxxyyy@gmail.com");
         }
@@ -88,24 +92,24 @@ namespace KiteConnectTest
         }
 
         [TestMethod]
-        public void TestMargins()
+        public async Task TestMargins()
         {
             string json = File.ReadAllText(@"responses/margins.json", Encoding.UTF8);
             ms.SetResponse("application/json", json);
             Kite kite = new Kite("apikey", Root: "http://localhost:8080");
-            UserMarginsResponse margins = kite.GetMargins();
+            UserMarginsResponse margins = await kite.GetMarginsAsync();
 
             Assert.AreEqual(margins.Equity.Net, (decimal)1697.7);
             Assert.AreEqual(margins.Commodity.Net, (decimal)-8676.296);
         }
 
         [TestMethod]
-        public void TestMarginsNoTurnover()
+        public async Task TestMarginsNoTurnover()
         {
             string json = File.ReadAllText(@"responses/margins_noturnover.json", Encoding.UTF8);
             ms.SetResponse("application/json", json);
             Kite kite = new Kite("apikey", Root: "http://localhost:8080");
-            UserMarginsResponse margins = kite.GetMargins();
+            UserMarginsResponse margins = await kite.GetMarginsAsync();
 
             Assert.AreEqual(margins.Equity.Utilised.Turnover, (decimal)0);
             Assert.AreEqual(margins.Commodity.Utilised.Turnover, (decimal)0);
@@ -230,23 +234,23 @@ namespace KiteConnectTest
         }
 
         [TestMethod]
-        public void TestEquityMargins()
+        public async Task TestEquityMargins()
         {
             string json = File.ReadAllText(@"responses/equity_margins.json", Encoding.UTF8);
             ms.SetResponse("application/json", json);
             Kite kite = new Kite("apikey", Root: "http://localhost:8080");
-            UserMargin margin = kite.GetMargins("equity");
+            UserMargin margin = await kite.GetMarginsAsync("equity");
 
             Assert.AreEqual(margin.Net, (decimal)1812.3535);
         }
 
         [TestMethod]
-        public void TestCommodityMargins()
+        public async Task TestCommodityMargins()
         {
             string json = File.ReadAllText(@"responses/equity_margins.json", Encoding.UTF8);
             ms.SetResponse("application/json", json);
             Kite kite = new Kite("apikey", Root: "http://localhost:8080");
-            UserMargin margin = kite.GetMargins("commodity");
+            UserMargin margin = await kite.GetMarginsAsync("commodity");
 
             Assert.AreEqual(margin.Net, (decimal)1812.3535);
         }

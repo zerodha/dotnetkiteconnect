@@ -1,6 +1,7 @@
 ﻿using System;
 using KiteConnect;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace KiteConnectSample
 {
@@ -19,7 +20,7 @@ namespace KiteConnectSample
         static string MyPublicToken = "abcdefghijklmnopqrstuvwxyz";
         static string MyAccessToken = "abcdefghijklmnopqrstuvwxyz";
 
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             kite = new Kite(MyAPIKey, Debug: true);
 
@@ -322,8 +323,8 @@ namespace KiteConnectSample
 
             // Margins
 
-            UserMargin commodityMargins = kite.GetMargins(Constants.Margin.Commodity);
-            UserMargin equityMargins = kite.GetMargins(Constants.Margin.Equity);
+            UserMargin commodityMargins = await kite.GetMarginsAsync(Constants.Margin.Commodity);
+            UserMargin equityMargins = await kite.GetMarginsAsync(Constants.Margin.Equity);
 
             // Order margins
 
@@ -365,7 +366,7 @@ namespace KiteConnectSample
             contractNoteParam.Product = Constants.Product.MIS;
             List<ContractNote> contractNotes = kite.GetVirtualContractNote(new List<ContractNoteParams>() { contractNoteParam });
             Console.WriteLine(Utils.JsonSerialize(contractNotes));
-            
+
             // Historical Data With Dates
 
             List<Historical> historical = kite.GetHistoricalData(

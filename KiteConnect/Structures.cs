@@ -3,9 +3,29 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Text.Json.Serialization;
 
 namespace KiteConnect
 {
+    internal enum ResponseStatus
+    {
+        Success,
+        Error,
+    }
+
+    internal class SucessResponse<T>
+    {
+        public ResponseStatus Status { get; set; }
+        public T Data { get; set; }
+    }
+
+    internal class ErrorResponse
+    {
+        public ResponseStatus Status { get; set; }
+        public string Message { get; set; }
+        public string ErrorType { get; set; }
+    }
+
     /// <summary>
     /// Tick data structure
     /// </summary>
@@ -232,21 +252,7 @@ namespace KiteConnect
     /// </summary>
     public class AvailableMargin
     {
-        public AvailableMargin(Dictionary<string, dynamic> data)
-        {
-            try
-            {
-                AdHocMargin = data["adhoc_margin"];
-                Cash = data["cash"];
-                Collateral = data["collateral"];
-                IntradayPayin = data["intraday_payin"];
-            }
-            catch (Exception e)
-            {
-                throw new DataException(e.Message + " " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
-            }
-        }
-
+        [JsonPropertyName("adhoc_margin")]
         public decimal AdHocMargin { get; set; }
         public decimal Cash { get; set; }
         public decimal Collateral { get; set; }
@@ -258,29 +264,13 @@ namespace KiteConnect
     /// </summary>
     public class UtilisedMargin
     {
-        public UtilisedMargin(Dictionary<string, dynamic> data)
-        {
-            try
-            {
-                Debits = Utils.GetValueOrDefault(data, "debits", 0m);
-                Exposure = Utils.GetValueOrDefault(data, "exposure", 0m);
-                M2MRealised = Utils.GetValueOrDefault(data, "m2m_realised", 0m);
-                M2MUnrealised = Utils.GetValueOrDefault(data, "m2m_unrealised", 0m);
-                OptionPremium = Utils.GetValueOrDefault(data, "option_premium", 0m);
-                Payout = Utils.GetValueOrDefault(data, "payout", 0m);
-                Span = Utils.GetValueOrDefault(data, "span", 0m);
-                HoldingSales = Utils.GetValueOrDefault(data, "holding_sales", 0m);
-                Turnover = Utils.GetValueOrDefault(data, "turnover", 0m);
-            }
-            catch (Exception e)
-            {
-                throw new DataException(e.Message + " " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
-            }
-        }
-
         public decimal Debits { get; set; }
         public decimal Exposure { get; set; }
+
+        [JsonPropertyName("m2m_realised")]
         public decimal M2MRealised { get; set; }
+
+        [JsonPropertyName("m2m_unrealised")]
         public decimal M2MUnrealised { get; set; }
         public decimal OptionPremium { get; set; }
         public decimal Payout { get; set; }
@@ -295,21 +285,6 @@ namespace KiteConnect
     /// </summary>
     public class UserMargin
     {
-        public UserMargin(Dictionary<string, dynamic> data)
-        {
-            try
-            {
-                Enabled = data["enabled"];
-                Net = data["net"];
-                Available = new AvailableMargin(data["available"]);
-                Utilised = new UtilisedMargin(data["utilised"]);
-            }
-            catch (Exception e)
-            {
-                throw new DataException(e.Message + " " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
-            }
-        }
-
         public bool Enabled { get; set; }
         public decimal Net { get; set; }
         public AvailableMargin Available { get; set; }
@@ -321,18 +296,6 @@ namespace KiteConnect
     /// </summary>
     public class UserMarginsResponse
     {
-        public UserMarginsResponse(Dictionary<string, dynamic> data)
-        {
-            try
-            {
-                Equity = new UserMargin(data["equity"]);
-                Commodity = new UserMargin(data["commodity"]);
-            }
-            catch (Exception e)
-            {
-                throw new DataException(e.Message + " " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
-            }
-        }
         public UserMargin Equity { get; set; }
         public UserMargin Commodity { get; set; }
     }
@@ -1245,30 +1208,10 @@ namespace KiteConnect
     /// </summary>
     public class Profile
     {
-        public Profile(Dictionary<string, dynamic> data)
-        {
-            try
-            {
-                Products = (string[])data["data"]["products"].ToArray(typeof(string));
-                UserName = data["data"]["user_name"];
-                UserShortName = data["data"]["user_shortname"];
-                AvatarURL = data["data"]["avatar_url"];
-                Broker = data["data"]["broker"];
-                UserType = data["data"]["user_type"];
-                Exchanges = (string[])data["data"]["exchanges"].ToArray(typeof(string));
-                OrderTypes = (string[])data["data"]["order_types"].ToArray(typeof(string));
-                Email = data["data"]["email"];
-            }
-            catch (Exception e)
-            {
-                throw new DataException(e.Message + " " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
-            }
-
-        }
-
-
         public string[] Products { get; set; }
         public string UserName { get; set; }
+
+        [JsonPropertyName("user_shortname")]
         public string UserShortName { get; set; }
         public string AvatarURL { get; set; }
         public string Broker { get; set; }
