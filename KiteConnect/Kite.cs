@@ -231,7 +231,7 @@ namespace KiteConnect
         /// Margin data for a specific order
         /// </summary>
         /// <param name="OrderMarginParams">List of all order params to get margins for</param>
-        /// <param name="Mode">Mode of the returned response content. Eg: Constants.MARGIN_MODE_COMPACT</param>
+        /// <param name="Mode">Mode of the returned response content. Eg: Constants.Margin.Mode.Compact</param>
         /// <returns>List of margins of order</returns>
         public List<OrderMargin> GetOrderMargins(List<OrderMarginParams> OrderMarginParams, string Mode = null)
         {
@@ -273,7 +273,7 @@ namespace KiteConnect
         /// </summary>
         /// <param name="OrderMarginParams">List of all order params to get margins for</param>
         /// <param name="ConsiderPositions">Consider users positions while calculating margins</param>
-        /// <param name="Mode">Mode of the returned response content. Eg: Constants.MARGIN_MODE_COMPACT</param>
+        /// <param name="Mode">Mode of the returned response content. Eg: Constants.Margin.Mode.Compact</param>
         /// <returns>List of margins of order</returns>
         public BasketMargin GetBasketMargins(List<OrderMarginParams> OrderMarginParams, bool ConsiderPositions = true, string Mode = null)
         {
@@ -364,7 +364,7 @@ namespace KiteConnect
             decimal? SquareOffValue = null,
             decimal? StoplossValue = null,
             decimal? TrailingStoploss = null,
-            string Variety = Constants.VARIETY_REGULAR,
+            string Variety = Constants.Variety.Regular,
             string Tag = "",
             int? ValidityTTL = null,
             int? IcebergLegs = null,
@@ -424,10 +424,10 @@ namespace KiteConnect
             decimal? Price = null,
             string Product = null,
             string OrderType = null,
-            string Validity = Constants.VALIDITY_DAY,
+            string Validity = Constants.Validity.Day,
             decimal? DisclosedQuantity = null,
             decimal? TriggerPrice = null,
-            string Variety = Constants.VARIETY_REGULAR)
+            string Variety = Constants.Variety.Regular)
         {
             var param = new Dictionary<string, dynamic>();
 
@@ -471,7 +471,7 @@ namespace KiteConnect
         /// <param name="Variety">You can place orders of varieties; regular orders, after market orders, cover orders etc. </param>
         /// <param name="ParentOrderId">Id of the parent order (obtained from the /orders call) as BO is a multi-legged order</param>
         /// <returns>Json response in the form of nested string dictionary.</returns>
-        public Dictionary<string, dynamic> CancelOrder(string OrderId, string Variety = Constants.VARIETY_REGULAR, string ParentOrderId = null)
+        public Dictionary<string, dynamic> CancelOrder(string OrderId, string Variety = Constants.Variety.Regular, string ParentOrderId = null)
         {
             var param = new Dictionary<string, dynamic>();
 

@@ -65,7 +65,7 @@ namespace KiteConnectSample
             // Place GTT
 
             GTTParams gttParams = new GTTParams();
-            gttParams.TriggerType = Constants.GTT_TRIGGER_OCO;
+            gttParams.TriggerType = Constants.GTT.Trigger.OCO;
             gttParams.Exchange = "NSE";
             gttParams.TradingSymbol = "SBIN";
             gttParams.LastPrice = 288.9m;
@@ -82,17 +82,17 @@ namespace KiteConnectSample
             // Only limit order type  and CNC product type is allowed for now.
 
             GTTOrderParams order1Params = new GTTOrderParams();
-            order1Params.OrderType = Constants.ORDER_TYPE_LIMIT;
+            order1Params.OrderType = Constants.OrderType.Limit;
             order1Params.Price = 250m;
-            order1Params.Product = Constants.PRODUCT_CNC;
-            order1Params.TransactionType = Constants.TRANSACTION_TYPE_SELL;
+            order1Params.Product = Constants.Product.CNC;
+            order1Params.TransactionType = Constants.Transaction.Sell;
             order1Params.Quantity = 0;
 
             GTTOrderParams order2Params = new GTTOrderParams();
-            order2Params.OrderType = Constants.ORDER_TYPE_LIMIT;
+            order2Params.OrderType = Constants.OrderType.Limit;
             order2Params.Price = 320m;
-            order2Params.Product = Constants.PRODUCT_CNC;
-            order2Params.TransactionType = Constants.TRANSACTION_TYPE_SELL;
+            order2Params.Product = Constants.Product.CNC;
+            order2Params.TransactionType = Constants.Transaction.Sell;
             order2Params.Quantity = 1;
 
             // Target or upper trigger
@@ -113,13 +113,13 @@ namespace KiteConnectSample
             Console.WriteLine(Utils.JsonSerialize(positions.Net[0]));
 
             kite.ConvertPosition(
-                Exchange: Constants.EXCHANGE_NSE,
+                Exchange: Constants.Exchange.NSE,
                 TradingSymbol: "ASHOKLEY",
-                TransactionType: Constants.TRANSACTION_TYPE_BUY,
-                PositionType: Constants.POSITION_DAY,
+                TransactionType: Constants.Transaction.Buy,
+                PositionType: Constants.Position.Day,
                 Quantity: 1,
-                OldProduct: Constants.PRODUCT_MIS,
-                NewProduct: Constants.PRODUCT_CNC
+                OldProduct: Constants.Product.MIS,
+                NewProduct: Constants.Product.CNC
             );
 
             // Holdings
@@ -151,7 +151,7 @@ namespace KiteConnectSample
 
             Dictionary<string, TrigerRange> triggerRange = kite.GetTriggerRange(
                 InstrumentId: new string[] { "NSE:ASHOKLEY" },
-                TrasactionType: Constants.TRANSACTION_TYPE_BUY
+                TrasactionType: Constants.Transaction.Buy
             );
             Console.WriteLine(Utils.JsonSerialize(triggerRange));
 
@@ -168,26 +168,26 @@ namespace KiteConnectSample
             // Place sell order
 
             Dictionary<string, dynamic> response = kite.PlaceOrder(
-                Exchange: Constants.EXCHANGE_CDS,
+                Exchange: Constants.Exchange.CDS,
                 TradingSymbol: "USDINR17AUGFUT",
-                TransactionType: Constants.TRANSACTION_TYPE_SELL,
+                TransactionType: Constants.Transaction.Sell,
                 Quantity: 1,
                 Price: 64.0000m,
-                OrderType: Constants.ORDER_TYPE_MARKET,
-                Product: Constants.PRODUCT_MIS
+                OrderType: Constants.OrderType.Market,
+                Product: Constants.Product.MIS
             );
             Console.WriteLine("Order Id: " + response["data"]["order_id"]);
 
             // Place buy order
 
             kite.PlaceOrder(
-                Exchange: Constants.EXCHANGE_CDS,
+                Exchange: Constants.Exchange.CDS,
                 TradingSymbol: "USDINR17AUGFUT",
-                TransactionType: Constants.TRANSACTION_TYPE_BUY,
+                TransactionType: Constants.Transaction.Buy,
                 Quantity: 1,
                 Price: 63.9000m,
-                OrderType: Constants.ORDER_TYPE_LIMIT,
-                Product: Constants.PRODUCT_MIS
+                OrderType: Constants.OrderType.Limit,
+                Product: Constants.Product.MIS
             );
 
             // Cancel order by id
@@ -197,120 +197,120 @@ namespace KiteConnectSample
             //BO LIMIT order placing
 
             kite.PlaceOrder(
-                Exchange: Constants.EXCHANGE_NSE,
+                Exchange: Constants.Exchange.NSE,
                 TradingSymbol: "ASHOKLEY",
-                TransactionType: Constants.TRANSACTION_TYPE_BUY,
+                TransactionType: Constants.Transaction.Buy,
                 Quantity: 1,
                 Price: 115,
-                Product: Constants.PRODUCT_MIS,
-                OrderType: Constants.ORDER_TYPE_LIMIT,
-                Validity: Constants.VALIDITY_DAY,
+                Product: Constants.Product.MIS,
+                OrderType: Constants.OrderType.Limit,
+                Validity: Constants.Validity.Day,
                 SquareOffValue: 2,
                 StoplossValue: 2,
-                Variety: Constants.VARIETY_BO
+                Variety: Constants.Variety.BO
             );
 
             // BO LIMIT exiting
 
             kite.CancelOrder(
                 OrderId: "1234",
-                Variety: Constants.VARIETY_BO,
+                Variety: Constants.Variety.BO,
                 ParentOrderId: "5678"
             );
 
             // BO SL order placing
 
             kite.PlaceOrder(
-                Exchange: Constants.EXCHANGE_NSE,
+                Exchange: Constants.Exchange.NSE,
                 TradingSymbol: "ASHOKLEY",
-                TransactionType: Constants.TRANSACTION_TYPE_BUY,
+                TransactionType: Constants.Transaction.Buy,
                 Quantity: 1,
                 Price: 117,
-                Product: Constants.PRODUCT_MIS,
-                OrderType: Constants.ORDER_TYPE_SL,
-                Validity: Constants.VALIDITY_DAY,
+                Product: Constants.Product.MIS,
+                OrderType: Constants.OrderType.SL,
+                Validity: Constants.Validity.Day,
                 SquareOffValue: 2,
                 StoplossValue: 2,
                 TriggerPrice: 117.5m,
-                Variety: Constants.VARIETY_BO
+                Variety: Constants.Variety.BO
             );
 
             // BO SL exiting
 
             kite.CancelOrder(
                OrderId: "1234",
-               Variety: Constants.VARIETY_BO,
+               Variety: Constants.Variety.BO,
                ParentOrderId: "5678"
            );
 
             // CO LIMIT order placing
 
             kite.PlaceOrder(
-                Exchange: Constants.EXCHANGE_NSE,
+                Exchange: Constants.Exchange.NSE,
                 TradingSymbol: "ASHOKLEY",
-                TransactionType: Constants.TRANSACTION_TYPE_BUY,
+                TransactionType: Constants.Transaction.Buy,
                 Quantity: 1,
                 Price: 115.5m,
-                Product: Constants.PRODUCT_MIS,
-                OrderType: Constants.ORDER_TYPE_LIMIT,
-                Validity: Constants.VALIDITY_DAY,
+                Product: Constants.Product.MIS,
+                OrderType: Constants.OrderType.Limit,
+                Validity: Constants.Validity.Day,
                 TriggerPrice: 116.5m,
-                Variety: Constants.VARIETY_CO
+                Variety: Constants.Variety.CO
             );
 
             // CO LIMIT exiting
 
             kite.CancelOrder(
                OrderId: "1234",
-               Variety: Constants.VARIETY_BO,
+               Variety: Constants.Variety.BO,
                ParentOrderId: "5678"
            );
 
             // CO MARKET order placing
 
             kite.PlaceOrder(
-                Exchange: Constants.EXCHANGE_NSE,
+                Exchange: Constants.Exchange.NSE,
                 TradingSymbol: "ASHOKLEY",
-                TransactionType: Constants.TRANSACTION_TYPE_BUY,
+                TransactionType: Constants.Transaction.Buy,
                 Quantity: 1,
-                Product: Constants.PRODUCT_MIS,
-                OrderType: Constants.ORDER_TYPE_MARKET,
-                Validity: Constants.VALIDITY_DAY,
+                Product: Constants.Product.MIS,
+                OrderType: Constants.OrderType.Market,
+                Validity: Constants.Validity.Day,
                 TriggerPrice: 116.5m,
-                Variety: Constants.VARIETY_CO
+                Variety: Constants.Variety.CO
             );
 
             // CO MARKET exiting
 
             kite.CancelOrder(
                 OrderId: "1234",
-                Variety: Constants.VARIETY_BO,
+                Variety: Constants.Variety.BO,
                 ParentOrderId: "5678"
             );
 
             // Place order with TTL validity
             kite.PlaceOrder(
-                Exchange: Constants.EXCHANGE_NSE,
+                Exchange: Constants.Exchange.NSE,
                 TradingSymbol: "INFY",
-                TransactionType: Constants.TRANSACTION_TYPE_BUY,
+                TransactionType: Constants.Transaction.Buy,
                 Quantity: 1,
                 Price: 1500.0m,
-                OrderType: Constants.ORDER_TYPE_LIMIT,
-                Product: Constants.PRODUCT_MIS,
-                Validity: Constants.VALIDITY_TTL,
+                OrderType: Constants.OrderType.Limit,
+                Product: Constants.Product.MIS,
+                Validity: Constants.Validity.TTL,
                 ValidityTTL: 5
             );
 
             // Place an Iceberg order
             kite.PlaceOrder(
-                Exchange: Constants.EXCHANGE_NSE,
+                Exchange: Constants.Exchange.NSE,
                 TradingSymbol: "INFY",
-                TransactionType: Constants.TRANSACTION_TYPE_BUY,
+                TransactionType: Constants.Transaction.Buy,
                 Quantity: 10,
                 Price: 1500.0m,
-                OrderType: Constants.ORDER_TYPE_LIMIT,
-                Product: Constants.PRODUCT_MIS,
-                Variety: Constants.VARIETY_ICEBERG,
+                OrderType: Constants.OrderType.Limit,
+                Product: Constants.Product.MIS,
+                Variety: Constants.Variety.Iceberg,
                 IcebergLegs: 2,
                 IcebergQuantity: 5
             );
@@ -322,32 +322,32 @@ namespace KiteConnectSample
 
             // Margins
 
-            UserMargin commodityMargins = kite.GetMargins(Constants.MARGIN_COMMODITY);
-            UserMargin equityMargins = kite.GetMargins(Constants.MARGIN_EQUITY);
+            UserMargin commodityMargins = kite.GetMargins(Constants.Margin.Commodity);
+            UserMargin equityMargins = kite.GetMargins(Constants.Margin.Equity);
 
             // Order margins
 
             OrderMarginParams orderParam = new OrderMarginParams();
-            orderParam.Exchange = Constants.EXCHANGE_NFO;
+            orderParam.Exchange = Constants.Exchange.NFO;
             orderParam.TradingSymbol = "ASHOKLEY21JULFUT";
-            orderParam.TransactionType = Constants.TRANSACTION_TYPE_SELL;
+            orderParam.TransactionType = Constants.Transaction.Sell;
             orderParam.Quantity = 1;
             orderParam.Price = 64.0000m;
-            orderParam.OrderType = Constants.ORDER_TYPE_MARKET;
-            orderParam.Product = Constants.PRODUCT_MIS;
+            orderParam.OrderType = Constants.OrderType.Market;
+            orderParam.Product = Constants.Product.MIS;
 
             List<OrderMargin> margins = kite.GetOrderMargins(new List<OrderMarginParams>() { orderParam });
 
             // Basket margins
 
             OrderMarginParams basketParam = new OrderMarginParams();
-            basketParam.Exchange = Constants.EXCHANGE_NFO;
+            basketParam.Exchange = Constants.Exchange.NFO;
             basketParam.TradingSymbol = "NIFTY21JUL15000PE";
-            basketParam.TransactionType = Constants.TRANSACTION_TYPE_BUY;
+            basketParam.TransactionType = Constants.Transaction.Buy;
             basketParam.Quantity = 75;
             basketParam.Price = 300;
-            basketParam.Product = Constants.PRODUCT_MIS;
-            basketParam.OrderType = Constants.ORDER_TYPE_LIMIT;
+            basketParam.Product = Constants.Product.MIS;
+            basketParam.OrderType = Constants.OrderType.Limit;
 
             BasketMargin basketMargins = kite.GetBasketMargins(new List<OrderMarginParams>() { basketParam }, ConsiderPositions: true);
 
@@ -359,10 +359,10 @@ namespace KiteConnectSample
             contractNoteParam.AveragePrice = 99.7m;
             contractNoteParam.Exchange = "NSE";
             contractNoteParam.TradingSymbol = "BHEL";
-            contractNoteParam.TransactionType = Constants.TRANSACTION_TYPE_BUY;
-            contractNoteParam.Variety = Constants.VARIETY_REGULAR;
-            contractNoteParam.OrderType = Constants.ORDER_TYPE_LIMIT;
-            contractNoteParam.Product = Constants.PRODUCT_MIS;
+            contractNoteParam.TransactionType = Constants.Transaction.Buy;
+            contractNoteParam.Variety = Constants.Variety.Regular;
+            contractNoteParam.OrderType = Constants.OrderType.Limit;
+            contractNoteParam.Product = Constants.Product.MIS;
             List<ContractNote> contractNotes = kite.GetVirtualContractNote(new List<ContractNoteParams>() { contractNoteParam });
             Console.WriteLine(Utils.JsonSerialize(contractNotes));
             
@@ -372,7 +372,7 @@ namespace KiteConnectSample
                 InstrumentToken: "5633",
                 FromDate: new DateTime(2016, 1, 1, 12, 50, 0),   // 2016-01-01 12:50:00 AM
                 ToDate: new DateTime(2016, 1, 1, 13, 10, 0),    // 2016-01-01 01:10:00 PM
-                Interval: Constants.INTERVAL_MINUTE,
+                Interval: Constants.Interval.Minute,
                 Continuous: false
             );
             Console.WriteLine(Utils.JsonSerialize(historical[0]));
@@ -396,7 +396,7 @@ namespace KiteConnectSample
 
             kite.PlaceMFOrder(
                 TradingSymbol: "INF174K01LS2",
-                TransactionType: Constants.TRANSACTION_TYPE_BUY,
+                TransactionType: Constants.Transaction.Buy,
                 Amount: 20000
             );
 
@@ -480,7 +480,7 @@ namespace KiteConnectSample
 
             // Subscribing to NIFTY50 and setting mode to LTP
             ticker.Subscribe(Tokens: new UInt32[] { 256265 });
-            ticker.SetMode(Tokens: new UInt32[] { 256265 }, Mode: Constants.MODE_LTP);
+            ticker.SetMode(Tokens: new UInt32[] { 256265 }, Mode: Constants.TickerMode.LTP);
         }
 
         private static void OnTokenExpire()

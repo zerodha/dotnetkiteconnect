@@ -343,7 +343,7 @@ namespace KiteConnect
     public struct OrderMarginParams
     {
         /// <summary>
-        /// Exchange in which instrument is listed (Constants.EXCHANGE_NSE, Constants.EXCHANGE_BSE, etc.)
+        /// Exchange in which instrument is listed (Constants.Exchange.NSE, Constants.Exchange.BSE, etc.)
         /// </summary>
         public string Exchange { get; set; }
 
@@ -353,7 +353,7 @@ namespace KiteConnect
         public string TradingSymbol { get; set; }
 
         /// <summary>
-        /// Transaction type (Constants.TRANSACTION_TYPE_BUY or Constants.TRANSACTION_TYPE_SELL)
+        /// Transaction type (Constants.Transaction.Buy or Constants.Transaction.Sell)
         /// </summary>
         public string TransactionType { get; set; }
 
@@ -373,17 +373,17 @@ namespace KiteConnect
         public decimal? TriggerPrice { get; set; }
 
         /// <summary>
-        /// Product code (Constants.PRODUCT_CNC, Constants.PRODUCT_MIS, Constants.PRODUCT_NRML)
+        /// Product code (Constants.Product.CNC, Constants.Product.MIS, Constants.Product.NRML)
         /// </summary>
         public string Product { get; set; }
 
         /// <summary>
-        /// Order type (Constants.ORDER_TYPE_MARKET, Constants.ORDER_TYPE_SL, etc.)
+        /// Order type (Constants.OrderType.Market, Constants.OrderType.SL, etc.)
         /// </summary>
         public string OrderType { get; set; }
 
         /// <summary>
-        /// Variety (Constants.VARIETY_REGULAR, Constants.VARIETY_AMO, etc.)
+        /// Variety (Constants.Variety.Regular, Constants.Variety.AMO, etc.)
         /// </summary>
         public string Variety { get; set; }
     }
@@ -447,7 +447,7 @@ namespace KiteConnect
         public string OrderID { get; set; }
 
         /// <summary>
-        /// Exchange in which instrument is listed (Constants.EXCHANGE_NSE, Constants.EXCHANGE_BSE, etc.)
+        /// Exchange in which instrument is listed (Constants.Exchange.NSE, Constants.Exchange.BSE, etc.)
         /// </summary>
         public string Exchange { get; set; }
 
@@ -457,7 +457,7 @@ namespace KiteConnect
         public string TradingSymbol { get; set; }
 
         /// <summary>
-        /// Transaction type (Constants.TRANSACTION_TYPE_BUY or Constants.TRANSACTION_TYPE_SELL)
+        /// Transaction type (Constants.Transaction.Buy or Constants.Transaction.Sell)
         /// </summary>
         public string TransactionType { get; set; }
 
@@ -472,17 +472,17 @@ namespace KiteConnect
         public decimal? AveragePrice { get; set; }
 
         /// <summary>
-        /// Product code (Constants.PRODUCT_CNC, Constants.PRODUCT_MIS, Constants.PRODUCT_NRML)
+        /// Product code (Constants.Product.CNC, Constants.Product.MIS, Constants.Product.NRML)
         /// </summary>
         public string Product { get; set; }
 
         /// <summary>
-        /// Order type (Constants.ORDER_TYPE_MARKET, Constants.ORDER_TYPE_SL, etc.)
+        /// Order type (Constants.OrderType.Market, Constants.OrderType.SL, etc.)
         /// </summary>
         public string OrderType { get; set; }
 
         /// <summary>
-        /// Variety (Constants.VARIETY_REGULAR, Constants.VARIETY_AMO, etc.)
+        /// Variety (Constants.Variety.Regular, Constants.Variety.AMO, etc.)
         /// </summary>
         public string Variety { get; set; }
     }
@@ -513,7 +513,7 @@ namespace KiteConnect
         }
     
         /// <summary>
-        /// Exchange in which instrument is listed (Constants.EXCHANGE_NSE, Constants.EXCHANGE_BSE, etc.)
+        /// Exchange in which instrument is listed (Constants.Exchange.NSE, Constants.Exchange.BSE, etc.)
         /// </summary>
         public string Exchange { get; set; }
 
@@ -523,7 +523,7 @@ namespace KiteConnect
         public string TradingSymbol { get; set; }
 
         /// <summary>
-        /// Transaction type (Constants.TRANSACTION_TYPE_BUY or Constants.TRANSACTION_TYPE_SELL)
+        /// Transaction type (Constants.Transaction.Buy or Constants.Transaction.Sell)
         /// </summary>
         public string TransactionType { get; set; }
 
@@ -538,17 +538,17 @@ namespace KiteConnect
         public decimal? Price { get; set; }
 
         /// <summary>
-        /// Product code (Constants.PRODUCT_CNC, Constants.PRODUCT_MIS, Constants.PRODUCT_NRML)
+        /// Product code (Constants.Product.CNC, Constants.Product.MIS, Constants.Product.NRML)
         /// </summary>
         public string Product { get; set; }
 
         /// <summary>
-        /// Order type (Constants.ORDER_TYPE_MARKET, Constants.ORDER_TYPE_SL, etc.)
+        /// Order type (Constants.OrderType.Market, Constants.OrderType.SL, etc.)
         /// </summary>
         public string OrderType { get; set; }
 
         /// <summary>
-        /// Variety (Constants.VARIETY_REGULAR, Constants.VARIETY_AMO, etc.)
+        /// Variety (Constants.Variety.Regular, Constants.Variety.AMO, etc.)
         /// </summary>
         public string Variety { get; set; }
 
