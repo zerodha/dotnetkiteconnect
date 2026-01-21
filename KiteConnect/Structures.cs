@@ -107,6 +107,7 @@ namespace KiteConnect
                 AuthorisedQuantity = Convert.ToInt32(data["authorised_quantity"]);
                 AuthorisedDate = Utils.StringToDate(data["authorised_date"]);
                 Discrepancy = data["discrepancy"];
+                MTF = new MTFHolding(data["mtf"]);
             }
             catch (Exception e)
             {
@@ -118,21 +119,50 @@ namespace KiteConnect
         public string Exchange { get; set; }
         public decimal Price { get; set; }
         public decimal LastPrice { get; set; }
-        public int CollateralQuantity { get; set; }
+        public decimal CollateralQuantity { get; set; }
         public decimal PNL { get; set; }
         public decimal ClosePrice { get; set; }
         public decimal AveragePrice { get; set; }
         public string TradingSymbol { get; set; }
         public string CollateralType { get; set; }
-        public int T1Quantity { get; set; }
+        public decimal T1Quantity { get; set; }
         public UInt32 InstrumentToken { get; set; }
         public string ISIN { get; set; }
-        public int RealisedQuantity { get; set; }
-        public int Quantity { get; set; }
-        public int UsedQuantity { get; set; }
-        public int AuthorisedQuantity { get; set; }
+        public decimal RealisedQuantity { get; set; }
+        public decimal Quantity { get; set; }
+        public decimal UsedQuantity { get; set; }
+        public decimal AuthorisedQuantity { get; set; }
         public DateTime? AuthorisedDate { get; set; }
         public bool Discrepancy { get; set; }
+        public MTFHolding MTF { get; set; }
+    }
+
+    /// <summary>
+    /// MTF Holding structure
+    /// </summary>
+    public struct MTFHolding
+    {
+        public MTFHolding(Dictionary<string, dynamic> data)
+        {
+            try
+            {
+                Quantity = data["quantity"];
+                UsedQuantity = data["used_quantity"];
+                AveragePrice = data["average_price"];
+                Value = data["value"];
+                InitialMargin = data["initial_margin"];
+            }
+            catch (Exception e)
+            {
+                throw new DataException(e.Message + " " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
+            }
+        }
+
+        public decimal Quantity { get; set; }
+        public decimal UsedQuantity { get; set; }
+        public decimal AveragePrice { get; set; }
+        public decimal Value { get; set; }
+        public decimal InitialMargin { get; set; }
     }
 
     /// <summary>
@@ -179,13 +209,13 @@ namespace KiteConnect
         public string ISIN { get; set; }
         public string Product { get; set; }
         public decimal Price { get; set; }
-        public int Quantity { get; set; }
-        public int T1Quantity { get; set; }
-        public int RealisedQuantity { get; set; }
-        public int AuthorisedQuantity { get; set; }
+        public decimal Quantity { get; set; }
+        public decimal T1Quantity { get; set; }
+        public decimal RealisedQuantity { get; set; }
+        public decimal AuthorisedQuantity { get; set; }
         public DateTime? AuthorisedDate { get; set; }
-        public int OpeningQuantity { get; set; }
-        public int CollateralQuantity { get; set; }
+        public decimal OpeningQuantity { get; set; }
+        public decimal CollateralQuantity { get; set; }
         public string CollateralType { get; set; }
         public bool Discrepancy { get; set; }
         public decimal AveragePrice { get; set; }
@@ -232,15 +262,15 @@ namespace KiteConnect
         {
             try
             {
-                Debits = data["debits"];
-                Exposure = data["exposure"];
-                M2MRealised = data["m2m_realised"];
-                M2MUnrealised = data["m2m_unrealised"];
-                OptionPremium = data["option_premium"];
-                Payout = data["payout"];
-                Span = data["span"];
-                HoldingSales = data["holding_sales"];
-                Turnover = data["turnover"];
+                Debits = Utils.GetValueOrDefault(data, "debits", 0m);
+                Exposure = Utils.GetValueOrDefault(data, "exposure", 0m);
+                M2MRealised = Utils.GetValueOrDefault(data, "m2m_realised", 0m);
+                M2MUnrealised = Utils.GetValueOrDefault(data, "m2m_unrealised", 0m);
+                OptionPremium = Utils.GetValueOrDefault(data, "option_premium", 0m);
+                Payout = Utils.GetValueOrDefault(data, "payout", 0m);
+                Span = Utils.GetValueOrDefault(data, "span", 0m);
+                HoldingSales = Utils.GetValueOrDefault(data, "holding_sales", 0m);
+                Turnover = Utils.GetValueOrDefault(data, "turnover", 0m);
             }
             catch (Exception e)
             {
@@ -313,7 +343,7 @@ namespace KiteConnect
     public struct OrderMarginParams
     {
         /// <summary>
-        /// Exchange in which instrument is listed (Constants.EXCHANGE_NSE, Constants.EXCHANGE_BSE, etc.)
+        /// Exchange in which instrument is listed (Constants.Exchange.NSE, Constants.Exchange.BSE, etc.)
         /// </summary>
         public string Exchange { get; set; }
 
@@ -323,14 +353,14 @@ namespace KiteConnect
         public string TradingSymbol { get; set; }
 
         /// <summary>
-        /// Transaction type (Constants.TRANSACTION_TYPE_BUY or Constants.TRANSACTION_TYPE_SELL)
+        /// Transaction type (Constants.Transaction.Buy or Constants.Transaction.Sell)
         /// </summary>
         public string TransactionType { get; set; }
 
         /// <summary>
         /// Order quantity
         /// </summary>
-        public int Quantity { get; set; }
+        public decimal Quantity { get; set; }
 
         /// <summary>
         /// Order Price
@@ -343,17 +373,17 @@ namespace KiteConnect
         public decimal? TriggerPrice { get; set; }
 
         /// <summary>
-        /// Product code (Constants.PRODUCT_CNC, Constants.PRODUCT_MIS, Constants.PRODUCT_NRML)
+        /// Product code (Constants.Product.CNC, Constants.Product.MIS, Constants.Product.NRML)
         /// </summary>
         public string Product { get; set; }
 
         /// <summary>
-        /// Order type (Constants.ORDER_TYPE_MARKET, Constants.ORDER_TYPE_SL, etc.)
+        /// Order type (Constants.OrderType.Market, Constants.OrderType.SL, etc.)
         /// </summary>
         public string OrderType { get; set; }
 
         /// <summary>
-        /// Variety (Constants.VARIETY_REGULAR, Constants.VARIETY_AMO, etc.)
+        /// Variety (Constants.Variety.Regular, Constants.Variety.AMO, etc.)
         /// </summary>
         public string Variety { get; set; }
     }
@@ -417,7 +447,7 @@ namespace KiteConnect
         public string OrderID { get; set; }
 
         /// <summary>
-        /// Exchange in which instrument is listed (Constants.EXCHANGE_NSE, Constants.EXCHANGE_BSE, etc.)
+        /// Exchange in which instrument is listed (Constants.Exchange.NSE, Constants.Exchange.BSE, etc.)
         /// </summary>
         public string Exchange { get; set; }
 
@@ -427,14 +457,14 @@ namespace KiteConnect
         public string TradingSymbol { get; set; }
 
         /// <summary>
-        /// Transaction type (Constants.TRANSACTION_TYPE_BUY or Constants.TRANSACTION_TYPE_SELL)
+        /// Transaction type (Constants.Transaction.Buy or Constants.Transaction.Sell)
         /// </summary>
         public string TransactionType { get; set; }
 
         /// <summary>
         /// Order quantity
         /// </summary>
-        public int Quantity { get; set; }
+        public decimal Quantity { get; set; }
 
         /// <summary>
         /// Average price
@@ -442,17 +472,17 @@ namespace KiteConnect
         public decimal? AveragePrice { get; set; }
 
         /// <summary>
-        /// Product code (Constants.PRODUCT_CNC, Constants.PRODUCT_MIS, Constants.PRODUCT_NRML)
+        /// Product code (Constants.Product.CNC, Constants.Product.MIS, Constants.Product.NRML)
         /// </summary>
         public string Product { get; set; }
 
         /// <summary>
-        /// Order type (Constants.ORDER_TYPE_MARKET, Constants.ORDER_TYPE_SL, etc.)
+        /// Order type (Constants.OrderType.Market, Constants.OrderType.SL, etc.)
         /// </summary>
         public string OrderType { get; set; }
 
         /// <summary>
-        /// Variety (Constants.VARIETY_REGULAR, Constants.VARIETY_AMO, etc.)
+        /// Variety (Constants.Variety.Regular, Constants.Variety.AMO, etc.)
         /// </summary>
         public string Variety { get; set; }
     }
@@ -483,7 +513,7 @@ namespace KiteConnect
         }
     
         /// <summary>
-        /// Exchange in which instrument is listed (Constants.EXCHANGE_NSE, Constants.EXCHANGE_BSE, etc.)
+        /// Exchange in which instrument is listed (Constants.Exchange.NSE, Constants.Exchange.BSE, etc.)
         /// </summary>
         public string Exchange { get; set; }
 
@@ -493,14 +523,14 @@ namespace KiteConnect
         public string TradingSymbol { get; set; }
 
         /// <summary>
-        /// Transaction type (Constants.TRANSACTION_TYPE_BUY or Constants.TRANSACTION_TYPE_SELL)
+        /// Transaction type (Constants.Transaction.Buy or Constants.Transaction.Sell)
         /// </summary>
         public string TransactionType { get; set; }
 
         /// <summary>
         /// Order quantity
         /// </summary>
-        public int Quantity { get; set; }
+        public decimal Quantity { get; set; }
 
         /// <summary>
         /// Order price
@@ -508,17 +538,17 @@ namespace KiteConnect
         public decimal? Price { get; set; }
 
         /// <summary>
-        /// Product code (Constants.PRODUCT_CNC, Constants.PRODUCT_MIS, Constants.PRODUCT_NRML)
+        /// Product code (Constants.Product.CNC, Constants.Product.MIS, Constants.Product.NRML)
         /// </summary>
         public string Product { get; set; }
 
         /// <summary>
-        /// Order type (Constants.ORDER_TYPE_MARKET, Constants.ORDER_TYPE_SL, etc.)
+        /// Order type (Constants.OrderType.Market, Constants.OrderType.SL, etc.)
         /// </summary>
         public string OrderType { get; set; }
 
         /// <summary>
-        /// Variety (Constants.VARIETY_REGULAR, Constants.VARIETY_AMO, etc.)
+        /// Variety (Constants.Variety.Regular, Constants.Variety.AMO, etc.)
         /// </summary>
         public string Variety { get; set; }
 
@@ -686,7 +716,7 @@ namespace KiteConnect
         }
 
         public string Product { get; }
-        public int OvernightQuantity { get; }
+        public decimal OvernightQuantity { get; }
         public string Exchange { get; }
         public decimal SellValue { get; }
         public decimal BuyM2M { get; }
@@ -695,10 +725,10 @@ namespace KiteConnect
         public decimal Realised { get; }
         public decimal PNL { get; }
         public decimal Multiplier { get; }
-        public int SellQuantity { get; }
+        public decimal SellQuantity { get; }
         public decimal SellM2M { get; }
         public decimal BuyValue { get; }
-        public int BuyQuantity { get; }
+        public decimal BuyQuantity { get; }
         public decimal AveragePrice { get; }
         public decimal Unrealised { get; }
         public decimal Value { get; }
@@ -707,11 +737,11 @@ namespace KiteConnect
         public decimal M2M { get; }
         public UInt32 InstrumentToken { get; }
         public decimal ClosePrice { get; }
-        public int Quantity { get; }
-        public int DayBuyQuantity { get; }
+        public decimal Quantity { get; }
+        public decimal DayBuyQuantity { get; }
         public decimal DayBuyPrice { get; }
         public decimal DayBuyValue { get; }
-        public int DaySellQuantity { get; }
+        public decimal DaySellQuantity { get; }
         public decimal DaySellPrice { get; }
         public decimal DaySellValue { get; }
     }
@@ -801,22 +831,22 @@ namespace KiteConnect
         }
 
         public decimal AveragePrice { get; set; }
-        public int CancelledQuantity { get; set; }
-        public int DisclosedQuantity { get; set; }
+        public decimal CancelledQuantity { get; set; }
+        public decimal DisclosedQuantity { get; set; }
         public string Exchange { get; set; }
         public string ExchangeOrderId { get; set; }
         public DateTime? ExchangeTimestamp { get; set; }
-        public int FilledQuantity { get; set; }
+        public decimal FilledQuantity { get; set; }
         public UInt32 InstrumentToken { get; set; }
         public string OrderId { get; set; }
         public DateTime? OrderTimestamp { get; set; }
         public string OrderType { get; set; }
         public string ParentOrderId { get; set; }
-        public int PendingQuantity { get; set; }
+        public decimal PendingQuantity { get; set; }
         public string PlacedBy { get; set; }
         public decimal Price { get; set; }
         public string Product { get; set; }
-        public int Quantity { get; set; }
+        public decimal Quantity { get; set; }
         public string Status { get; set; }
         public string StatusMessage { get; set; }
         public string Tag { get; set; }
@@ -948,7 +978,7 @@ namespace KiteConnect
         public string TransactionType { get; set; }
         public string Product { get; set; }
         public string OrderType { get; set; }
-        public int Quantity { get; set; }
+        public decimal Quantity { get; set; }
         public decimal Price { get; set; }
         public GTTResult? Result { get; set; }
     }
@@ -1018,7 +1048,7 @@ namespace KiteConnect
     /// </summary>
     public struct GTTOrderParams
     {
-        public int Quantity { get; set; }
+        public decimal Quantity { get; set; }
         public decimal Price { get; set; }
         // Order type (LIMIT, SL, SL-M, MARKET)
         public string OrderType { get; set; }
@@ -1110,7 +1140,7 @@ namespace KiteConnect
         public string TransactionType { get; }
         public string Product { get; }
         public decimal AveragePrice { get; }
-        public int Quantity { get; }
+        public decimal Quantity { get; }
         public DateTime? FillTimestamp { get; }
         public DateTime? ExchangeTimestamp { get; }
     }
@@ -1587,7 +1617,6 @@ namespace KiteConnect
             {
                 throw new DataException(e.Message + " " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
             }
-
         }
 
         public string DividendType { get; }
@@ -1601,7 +1630,7 @@ namespace KiteConnect
         public string SIPId { get; }
         public string Tradingsymbol { get; }
         public string Tag { get; }
-        public int InstalmentAmount { get; }
+        public decimal InstalmentAmount { get; }
         public int Instalments { get; }
         public string Status { get; }
         public string OrderId { get; }

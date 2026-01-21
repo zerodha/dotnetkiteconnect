@@ -219,7 +219,7 @@ namespace KiteConnect
         private Tick ReadLTP(byte[] b, ref int offset)
         {
             Tick tick = new Tick();
-            tick.Mode = Constants.MODE_LTP;
+            tick.Mode = Constants.TickerMode.LTP;
             tick.InstrumentToken = ReadInt(b, ref offset);
 
             decimal divisor = GetDivisor(tick.InstrumentToken);
@@ -235,7 +235,7 @@ namespace KiteConnect
         private Tick ReadIndexQuote(byte[] b, ref int offset)
         {
             Tick tick = new Tick();
-            tick.Mode = Constants.MODE_QUOTE;
+            tick.Mode = Constants.TickerMode.Quote;
             tick.InstrumentToken = ReadInt(b, ref offset);
 
             decimal divisor = GetDivisor(tick.InstrumentToken);
@@ -253,7 +253,7 @@ namespace KiteConnect
         private Tick ReadIndexFull(byte[] b, ref int offset)
         {
             Tick tick = new Tick();
-            tick.Mode = Constants.MODE_FULL;
+            tick.Mode = Constants.TickerMode.Full;
             tick.InstrumentToken = ReadInt(b, ref offset);
 
             decimal divisor = GetDivisor(tick.InstrumentToken);
@@ -279,7 +279,7 @@ namespace KiteConnect
         private Tick ReadQuote(byte[] b, ref int offset)
         {
             Tick tick = new Tick();
-            tick.Mode = Constants.MODE_QUOTE;
+            tick.Mode = Constants.TickerMode.Quote;
             tick.InstrumentToken = ReadInt(b, ref offset);
 
             decimal divisor = GetDivisor(tick.InstrumentToken);
@@ -305,7 +305,7 @@ namespace KiteConnect
         private Tick ReadFull(byte[] b, ref int offset)
         {
             Tick tick = new Tick();
-            tick.Mode = Constants.MODE_FULL;
+            tick.Mode = Constants.TickerMode.Full;
             tick.InstrumentToken = ReadInt(b, ref offset);
 
             decimal divisor = GetDivisor(tick.InstrumentToken);

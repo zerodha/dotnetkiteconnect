@@ -30,64 +30,6 @@ namespace KiteConnect
 
         private HttpClient httpClient;
 
-        private readonly Dictionary<string, string> _routes = new Dictionary<string, string>
-        {
-            ["parameters"] = "/parameters",
-            ["api.token"] = "/session/token",
-            ["api.refresh"] = "/session/refresh_token",
-
-            ["instrument.margins"] = "/margins/{segment}",
-            ["order.margins"] = "/margins/orders",
-            ["basket.margins"] = "/margins/basket",
-            ["order.contractnote"] = "/charges/orders",
-
-            ["user.profile"] = "/user/profile",
-            ["user.margins"] = "/user/margins",
-            ["user.segment_margins"] = "/user/margins/{segment}",
-
-            ["orders"] = "/orders",
-            ["trades"] = "/trades",
-            ["orders.history"] = "/orders/{order_id}",
-
-            ["orders.place"] = "/orders/{variety}",
-            ["orders.modify"] = "/orders/{variety}/{order_id}",
-            ["orders.cancel"] = "/orders/{variety}/{order_id}",
-            ["orders.trades"] = "/orders/{order_id}/trades",
-
-            ["gtt"] = "/gtt/triggers",
-            ["gtt.place"] = "/gtt/triggers",
-            ["gtt.info"] = "/gtt/triggers/{id}",
-            ["gtt.modify"] = "/gtt/triggers/{id}",
-            ["gtt.delete"] = "/gtt/triggers/{id}",
-
-            ["portfolio.positions"] = "/portfolio/positions",
-            ["portfolio.holdings"] = "/portfolio/holdings",
-            ["portfolio.positions.modify"] = "/portfolio/positions",
-            ["portfolio.auction.instruments"] = "/portfolio/holdings/auctions",
-
-            ["market.instruments.all"] = "/instruments",
-            ["market.instruments"] = "/instruments/{exchange}",
-            ["market.quote"] = "/quote",
-            ["market.ohlc"] = "/quote/ohlc",
-            ["market.ltp"] = "/quote/ltp",
-            ["market.historical"] = "/instruments/historical/{instrument_token}/{interval}",
-            ["market.trigger_range"] = "/instruments/trigger_range/{transaction_type}",
-
-            ["mutualfunds.orders"] = "/mf/orders",
-            ["mutualfunds.order"] = "/mf/orders/{order_id}",
-            ["mutualfunds.orders.place"] = "/mf/orders",
-            ["mutualfunds.cancel_order"] = "/mf/orders/{order_id}",
-
-            ["mutualfunds.sips"] = "/mf/sips",
-            ["mutualfunds.sips.place"] = "/mf/sips",
-            ["mutualfunds.cancel_sips"] = "/mf/sips/{sip_id}",
-            ["mutualfunds.sips.modify"] = "/mf/sips/{sip_id}",
-            ["mutualfunds.sip"] = "/mf/sips/{sip_id}",
-
-            ["mutualfunds.instruments"] = "/mf/instruments",
-            ["mutualfunds.holdings"] = "/mf/holdings"
-        };
-
         /// <summary>
         /// Initialize a new Kite Connect client instance.
         /// </summary>
@@ -186,7 +128,7 @@ namespace KiteConnect
                 {"checksum", checksum}
             };
 
-            var userData = Post("api.token", param);
+            var userData = Post(Routes.API.Token, param);
 
             return new User(userData);
         }
@@ -203,7 +145,7 @@ namespace KiteConnect
             Utils.AddIfNotNull(param, "api_key", _apiKey);
             Utils.AddIfNotNull(param, "access_token", AccessToken);
 
-            return Delete("api.token", param);
+            return Delete(Routes.API.Token, param);
         }
 
         /// <summary>
@@ -218,7 +160,7 @@ namespace KiteConnect
             Utils.AddIfNotNull(param, "api_key", _apiKey);
             Utils.AddIfNotNull(param, "refresh_token", RefreshToken);
 
-            return Delete("api.token", param);
+            return Delete(Routes.API.Token, param);
         }
 
         /// <summary>
@@ -237,7 +179,7 @@ namespace KiteConnect
             Utils.AddIfNotNull(param, "refresh_token", RefreshToken);
             Utils.AddIfNotNull(param, "checksum", checksum);
 
-            return new TokenSet(Post("api.refresh", param));
+            return new TokenSet(Post(Routes.API.Refresh, param));
         }
 
         /// <summary>
@@ -246,7 +188,7 @@ namespace KiteConnect
         /// <returns>User profile</returns>
         public Profile GetProfile()
         {
-            var profileData = Get("user.profile");
+            var profileData = Get(Routes.User.Profile);
 
             return new Profile(profileData);
         }
@@ -276,7 +218,7 @@ namespace KiteConnect
                 paramList.Add(param);
             }
 
-            var contractNoteData = Post("order.contractnote", paramList, json: true);
+            var contractNoteData = Post(Routes.Order.ContractNote, paramList, json: true);
 
             List<ContractNote> contractNotes = new List<ContractNote>();
             foreach (Dictionary<string, dynamic> item in contractNoteData["data"])
@@ -289,7 +231,7 @@ namespace KiteConnect
         /// Margin data for a specific order
         /// </summary>
         /// <param name="OrderMarginParams">List of all order params to get margins for</param>
-        /// <param name="Mode">Mode of the returned response content. Eg: Constants.MARGIN_MODE_COMPACT</param>
+        /// <param name="Mode">Mode of the returned response content. Eg: Constants.Margin.Mode.Compact</param>
         /// <returns>List of margins of order</returns>
         public List<OrderMargin> GetOrderMargins(List<OrderMarginParams> OrderMarginParams, string Mode = null)
         {
@@ -317,7 +259,7 @@ namespace KiteConnect
                 queryParams["mode"] = Mode;
             }
 
-            var orderMarginsData = Post("order.margins", paramList, QueryParams: queryParams, json: true);
+            var orderMarginsData = Post(Routes.Order.Margins, paramList, QueryParams: queryParams, json: true);
 
             List<OrderMargin> orderMargins = new List<OrderMargin>();
             foreach (Dictionary<string, dynamic> item in orderMarginsData["data"])
@@ -331,7 +273,7 @@ namespace KiteConnect
         /// </summary>
         /// <param name="OrderMarginParams">List of all order params to get margins for</param>
         /// <param name="ConsiderPositions">Consider users positions while calculating margins</param>
-        /// <param name="Mode">Mode of the returned response content. Eg: Constants.MARGIN_MODE_COMPACT</param>
+        /// <param name="Mode">Mode of the returned response content. Eg: Constants.Margin.Mode.Compact</param>
         /// <returns>List of margins of order</returns>
         public BasketMargin GetBasketMargins(List<OrderMarginParams> OrderMarginParams, bool ConsiderPositions = true, string Mode = null)
         {
@@ -360,7 +302,7 @@ namespace KiteConnect
                 queryParams["mode"] = Mode;
             }
 
-            var basketMarginsData = Post("basket.margins", paramList, QueryParams: queryParams, json: true);
+            var basketMarginsData = Post(Routes.Basket.Margins, paramList, QueryParams: queryParams, json: true);
 
             return new BasketMargin(basketMarginsData["data"]);
         }
@@ -371,7 +313,7 @@ namespace KiteConnect
         /// <returns>User margin response with both equity and commodity margins.</returns>
         public UserMarginsResponse GetMargins()
         {
-            var marginsData = Get("user.margins");
+            var marginsData = Get(Routes.User.Margins);
             return new UserMarginsResponse(marginsData["data"]);
         }
 
@@ -382,7 +324,7 @@ namespace KiteConnect
         /// <returns>Margins for specified segment.</returns>
         public UserMargin GetMargins(string Segment)
         {
-            var userMarginData = Get("user.segment_margins", new Dictionary<string, dynamic> { { "segment", Segment } });
+            var userMarginData = Get(Routes.User.SegmentMargins, new Dictionary<string, dynamic> { { "segment", Segment } });
             return new UserMargin(userMarginData["data"]);
         }
 
@@ -412,21 +354,21 @@ namespace KiteConnect
             string Exchange,
             string TradingSymbol,
             string TransactionType,
-            int Quantity,
+            decimal Quantity,
             decimal? Price = null,
             string Product = null,
             string OrderType = null,
             string Validity = null,
-            int? DisclosedQuantity = null,
+            decimal? DisclosedQuantity = null,
             decimal? TriggerPrice = null,
             decimal? SquareOffValue = null,
             decimal? StoplossValue = null,
             decimal? TrailingStoploss = null,
-            string Variety = Constants.VARIETY_REGULAR,
+            string Variety = Constants.Variety.Regular,
             string Tag = "",
             int? ValidityTTL = null,
             int? IcebergLegs = null,
-            int? IcebergQuantity = null,
+            decimal? IcebergQuantity = null,
             string AuctionNumber = null
             )
         {
@@ -452,7 +394,7 @@ namespace KiteConnect
             Utils.AddIfNotNull(param, "iceberg_quantity", IcebergQuantity.ToString());
             Utils.AddIfNotNull(param, "auction_number", AuctionNumber);
 
-            return Post("orders.place", param);
+            return Post(Routes.Order.Place, param);
         }
 
         /// <summary>
@@ -478,14 +420,14 @@ namespace KiteConnect
             string Exchange = null,
             string TradingSymbol = null,
             string TransactionType = null,
-            string Quantity = null,
+            decimal? Quantity = null,
             decimal? Price = null,
             string Product = null,
             string OrderType = null,
-            string Validity = Constants.VALIDITY_DAY,
-            int? DisclosedQuantity = null,
+            string Validity = Constants.Validity.Day,
+            decimal? DisclosedQuantity = null,
             decimal? TriggerPrice = null,
-            string Variety = Constants.VARIETY_REGULAR)
+            string Variety = Constants.Variety.Regular)
         {
             var param = new Dictionary<string, dynamic>();
 
@@ -502,7 +444,7 @@ namespace KiteConnect
 
             if (VarietyString == "bo" && ProductString == "bo")
             {
-                Utils.AddIfNotNull(param, "quantity", Quantity);
+                Utils.AddIfNotNull(param, "quantity", Quantity.ToString());
                 Utils.AddIfNotNull(param, "price", Price.ToString());
                 Utils.AddIfNotNull(param, "disclosed_quantity", DisclosedQuantity.ToString());
             }
@@ -511,7 +453,7 @@ namespace KiteConnect
                 Utils.AddIfNotNull(param, "exchange", Exchange);
                 Utils.AddIfNotNull(param, "tradingsymbol", TradingSymbol);
                 Utils.AddIfNotNull(param, "transaction_type", TransactionType);
-                Utils.AddIfNotNull(param, "quantity", Quantity);
+                Utils.AddIfNotNull(param, "quantity", Quantity.ToString());
                 Utils.AddIfNotNull(param, "price", Price.ToString());
                 Utils.AddIfNotNull(param, "product", Product);
                 Utils.AddIfNotNull(param, "order_type", OrderType);
@@ -519,7 +461,7 @@ namespace KiteConnect
                 Utils.AddIfNotNull(param, "disclosed_quantity", DisclosedQuantity.ToString());
             }
 
-            return Put("orders.modify", param);
+            return Put(Routes.Order.Modify, param);
         }
 
         /// <summary>
@@ -529,7 +471,7 @@ namespace KiteConnect
         /// <param name="Variety">You can place orders of varieties; regular orders, after market orders, cover orders etc. </param>
         /// <param name="ParentOrderId">Id of the parent order (obtained from the /orders call) as BO is a multi-legged order</param>
         /// <returns>Json response in the form of nested string dictionary.</returns>
-        public Dictionary<string, dynamic> CancelOrder(string OrderId, string Variety = Constants.VARIETY_REGULAR, string ParentOrderId = null)
+        public Dictionary<string, dynamic> CancelOrder(string OrderId, string Variety = Constants.Variety.Regular, string ParentOrderId = null)
         {
             var param = new Dictionary<string, dynamic>();
 
@@ -537,7 +479,7 @@ namespace KiteConnect
             Utils.AddIfNotNull(param, "parent_order_id", ParentOrderId);
             Utils.AddIfNotNull(param, "variety", Variety);
 
-            return Delete("orders.cancel", param);
+            return Delete(Routes.Order.Cancel, param);
         }
 
         /// <summary>
@@ -546,7 +488,7 @@ namespace KiteConnect
         /// <returns>List of orders.</returns>
         public List<Order> GetOrders()
         {
-            var ordersData = Get("orders");
+            var ordersData = Get(Routes.Order.AllOrders);
 
             List<Order> orders = new List<Order>();
 
@@ -566,7 +508,7 @@ namespace KiteConnect
             var param = new Dictionary<string, dynamic>();
             param.Add("order_id", OrderId);
 
-            var orderData = Get("orders.history", param);
+            var orderData = Get(Routes.Order.History, param);
 
             List<Order> orderhistory = new List<Order>();
 
@@ -590,10 +532,10 @@ namespace KiteConnect
             {
                 var param = new Dictionary<string, dynamic>();
                 param.Add("order_id", OrderId);
-                tradesdata = Get("orders.trades", param);
+                tradesdata = Get(Routes.Order.Trades, param);
             }
             else
-                tradesdata = Get("trades");
+                tradesdata = Get(Routes.Order.AllTrades);
 
             List<Trade> trades = new List<Trade>();
 
@@ -609,7 +551,7 @@ namespace KiteConnect
         /// <returns>Day and net positions.</returns>
         public PositionResponse GetPositions()
         {
-            var positionsdata = Get("portfolio.positions");
+            var positionsdata = Get(Routes.Portfolio.Positions);
             return new PositionResponse(positionsdata["data"]);
         }
 
@@ -619,7 +561,7 @@ namespace KiteConnect
         /// <returns>List of holdings.</returns>
         public List<Holding> GetHoldings()
         {
-            var holdingsData = Get("portfolio.holdings");
+            var holdingsData = Get(Routes.Portfolio.Holdings);
 
             List<Holding> holdings = new List<Holding>();
 
@@ -635,7 +577,7 @@ namespace KiteConnect
         /// <returns>List of auction instruments.</returns>
         public List<AuctionInstrument> GetAuctionInstruments()
         {
-            var instrumentsData = Get("portfolio.auction.instruments");
+            var instrumentsData = Get(Routes.Portfolio.AuctionInstruments);
 
             List<AuctionInstrument> instruments = new List<AuctionInstrument>();
 
@@ -661,7 +603,7 @@ namespace KiteConnect
             string TradingSymbol,
             string TransactionType,
             string PositionType,
-            int? Quantity,
+            decimal? Quantity,
             string OldProduct,
             string NewProduct)
         {
@@ -675,7 +617,7 @@ namespace KiteConnect
             Utils.AddIfNotNull(param, "old_product", OldProduct);
             Utils.AddIfNotNull(param, "new_product", NewProduct);
 
-            return Put("portfolio.positions.modify", param);
+            return Put(Routes.Portfolio.ModifyPositions, param);
         }
 
         /// <summary>
@@ -692,11 +634,11 @@ namespace KiteConnect
             List<Dictionary<string, dynamic>> instrumentsData;
 
             if (String.IsNullOrEmpty(Exchange))
-                instrumentsData = Get("market.instruments.all", param);
+                instrumentsData = Get(Routes.Market.AllInstruments, param);
             else
             {
                 param.Add("exchange", Exchange);
-                instrumentsData = Get("market.instruments", param);
+                instrumentsData = Get(Routes.Market.Instruments, param);
             }
 
             List<Instrument> instruments = new List<Instrument>();
@@ -716,7 +658,7 @@ namespace KiteConnect
         {
             var param = new Dictionary<string, dynamic>();
             param.Add("i", InstrumentId);
-            Dictionary<string, dynamic> quoteData = Get("market.quote", param)["data"];
+            Dictionary<string, dynamic> quoteData = Get(Routes.Market.Quote, param)["data"];
 
             Dictionary<string, Quote> quotes = new Dictionary<string, Quote>();
             foreach (string item in quoteData.Keys)
@@ -734,7 +676,7 @@ namespace KiteConnect
         {
             var param = new Dictionary<string, dynamic>();
             param.Add("i", InstrumentId);
-            Dictionary<string, dynamic> ohlcData = Get("market.ohlc", param)["data"];
+            Dictionary<string, dynamic> ohlcData = Get(Routes.Market.OHLC, param)["data"];
 
             Dictionary<string, OHLC> ohlcs = new Dictionary<string, OHLC>();
             foreach (string item in ohlcData.Keys)
@@ -752,7 +694,7 @@ namespace KiteConnect
         {
             var param = new Dictionary<string, dynamic>();
             param.Add("i", InstrumentId);
-            Dictionary<string, dynamic> ltpData = Get("market.ltp", param)["data"];
+            Dictionary<string, dynamic> ltpData = Get(Routes.Market.LTP, param)["data"];
 
             Dictionary<string, LTP> ltps = new Dictionary<string, LTP>();
             foreach (string item in ltpData.Keys)
@@ -788,7 +730,7 @@ namespace KiteConnect
             param.Add("continuous", Continuous ? "1" : "0");
             param.Add("oi", OI ? "1" : "0");
 
-            var historicalData = Get("market.historical", param);
+            var historicalData = Get(Routes.Market.Historical, param);
 
             List<Historical> historicals = new List<Historical>();
 
@@ -811,7 +753,7 @@ namespace KiteConnect
             param.Add("i", InstrumentId);
             param.Add("transaction_type", TrasactionType.ToLower());
 
-            var triggerdata = Get("market.trigger_range", param)["data"];
+            var triggerdata = Get(Routes.Market.TriggerRange, param)["data"];
 
             Dictionary<string, TrigerRange> triggerRanges = new Dictionary<string, TrigerRange>();
             foreach (string item in triggerdata.Keys)
@@ -828,7 +770,7 @@ namespace KiteConnect
         /// <returns>List of GTTs.</returns>
         public List<GTT> GetGTTs()
         {
-            var gttsdata = Get("gtt");
+            var gttsdata = Get(Routes.GTT.AllGTTs);
 
             List<GTT> gtts = new List<GTT>();
 
@@ -849,7 +791,7 @@ namespace KiteConnect
             var param = new Dictionary<string, dynamic>();
             param.Add("id", GTTId.ToString());
 
-            var gttdata = Get("gtt.info", param);
+            var gttdata = Get(Routes.GTT.Info, param);
 
             return new GTT(gttdata["data"]);
         }
@@ -887,7 +829,7 @@ namespace KiteConnect
             parms.Add("orders", Utils.JsonSerialize(ordersParam));
             parms.Add("type", gttParams.TriggerType);
 
-            return Post("gtt.place", parms);
+            return Post(Routes.GTT.Place, parms);
         }
 
         /// <summary>
@@ -925,7 +867,7 @@ namespace KiteConnect
             parms.Add("type", gttParams.TriggerType);
             parms.Add("id", GTTId.ToString());
 
-            return Put("gtt.modify", parms);
+            return Put(Routes.GTT.Modify, parms);
         }
 
         /// <summary>
@@ -938,7 +880,7 @@ namespace KiteConnect
             var parms = new Dictionary<string, dynamic>();
             parms.Add("id", GTTId.ToString());
 
-            return Delete("gtt.delete", parms);
+            return Delete(Routes.GTT.Delete, parms);
         }
 
         #endregion GTT
@@ -956,7 +898,7 @@ namespace KiteConnect
 
             List<Dictionary<string, dynamic>> instrumentsData;
 
-            instrumentsData = Get("mutualfunds.instruments", param);
+            instrumentsData = Get(Routes.MutualFunds.Instruments, param);
 
             List<MFInstrument> instruments = new List<MFInstrument>();
 
@@ -975,7 +917,7 @@ namespace KiteConnect
             var param = new Dictionary<string, dynamic>();
 
             Dictionary<string, dynamic> ordersData;
-            ordersData = Get("mutualfunds.orders", param);
+            ordersData = Get(Routes.MutualFunds.Orders, param);
 
             List<MFOrder> orderlist = new List<MFOrder>();
 
@@ -996,7 +938,7 @@ namespace KiteConnect
             param.Add("order_id", OrderId);
 
             Dictionary<string, dynamic> orderData;
-            orderData = Get("mutualfunds.order", param);
+            orderData = Get(Routes.MutualFunds.Order, param);
 
             return new MFOrder(orderData["data"]);
         }
@@ -1025,7 +967,7 @@ namespace KiteConnect
             Utils.AddIfNotNull(param, "quantity", Quantity.ToString());
             Utils.AddIfNotNull(param, "tag", Tag);
 
-            return Post("mutualfunds.orders.place", param);
+            return Post(Routes.MutualFunds.PlaceOrder, param);
         }
 
         /// <summary>
@@ -1039,7 +981,7 @@ namespace KiteConnect
 
             Utils.AddIfNotNull(param, "order_id", OrderId);
 
-            return Delete("mutualfunds.cancel_order", param);
+            return Delete(Routes.MutualFunds.CancelOrder, param);
         }
 
         /// <summary>
@@ -1051,7 +993,7 @@ namespace KiteConnect
             var param = new Dictionary<string, dynamic>();
 
             Dictionary<string, dynamic> sipData;
-            sipData = Get("mutualfunds.sips", param);
+            sipData = Get(Routes.MutualFunds.SIPs, param);
 
             List<MFSIP> siplist = new List<MFSIP>();
 
@@ -1072,7 +1014,7 @@ namespace KiteConnect
             param.Add("sip_id", SIPID);
 
             Dictionary<string, dynamic> sipData;
-            sipData = Get("mutualfunds.sip", param);
+            sipData = Get(Routes.MutualFunds.SIP, param);
 
             return new MFSIP(sipData["data"]);
         }
@@ -1106,7 +1048,7 @@ namespace KiteConnect
             Utils.AddIfNotNull(param, "instalment_day", InstalmentDay.ToString());
             Utils.AddIfNotNull(param, "instalments", Instalments.ToString());
 
-            return Post("mutualfunds.sips.place", param);
+            return Post(Routes.MutualFunds.PlaceSIP, param);
         }
 
         /// <summary>
@@ -1136,7 +1078,7 @@ namespace KiteConnect
             Utils.AddIfNotNull(param, "instalment_day", InstalmentDay.ToString());
             Utils.AddIfNotNull(param, "instalments", Instalments.ToString());
 
-            return Put("mutualfunds.sips.modify", param);
+            return Put(Routes.MutualFunds.ModifySIP, param);
         }
 
         /// <summary>
@@ -1150,7 +1092,7 @@ namespace KiteConnect
 
             Utils.AddIfNotNull(param, "sip_id", SIPId);
 
-            return Delete("mutualfunds.cancel_sips", param);
+            return Delete(Routes.MutualFunds.CancelSIP, param);
         }
 
         /// <summary>
@@ -1162,7 +1104,7 @@ namespace KiteConnect
             var param = new Dictionary<string, dynamic>();
 
             Dictionary<string, dynamic> holdingsData;
-            holdingsData = Get("mutualfunds.holdings", param);
+            holdingsData = Get(Routes.MutualFunds.Holdings, param);
 
             List<MFHolding> holdingslist = new List<MFHolding>();
 
@@ -1253,7 +1195,7 @@ namespace KiteConnect
         /// <returns>Varies according to API endpoint</returns>
         private dynamic Request(string Route, string Method, dynamic Params = null, Dictionary<string, dynamic> QueryParams = null, bool json = false)
         {
-            string route = _root + _routes[Route];
+            string route = _root + Route;
 
             if (Params is null)
                 Params = new Dictionary<string, dynamic>();

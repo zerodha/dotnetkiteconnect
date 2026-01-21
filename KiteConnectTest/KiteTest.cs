@@ -74,6 +74,7 @@ namespace KiteConnectTest
             Kite kite = new Kite("apikey", Root: "http://localhost:8080");
             List<Holding> holdings = kite.GetHoldings();
             Assert.AreEqual(holdings[0].AveragePrice, 40.67m);
+            Assert.AreEqual(holdings[0].MTF.Quantity, 1000m);
         }
 
         [TestMethod]
@@ -99,6 +100,18 @@ namespace KiteConnectTest
         }
 
         [TestMethod]
+        public void TestMarginsNoTurnover()
+        {
+            string json = File.ReadAllText(@"responses/margins_noturnover.json", Encoding.UTF8);
+            ms.SetResponse("application/json", json);
+            Kite kite = new Kite("apikey", Root: "http://localhost:8080");
+            UserMarginsResponse margins = kite.GetMargins();
+
+            Assert.AreEqual(margins.Equity.Utilised.Turnover, (decimal)0);
+            Assert.AreEqual(margins.Commodity.Utilised.Turnover, (decimal)0);
+        }
+
+        [TestMethod]
         public void TestOrderMargins()
         {
             string json = File.ReadAllText(@"responses/order_margins.json", Encoding.UTF8);
@@ -106,13 +119,13 @@ namespace KiteConnectTest
             Kite kite = new Kite("apikey", Root: "http://localhost:8080");
 
             OrderMarginParams param = new OrderMarginParams();
-            param.Exchange = Constants.EXCHANGE_NFO;
+            param.Exchange = Constants.Exchange.NFO;
             param.TradingSymbol = "ASHOKLEY20NOVFUT";
-            param.TransactionType = Constants.TRANSACTION_TYPE_SELL;
+            param.TransactionType = Constants.Transaction.Sell;
             param.Quantity = 1;
             param.Price = 64.0000m;
-            param.OrderType = Constants.ORDER_TYPE_MARKET;
-            param.Product = Constants.PRODUCT_MIS;
+            param.OrderType = Constants.OrderType.Market;
+            param.Product = Constants.Product.MIS;
 
             List<OrderMargin> margins = kite.GetOrderMargins(new List<OrderMarginParams>() { param });
 
@@ -131,24 +144,24 @@ namespace KiteConnectTest
             Kite kite = new Kite("apikey", Root: "http://localhost:8080");
 
             OrderMarginParams param = new OrderMarginParams();
-            param.Exchange = Constants.EXCHANGE_NFO;
+            param.Exchange = Constants.Exchange.NFO;
             param.TradingSymbol = "ASHOKLEY21JULFUT";
-            param.TransactionType = Constants.TRANSACTION_TYPE_SELL;
+            param.TransactionType = Constants.Transaction.Sell;
             param.Quantity = 1;
             param.Price = 64.0000m;
-            param.OrderType = Constants.ORDER_TYPE_MARKET;
-            param.Product = Constants.PRODUCT_MIS;
+            param.OrderType = Constants.OrderType.Market;
+            param.Product = Constants.Product.MIS;
 
             OrderMarginParams param2 = new OrderMarginParams();
-            param2.Exchange = Constants.EXCHANGE_NFO;
+            param2.Exchange = Constants.Exchange.NFO;
             param2.TradingSymbol = "NIFTY21JUL15000PE";
-            param.TransactionType = Constants.TRANSACTION_TYPE_BUY;
+            param.TransactionType = Constants.Transaction.Buy;
             param2.Quantity = 75;
             param2.Price = 300;
-            param2.Product = Constants.PRODUCT_MIS;
-            param2.OrderType = Constants.ORDER_TYPE_LIMIT;
+            param2.Product = Constants.Product.MIS;
+            param2.OrderType = Constants.OrderType.Limit;
 
-            List<OrderMargin> margins = kite.GetOrderMargins(new List<OrderMarginParams>() { param, param2 }, Mode: Constants.MARGIN_MODE_COMPACT);
+            List<OrderMargin> margins = kite.GetOrderMargins(new List<OrderMarginParams>() { param, param2 }, Mode: Constants.Margin.Mode.Compact);
 
             Assert.AreEqual(margins[0].Total, (decimal)30.2280825);
             Assert.AreEqual(margins[0].SPAN, (decimal)0);
@@ -162,22 +175,22 @@ namespace KiteConnectTest
             Kite kite = new Kite("apikey", Root: "http://localhost:8080");
 
             OrderMarginParams param = new OrderMarginParams();
-            param.Exchange = Constants.EXCHANGE_NFO;
+            param.Exchange = Constants.Exchange.NFO;
             param.TradingSymbol = "ASHOKLEY21JULFUT";
-            param.TransactionType = Constants.TRANSACTION_TYPE_SELL;
+            param.TransactionType = Constants.Transaction.Sell;
             param.Quantity = 1;
             param.Price = 64.0000m;
-            param.OrderType = Constants.ORDER_TYPE_MARKET;
-            param.Product = Constants.PRODUCT_MIS;
+            param.OrderType = Constants.OrderType.Market;
+            param.Product = Constants.Product.MIS;
 
             OrderMarginParams param2 = new OrderMarginParams();
-            param2.Exchange = Constants.EXCHANGE_NFO;
+            param2.Exchange = Constants.Exchange.NFO;
             param2.TradingSymbol = "NIFTY21JUL15000PE";
-            param.TransactionType = Constants.TRANSACTION_TYPE_BUY;
+            param.TransactionType = Constants.Transaction.Buy;
             param2.Quantity = 75;
             param2.Price = 300;
-            param2.Product = Constants.PRODUCT_MIS;
-            param2.OrderType = Constants.ORDER_TYPE_LIMIT;
+            param2.Product = Constants.Product.MIS;
+            param2.OrderType = Constants.OrderType.Limit;
 
             BasketMargin margins = kite.GetBasketMargins(new List<OrderMarginParams>() { param, param2 });
 
@@ -193,24 +206,24 @@ namespace KiteConnectTest
             Kite kite = new Kite("apikey", Root: "http://localhost:8080");
 
             OrderMarginParams param = new OrderMarginParams();
-            param.Exchange = Constants.EXCHANGE_NFO;
+            param.Exchange = Constants.Exchange.NFO;
             param.TradingSymbol = "ASHOKLEY21JULFUT";
-            param.TransactionType = Constants.TRANSACTION_TYPE_SELL;
+            param.TransactionType = Constants.Transaction.Sell;
             param.Quantity = 1;
             param.Price = 64.0000m;
-            param.OrderType = Constants.ORDER_TYPE_MARKET;
-            param.Product = Constants.PRODUCT_MIS;
+            param.OrderType = Constants.OrderType.Market;
+            param.Product = Constants.Product.MIS;
 
             OrderMarginParams param2 = new OrderMarginParams();
-            param2.Exchange = Constants.EXCHANGE_NFO;
+            param2.Exchange = Constants.Exchange.NFO;
             param2.TradingSymbol = "NIFTY21JUL15000PE";
-            param.TransactionType = Constants.TRANSACTION_TYPE_BUY;
+            param.TransactionType = Constants.Transaction.Buy;
             param2.Quantity = 75;
             param2.Price = 300;
-            param2.Product = Constants.PRODUCT_MIS;
-            param2.OrderType = Constants.ORDER_TYPE_LIMIT;
+            param2.Product = Constants.Product.MIS;
+            param2.OrderType = Constants.OrderType.Limit;
 
-            BasketMargin margins = kite.GetBasketMargins(new List<OrderMarginParams>() { param, param2 }, Mode: Constants.MARGIN_MODE_COMPACT);
+            BasketMargin margins = kite.GetBasketMargins(new List<OrderMarginParams>() { param, param2 }, Mode: Constants.Margin.Mode.Compact);
 
             Assert.AreEqual(margins.Final.Total, (decimal)22530.2280825);
             Assert.AreEqual(margins.Final.SPAN, (decimal)0);
@@ -290,6 +303,8 @@ namespace KiteConnectTest
             Assert.AreEqual(orders[3].Meta["iceberg"]["legs"], 5);
 
             Assert.AreEqual(orders[0].AuctionNumber, 10);
+
+            Assert.AreEqual(orders[4].Product, Constants.Product.MTF);
         }
 
         [TestMethod]
@@ -347,7 +362,7 @@ namespace KiteConnectTest
             string csv = File.ReadAllText(@"responses/instruments_nse.csv", Encoding.UTF8);
             ms.SetResponse("text/csv", csv);
             Kite kite = new Kite("apikey", Root: "http://localhost:8080");
-            List<Instrument> instruments = kite.GetInstruments(Constants.EXCHANGE_NSE);
+            List<Instrument> instruments = kite.GetInstruments(Constants.Exchange.NSE);
 
             Assert.AreEqual(instruments[0].InstrumentToken, (uint)3813889);
         }

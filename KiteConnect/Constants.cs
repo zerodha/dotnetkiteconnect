@@ -1,93 +1,117 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace KiteConnect
 {
-    public class Constants
+    public static class Constants
     {
+        public static class Product
+        {
+            public const string MIS = "MIS";
+            public const string CNC = "CNC";
+            public const string NRML = "NRML";
+            public const string MTF = "MTF";
+        }
 
-        // Products
-        public const string PRODUCT_MIS = "MIS";
-        public const string PRODUCT_CNC = "CNC";
-        public const string PRODUCT_NRML = "NRML";
+        public static class OrderType
+        {
+            public const string Market = "MARKET";
+            public const string Limit = "LIMIT";
+            public const string SLM = "SL-M";
+            public const string SL = "SL";
+        }
 
-        // Order types
-        public const string ORDER_TYPE_MARKET = "MARKET";
-        public const string ORDER_TYPE_LIMIT = "LIMIT";
-        public const string ORDER_TYPE_SLM = "SL-M";
-        public const string ORDER_TYPE_SL = "SL";
+        public static class OrderStatus
+        {
+            public const string Complete = "COMPLETE";
+            public const string Cancelled = "CANCELLED";
+            public const string Rejected = "REJECTED";
+        }
 
-        // Order status
-        public const string ORDER_STATUS_COMPLETE = "COMPLETE";
-        public const string ORDER_STATUS_CANCELLED = "CANCELLED";
-        public const string ORDER_STATUS_REJECTED = "REJECTED";
+        public static class Variety
+        {
+            public const string Regular = "regular";
+            public const string BO = "bo";
+            public const string CO = "co";
+            public const string AMO = "amo";
+            public const string Iceberg = "iceberg";
+            public const string Auction = "auction";
+        }
 
-        // Varities
-        public const string VARIETY_REGULAR = "regular";
-        public const string VARIETY_BO = "bo";
-        public const string VARIETY_CO = "co";
-        public const string VARIETY_AMO = "amo";
-        public const string VARIETY_ICEBERG = "iceberg";
-        public const string VARIETY_AUCTION = "auction";
+        public static class Transaction
+        {
+            public const string Buy = "BUY";
+            public const string Sell = "SELL";
+        }
 
-        // Transaction type
-        public const string TRANSACTION_TYPE_BUY = "BUY";
-        public const string TRANSACTION_TYPE_SELL = "SELL";
+        public static class Validity
+        {
+            public const string Day = "DAY";
+            public const string IOC = "IOC";
+            public const string TTL = "TTL";
+        }
 
-        // Validity
-        public const string VALIDITY_DAY = "DAY";
-        public const string VALIDITY_IOC = "IOC";
-        public const string VALIDITY_TTL = "TTL";
+        public static class Exchange
+        {
+            public const string NSE = "NSE";
+            public const string BSE = "BSE";
+            public const string NFO = "NFO";
+            public const string CDS = "CDS";
+            public const string BFO = "BFO";
+            public const string MCX = "MCX";
+        }
 
-        // Exchanges
-        public const string EXCHANGE_NSE = "NSE";
-        public const string EXCHANGE_BSE = "BSE";
-        public const string EXCHANGE_NFO = "NFO";
-        public const string EXCHANGE_CDS = "CDS";
-        public const string EXCHANGE_BFO = "BFO";
-        public const string EXCHANGE_MCX = "MCX";
+        public static class Margin
+        {
+            public const string Equity = "equity";
+            public const string Commodity = "commodity";
 
-        // Margins segments
-        public const string MARGIN_EQUITY = "equity";
-        public const string MARGIN_COMMODITY = "commodity";
+            public static class Mode
+            {
+                public const string Compact = "compact";
+            }
+        }
 
-        // Margin modes
-        public const string MARGIN_MODE_COMPACT = "compact";
+        public static class TickerMode
+        {
+            public const string Full = "full";
+            public const string Quote = "quote";
+            public const string LTP = "ltp";
+        }
 
-        // Ticker modes
-        public const string MODE_FULL = "full";
-        public const string MODE_QUOTE = "quote";
-        public const string MODE_LTP = "ltp";
+        public static class Position
+        {
+            public const string Day = "day";
+            public const string Overnight = "overnight";
+        }
 
-        // Positions
-        public const string POSITION_DAY = "day";
-        public const string POSITION_OVERNIGHT = "overnight";
+        public static class Interval
+        {
+            public const string Minute = "minute";
+            public const string Minute3 = "3minute";
+            public const string Minute5 = "5minute";
+            public const string Minute10 = "10minute";
+            public const string Minute15 = "15minute";
+            public const string Minute30 = "30minute";
+            public const string Minute60 = "60minute";
+            public const string Day = "day";
+        }
 
-        // Historical intervals
-        public const string INTERVAL_MINUTE = "minute";
-        public const string INTERVAL_3MINUTE = "3minute";
-        public const string INTERVAL_5MINUTE = "5minute";
-        public const string INTERVAL_10MINUTE = "10minute";
-        public const string INTERVAL_15MINUTE = "15minute";
-        public const string INTERVAL_30MINUTE = "30minute";
-        public const string INTERVAL_60MINUTE = "60minute";
-        public const string INTERVAL_DAY = "day";
+        public static class GTT
+        {
+            public static class Status
+            {
+                public const string Active = "active";
+                public const string Triggered = "triggered";
+                public const string Disabled = "disabled";
+                public const string Expired = "expired";
+                public const string Cancelled = "cancelled";
+                public const string Rejected = "rejected";
+                public const string Deleted = "deleted";
+            }
 
-        // GTT status
-        public const string GTT_ACTIVE = "active";
-        public const string GTT_TRIGGERED = "triggered";
-        public const string GTT_DISABLED = "disabled";
-        public const string GTT_EXPIRED = "expired";
-        public const string GTT_CANCELLED = "cancelled";
-        public const string GTT_REJECTED = "rejected";
-        public const string GTT_DELETED = "deleted";
-
-
-        // GTT trigger type
-        public const string GTT_TRIGGER_OCO = "two-leg";
-        public const string GTT_TRIGGER_SINGLE = "single";
+            public static class Trigger
+            {
+                public const string OCO = "two-leg";
+                public const string Single = "single";
+            }
+        }
     }
 }

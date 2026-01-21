@@ -58,6 +58,9 @@
     <None Include="responses/margins.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="responses/margins_noturnover.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="responses/mf_holdings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
