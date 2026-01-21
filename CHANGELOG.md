@@ -1,3 +1,8 @@
+## 4.4.0
+
+* .NET target updated to `net10.0`. Previous target `net6.0` has reached end-of-life as of Nov 2024.
+* Implemented centralized package version management using Directory.Packages.props for better dependency management across the solution.
+
 ## 4.3.0
 
 * Using HttpClient for HTTP requests. Fixes #36 and #39.
