@@ -4,8 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace KiteConnectTest
@@ -13,8 +11,6 @@ namespace KiteConnectTest
     [TestClass]
     public class KiteTest
     {
-        private static readonly JsonSerializerOptions jsonSerializerOptions = new JsonSerializerOptions() { PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower, Converters = { new JsonStringEnumConverter() } };
-
         MockServer ms;
 
         [TestInitialize]
@@ -34,7 +30,7 @@ namespace KiteConnectTest
         {
             Kite kite = new Kite("apikey");
             kite.SetAccessToken("access_token");
-            Assert.Throws<TokenException>(() => kite.GetPositions());
+            Assert.ThrowsAsync<TokenException>(async () => await kite.GetPositionsAsync());
         }
 
 
@@ -60,12 +56,12 @@ namespace KiteConnectTest
         }
 
         [TestMethod]
-        public void TestPositions()
+        public async Task TestPositions()
         {
             string json = File.ReadAllText(@"responses/positions.json", Encoding.UTF8);
             ms.SetResponse("application/json", json);
             Kite kite = new Kite("apikey", Root: "http://localhost:8080");
-            PositionResponse positionResponse = kite.GetPositions();
+            PositionResponse positionResponse = await kite.GetPositionsAsync();
             Assert.AreEqual(positionResponse.Net[0].TradingSymbol, "LEADMINI17DECFUT");
             Assert.AreEqual(positionResponse.Day[0].TradingSymbol, "GOLDGUINEA17DECFUT");
         }
@@ -290,12 +286,12 @@ namespace KiteConnectTest
         }
 
         [TestMethod]
-        public void TestOrders()
+        public async Task TestOrders()
         {
             string json = File.ReadAllText(@"responses/orders.json", Encoding.UTF8);
             ms.SetResponse("application/json", json);
             Kite kite = new Kite("apikey", Root: "http://localhost:8080");
-            List<Order> orders = kite.GetOrders();
+            List<Order> orders = await kite.GetOrdersAsync();
 
             Assert.AreEqual(orders[0].Price, 72);
 
@@ -304,7 +300,7 @@ namespace KiteConnectTest
 
             Assert.AreEqual(orders[3].ValidityTTL, 2);
 
-            Assert.AreEqual(orders[3].Meta["iceberg"]["legs"], 5);
+            Assert.AreEqual(orders[3].Meta["iceberg"]["legs"].GetValue<int>(), 5);
 
             Assert.AreEqual(orders[0].AuctionNumber, 10);
 
@@ -312,12 +308,12 @@ namespace KiteConnectTest
         }
 
         [TestMethod]
-        public void TestGTTs()
+        public async Task TestGTTs()
         {
             string json = File.ReadAllText(@"responses/gtt_get_orders.json", Encoding.UTF8);
             ms.SetResponse("application/json", json);
             Kite kite = new Kite("apikey", Root: "http://localhost:8080");
-            List<GTT> gtts = kite.GetGTTs();
+            List<GTT> gtts = await kite.GetGTTsAsync();
 
             Assert.AreEqual(gtts[0].Id, 105099);
             Assert.AreEqual(gtts[0].Condition?.TriggerValues[0], 102m);
@@ -326,23 +322,23 @@ namespace KiteConnectTest
         }
 
         [TestMethod]
-        public void TestGTT()
+        public async Task TestGTT()
         {
             string json = File.ReadAllText(@"responses/gtt_get_order.json", Encoding.UTF8);
             ms.SetResponse("application/json", json);
             Kite kite = new Kite("apikey", Root: "http://localhost:8080");
-            GTT gtt = kite.GetGTT(123);
+            GTT gtt = await kite.GetGTTAsync(123);
 
             Assert.AreEqual(gtt.Id, 123);
         }
 
         [TestMethod]
-        public void TestOrderInfo()
+        public async Task TestOrderInfo()
         {
             string json = File.ReadAllText(@"responses/orderinfo.json", Encoding.UTF8);
             ms.SetResponse("application/json", json);
             Kite kite = new Kite("apikey", Root: "http://localhost:8080");
-            List<Order> orderhistory = kite.GetOrderHistory("171124000819854");
+            List<Order> orderhistory = await kite.GetOrderHistoryAsync("171124000819854");
 
             Assert.AreEqual(orderhistory[0].PendingQuantity, 100);
         }
@@ -372,12 +368,12 @@ namespace KiteConnectTest
         }
 
         [TestMethod]
-        public void TestTrades()
+        public async Task TestTrades()
         {
             string json = File.ReadAllText(@"responses/trades.json", Encoding.UTF8);
             ms.SetResponse("application/json", json);
             Kite kite = new Kite("apikey", Root: "http://localhost:8080");
-            List<Trade> trades = kite.GetOrderTrades("151220000000000");
+            List<Trade> trades = await kite.GetOrderTradesAsync("151220000000000");
 
             Assert.AreEqual(trades[0].TradeId, "159918");
         }

@@ -7,7 +7,7 @@
       "exchange_order_id": "511220371736111",
       "tradingsymbol": "ACC",
       "exchange": "NSE",
-      "instrument_token": "22",
+      "instrument_token": 22,
       "transaction_type": "BUY",
       "product": "MIS",
       "average_price": 100.98,

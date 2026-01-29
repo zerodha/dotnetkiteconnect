@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.WebSockets;
 using System.Text;
-using System.Threading;
+using System.Text.Json;
 
 namespace KiteConnect
 {
@@ -395,14 +394,16 @@ namespace KiteConnect
                 string message = Encoding.UTF8.GetString(Data.Take(Count).ToArray());
                 if (_debug) Console.WriteLine("WebSocket Message: " + message);
 
-                Dictionary<string, dynamic> messageDict = Utils.JsonDeserialize(message);
-                if (messageDict["type"] == "order")
+                WebsocketMessage messageDict = JsonSerializer.Deserialize<WebsocketMessage>(message, Kite.JsonSerializerOptions);
+                if (messageDict.Type == "order")
                 {
-                    OnOrderUpdate?.Invoke(new Order(messageDict["data"]));
+                    var order = JsonSerializer.Deserialize<WebsocketMessage<Order>>(message, Kite.JsonSerializerOptions);
+                    OnOrderUpdate?.Invoke(order.Data);
                 }
-                else if (messageDict["type"] == "error")
+                else if (messageDict.Type == "error")
                 {
-                    OnError?.Invoke(messageDict["data"]);
+                    var error = JsonSerializer.Deserialize<WebsocketMessage<string>>(message, Kite.JsonSerializerOptions);
+                    OnError?.Invoke(error.Data);
                 }
             }
             else if (MessageType == "Close")

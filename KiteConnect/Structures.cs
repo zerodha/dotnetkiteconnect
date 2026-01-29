@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
+using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 
 namespace KiteConnect
@@ -24,6 +24,16 @@ namespace KiteConnect
         public ResponseStatus Status { get; set; }
         public string Message { get; set; }
         public string ErrorType { get; set; }
+    }
+
+    internal class WebsocketMessage
+    {
+        public string Type { get; set; }
+    }
+
+    internal class WebsocketMessage<T> : WebsocketMessage
+    {
+        public T Data { get; set; }
     }
 
     /// <summary>
@@ -637,58 +647,23 @@ namespace KiteConnect
     /// </summary>
     public class Position
     {
-        public Position(Dictionary<string, dynamic> data)
-        {
-            try
-            {
-                Product = data["product"];
-                OvernightQuantity = Convert.ToInt32(data["overnight_quantity"]);
-                Exchange = data["exchange"];
-                SellValue = data["sell_value"];
-                BuyM2M = data["buy_m2m"];
-                LastPrice = data["last_price"];
-                TradingSymbol = data["tradingsymbol"];
-                Realised = data["realised"];
-                PNL = data["pnl"];
-                Multiplier = data["multiplier"];
-                SellQuantity = Convert.ToInt32(data["sell_quantity"]);
-                SellM2M = data["sell_m2m"];
-                BuyValue = data["buy_value"];
-                BuyQuantity = Convert.ToInt32(data["buy_quantity"]);
-                AveragePrice = data["average_price"];
-                Unrealised = data["unrealised"];
-                Value = data["value"];
-                BuyPrice = data["buy_price"];
-                SellPrice = data["sell_price"];
-                M2M = data["m2m"];
-                InstrumentToken = Convert.ToUInt32(data["instrument_token"]);
-                ClosePrice = data["close_price"];
-                Quantity = Convert.ToInt32(data["quantity"]);
-                DayBuyQuantity = Convert.ToInt32(data["day_buy_quantity"]);
-                DayBuyValue = data["day_buy_value"];
-                DayBuyPrice = data["day_buy_price"];
-                DaySellQuantity = Convert.ToInt32(data["day_sell_quantity"]);
-                DaySellValue = data["day_sell_value"];
-                DaySellPrice = data["day_sell_price"];
-            }
-            catch (Exception e)
-            {
-                throw new DataException(e.Message + " " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
-            }
-
-        }
-
         public string Product { get; set; }
         public decimal OvernightQuantity { get; set; }
         public string Exchange { get; set; }
         public decimal SellValue { get; set; }
+
+        [JsonPropertyName("buy_m2m")]
         public decimal BuyM2M { get; set; }
         public decimal LastPrice { get; set; }
+
+        [JsonPropertyName("tradingsymbol")]
         public string TradingSymbol { get; set; }
         public decimal Realised { get; set; }
         public decimal PNL { get; set; }
         public decimal Multiplier { get; set; }
         public decimal SellQuantity { get; set; }
+
+        [JsonPropertyName("sell_m2m")]
         public decimal SellM2M { get; set; }
         public decimal BuyValue { get; set; }
         public decimal BuyQuantity { get; set; }
@@ -697,6 +672,8 @@ namespace KiteConnect
         public decimal Value { get; set; }
         public decimal BuyPrice { get; set; }
         public decimal SellPrice { get; set; }
+
+        [JsonPropertyName("m2m")]
         public decimal M2M { get; set; }
         public uint InstrumentToken { get; set; }
         public decimal ClosePrice { get; set; }
@@ -714,17 +691,6 @@ namespace KiteConnect
     /// </summary>
     public class PositionResponse
     {
-        public PositionResponse(Dictionary<string, dynamic> data)
-        {
-            Day = new List<Position>();
-            Net = new List<Position>();
-
-            foreach (Dictionary<string, dynamic> item in data["day"])
-                Day.Add(new Position(item));
-            foreach (Dictionary<string, dynamic> item in data["net"])
-                Net.Add(new Position(item));
-        }
-
         public List<Position> Day { get; set; }
         public List<Position> Net { get; set; }
     }
@@ -734,65 +700,6 @@ namespace KiteConnect
     /// </summary>
     public class Order
     {
-        public Order(Dictionary<string, dynamic> data)
-        {
-            try
-            {
-                AveragePrice = data["average_price"];
-                CancelledQuantity = Convert.ToInt32(data["cancelled_quantity"]);
-                DisclosedQuantity = Convert.ToInt32(data["disclosed_quantity"]);
-                Exchange = data["exchange"];
-                ExchangeOrderId = data["exchange_order_id"];
-                ExchangeTimestamp = Utils.StringToDate(data["exchange_timestamp"]);
-                FilledQuantity = Convert.ToInt32(data["filled_quantity"]);
-                InstrumentToken = Convert.ToUInt32(data["instrument_token"]);
-                OrderId = data["order_id"];
-                OrderTimestamp = Utils.StringToDate(data["order_timestamp"]);
-                OrderType = data["order_type"];
-                ParentOrderId = data["parent_order_id"];
-                PendingQuantity = Convert.ToInt32(data["pending_quantity"]);
-                PlacedBy = data["placed_by"];
-                Price = data["price"];
-                Product = data["product"];
-                Quantity = Convert.ToInt32(data["quantity"]);
-                Status = data["status"];
-                StatusMessage = data["status_message"];
-                Tag = data["tag"];
-                Tags = new List<string>();
-                if (data.ContainsKey("tags"))
-                {
-                    Tags = ((data["tags"] ?? Tags) as ArrayList).Cast<string>().ToList();
-                }
-                Tradingsymbol = data["tradingsymbol"];
-                TransactionType = data["transaction_type"];
-                TriggerPrice = data["trigger_price"];
-                Validity = data["validity"];
-                ValidityTTL = 0;
-                if (data.ContainsKey("validity_ttl"))
-                {
-                    ValidityTTL = Convert.ToInt32(data["validity_ttl"]);
-                }
-                Variety = data["variety"];
-
-                AuctionNumber = 0;
-                if (data.ContainsKey("auction_number"))
-                {
-                    AuctionNumber = Convert.ToInt32(data["auction_number"]);
-                }
-
-                Meta = new Dictionary<string, dynamic>();
-                if (data.ContainsKey("meta"))
-                {
-                    Meta = data["meta"];
-                }
-            }
-            catch (Exception e)
-            {
-                throw new DataException(e.Message + " " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
-            }
-
-        }
-
         public decimal AveragePrice { get; set; }
         public decimal CancelledQuantity { get; set; }
         public decimal DisclosedQuantity { get; set; }
@@ -821,7 +728,7 @@ namespace KiteConnect
         public int ValidityTTL { get; set; }
         public int AuctionNumber { get; set; }
         public string Variety { get; set; }
-        public Dictionary<string, dynamic> Meta { get; set; }
+        public JsonNode Meta { get; set; }
     }
 
     /// <summary>
@@ -829,32 +736,10 @@ namespace KiteConnect
     /// </summary>
     public class GTT
     {
-        public GTT(Dictionary<string, dynamic> data)
-        {
-            try
-            {
-                Id = Convert.ToInt32(data["id"]);
-                Condition = new GTTCondition(data["condition"]);
-                TriggerType = data["type"];
-
-                Orders = new List<GTTOrder>();
-                foreach (Dictionary<string, dynamic> item in data["orders"])
-                    Orders.Add(new GTTOrder(item));
-
-                Status = data["status"];
-                CreatedAt = Utils.StringToDate(data["created_at"]);
-                UpdatedAt = Utils.StringToDate(data["updated_at"]);
-                ExpiresAt = Utils.StringToDate(data["expires_at"]);
-                Meta = new GTTMeta(data["meta"]);
-            }
-            catch (Exception e)
-            {
-                throw new DataException(e.Message + " " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
-            }
-        }
-
         public int Id { get; set; }
         public GTTCondition? Condition { get; set; }
+
+        [JsonPropertyName("type")]
         public string TriggerType { get; set; }
         public List<GTTOrder> Orders { get; set; }
         public string Status { get; set; }
@@ -869,18 +754,6 @@ namespace KiteConnect
     /// </summary>
     public class GTTMeta
     {
-        public GTTMeta(Dictionary<string, dynamic> data)
-        {
-            try
-            {
-                RejectionReason = data != null && data.ContainsKey("rejection_reason") ? data["rejection_reason"] : "";
-            }
-            catch (Exception e)
-            {
-                throw new DataException(e.Message + " " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
-            }
-        }
-
         public string RejectionReason { get; set; }
     }
 
@@ -889,28 +762,10 @@ namespace KiteConnect
     /// </summary>
     public class GTTCondition
     {
-        public GTTCondition(Dictionary<string, dynamic> data)
-        {
-            try
-            {
-                InstrumentToken = 0;
-                if (data.ContainsKey("instrument_token"))
-                {
-                    InstrumentToken = Convert.ToUInt32(data["instrument_token"]);
-                }
-                Exchange = data["exchange"];
-                TradingSymbol = data["tradingsymbol"];
-                TriggerValues = (data["trigger_values"] as ArrayList).Cast<decimal>().ToList();
-                LastPrice = data["last_price"];
-            }
-            catch (Exception e)
-            {
-                throw new DataException(e.Message + " " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
-            }
-        }
-
         public uint InstrumentToken { get; set; }
         public string Exchange { get; set; }
+
+        [JsonPropertyName("tradingsymbol")]
         public string TradingSymbol { get; set; }
         public List<decimal> TriggerValues { get; set; }
         public decimal LastPrice { get; set; }
@@ -921,23 +776,6 @@ namespace KiteConnect
     /// </summary>
     public class GTTOrder
     {
-        public GTTOrder(Dictionary<string, dynamic> data)
-        {
-            try
-            {
-                TransactionType = data["transaction_type"];
-                Product = data["product"];
-                OrderType = data["order_type"];
-                Quantity = Convert.ToInt32(data["quantity"]);
-                Price = data["price"];
-                Result = data["result"] == null ? null : new GTTResult(data["result"]);
-            }
-            catch (Exception e)
-            {
-                throw new DataException(e.Message + " " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
-            }
-        }
-
         public string TransactionType { get; set; }
         public string Product { get; set; }
         public string OrderType { get; set; }
@@ -951,22 +789,11 @@ namespace KiteConnect
     /// </summary>
     public class GTTResult
     {
-        public GTTResult(Dictionary<string, dynamic> data)
-        {
-            try
-            {
-                OrderResult = data["order_result"] == null ? null : new GTTOrderResult(data["order_result"]);
-                Timestamp = data["timestamp"];
-                TriggeredAtPrice = data["triggered_at"];
-            }
-            catch (Exception e)
-            {
-                throw new DataException(e.Message + " " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
-            }
-        }
-
+        //TODO missing some documented fields
         public GTTOrderResult? OrderResult { get; set; }
         public string Timestamp { get; set; }
+
+        [JsonPropertyName("triggered_at")]
         public decimal TriggeredAtPrice { get; set; }
     }
 
@@ -975,19 +802,6 @@ namespace KiteConnect
     /// </summary>
     public class GTTOrderResult
     {
-        public GTTOrderResult(Dictionary<string, dynamic> data)
-        {
-            try
-            {
-                OrderId = data["order_id"];
-                RejectionReason = data["rejection_reason"];
-            }
-            catch (Exception e)
-            {
-                throw new DataException(e.Message + " " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
-            }
-        }
-
         public string OrderId { get; set; }
         public string RejectionReason { get; set; }
     }
@@ -1070,30 +884,6 @@ namespace KiteConnect
     /// </summary>
     public class Trade
     {
-        public Trade(Dictionary<string, dynamic> data)
-        {
-            try
-            {
-                TradeId = data["trade_id"];
-                OrderId = data["order_id"];
-                ExchangeOrderId = data["exchange_order_id"];
-                Tradingsymbol = data["tradingsymbol"];
-                Exchange = data["exchange"];
-                InstrumentToken = Convert.ToUInt32(data["instrument_token"]);
-                TransactionType = data["transaction_type"];
-                Product = data["product"];
-                AveragePrice = data["average_price"];
-                Quantity = Convert.ToInt32(data["quantity"]);
-                FillTimestamp = Utils.StringToDate(data["fill_timestamp"]);
-                ExchangeTimestamp = Utils.StringToDate(data["exchange_timestamp"]);
-            }
-            catch (Exception e)
-            {
-                throw new DataException(e.Message + " " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
-            }
-
-        }
-
         public string TradeId { get; set; }
         public string OrderId { get; set; }
         public string ExchangeOrderId { get; set; }
@@ -1139,36 +929,11 @@ namespace KiteConnect
     /// </summary>
     public class User
     {
-        public User(Dictionary<string, dynamic> data)
-        {
-            try
-            {
-                APIKey = data["data"]["api_key"];
-                Products = (string[])data["data"]["products"].ToArray(typeof(string));
-                UserName = data["data"]["user_name"];
-                UserShortName = data["data"]["user_shortname"];
-                AvatarURL = data["data"]["avatar_url"];
-                Broker = data["data"]["broker"];
-                AccessToken = data["data"]["access_token"];
-                PublicToken = data["data"]["public_token"];
-                RefreshToken = data["data"]["refresh_token"];
-                UserType = data["data"]["user_type"];
-                UserId = data["data"]["user_id"];
-                LoginTime = Utils.StringToDate(data["data"]["login_time"]);
-                Exchanges = (string[])data["data"]["exchanges"].ToArray(typeof(string));
-                OrderTypes = (string[])data["data"]["order_types"].ToArray(typeof(string));
-                Email = data["data"]["email"];
-            }
-            catch (Exception e)
-            {
-                throw new DataException(e.Message + " " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
-            }
-
-        }
-
         public string APIKey { get; set; }
         public string[] Products { get; set; }
         public string UserName { get; set; }
+
+        [JsonPropertyName("user_shortname")]
         public string UserShortName { get; set; }
         public string AvatarURL { get; set; }
         public string Broker { get; set; }
@@ -1185,19 +950,6 @@ namespace KiteConnect
 
     public class TokenSet
     {
-        public TokenSet(Dictionary<string, dynamic> data)
-        {
-            try
-            {
-                UserId = data["data"]["user_id"];
-                AccessToken = data["data"]["access_token"];
-                RefreshToken = data["data"]["refresh_token"];
-            }
-            catch (Exception e)
-            {
-                throw new DataException(e.Message + " " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
-            }
-        }
         public string UserId { get; set; }
         public string AccessToken { get; set; }
         public string RefreshToken { get; set; }
@@ -1579,4 +1331,13 @@ namespace KiteConnect
         public string OrderId { get; set; }
     }
 
+    public class OrderResponse
+    {
+        public string OrderId { get; set; }
+    }
+
+    public class GTTResponse
+    {
+        public int TriggerId { get; set; }
+    }
 }

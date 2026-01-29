@@ -12,6 +12,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace KiteConnect
 {
@@ -20,7 +21,7 @@ namespace KiteConnect
     /// </summary>
     public class Kite
     {
-        private static readonly JsonSerializerOptions jsonSerializerOptions = new JsonSerializerOptions() { PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower, Converters = { new JsonStringEnumConverter() } };
+        internal static readonly JsonSerializerOptions JsonSerializerOptions = new JsonSerializerOptions() { PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower, Converters = { new JsonStringEnumConverter(), new CustomDateTimeConverter() } };
         // Default root API endpoint. It's possible to
         // override this by passing the `Root` parameter during initialisation.
         private string _root = "https://api.kite.trade";
@@ -123,20 +124,16 @@ namespace KiteConnect
         /// <param name="RequestToken">Token obtained from the GET paramers after a successful login redirect.</param>
         /// <param name="AppSecret">API secret issued with the API key.</param>
         /// <returns>User structure with tokens and profile data</returns>
-        public User GenerateSession(string RequestToken, string AppSecret)
+        public Task<User> GenerateSessionAsync(string RequestToken, string AppSecret)
         {
             string checksum = Utils.SHA256Hash(_apiKey + RequestToken + AppSecret);
 
-            var param = new Dictionary<string, dynamic>
-            {
-                {"api_key", _apiKey},
-                {"request_token", RequestToken},
-                {"checksum", checksum}
-            };
+            var formDataBuilder = new ParametersBuilder()
+                .Add("api_key", _apiKey)
+                .Add("request_token", RequestToken)
+                .Add("checksum", checksum);
 
-            var userData = Post(Routes.API.Token, param);
-
-            return new User(userData);
+            return PostAsync<User>("/session/token", formData: formDataBuilder.Build());
         }
 
         /// <summary>
@@ -144,14 +141,13 @@ namespace KiteConnect
         /// </summary>
         /// <param name="AccessToken">Access token to invalidate. Default is the active access token.</param>
         /// <returns>Json response in the form of nested string dictionary.</returns>
-        public Dictionary<string, dynamic> InvalidateAccessToken(string AccessToken = null)
+        public Task<bool> InvalidateAccessTokenAsync(string AccessToken = null)
         {
-            var param = new Dictionary<string, dynamic>();
+            var queryParametersBuilder = new ParametersBuilder()
+                .AddIfNotNull("api_key", _apiKey)
+                .AddIfNotNull("access_token", AccessToken);
 
-            Utils.AddIfNotNull(param, "api_key", _apiKey);
-            Utils.AddIfNotNull(param, "access_token", AccessToken);
-
-            return Delete(Routes.API.Token, param);
+            return DeleteAsync<bool>("/session/token", queryParameters: queryParametersBuilder.Build());
         }
 
         /// <summary>
@@ -159,14 +155,13 @@ namespace KiteConnect
         /// </summary>
         /// <param name="RefreshToken">RefreshToken to invalidate</param>
         /// <returns>Json response in the form of nested string dictionary.</returns>
-        public Dictionary<string, dynamic> InvalidateRefreshToken(string RefreshToken)
+        public Task<bool> InvalidateRefreshTokenAsync(string RefreshToken)
         {
-            var param = new Dictionary<string, dynamic>();
+            var queryParametersBuilder = new ParametersBuilder()
+                .AddIfNotNull("api_key", _apiKey)
+                .AddIfNotNull("refresh_token", RefreshToken);
 
-            Utils.AddIfNotNull(param, "api_key", _apiKey);
-            Utils.AddIfNotNull(param, "refresh_token", RefreshToken);
-
-            return Delete(Routes.API.Token, param);
+            return DeleteAsync<bool>("/session/token", queryParameters: queryParametersBuilder.Build());
         }
 
         /// <summary>
@@ -175,17 +170,15 @@ namespace KiteConnect
         /// <param name="RefreshToken">RefreshToken to renew the AccessToken.</param>
         /// <param name="AppSecret">API secret issued with the API key.</param>
         /// <returns>TokenRenewResponse that contains new AccessToken and RefreshToken.</returns>
-        public TokenSet RenewAccessToken(string RefreshToken, string AppSecret)
+        public Task<TokenSet> RenewAccessTokenAsync(string RefreshToken, string AppSecret)
         {
-            var param = new Dictionary<string, dynamic>();
-
             string checksum = Utils.SHA256Hash(_apiKey + RefreshToken + AppSecret);
+            var formDataBuilder = new ParametersBuilder()
+                .AddIfNotNull("api_key", _apiKey)
+                .AddIfNotNull("refresh_token", RefreshToken)
+                .AddIfNotNull("checksum", checksum);
 
-            Utils.AddIfNotNull(param, "api_key", _apiKey);
-            Utils.AddIfNotNull(param, "refresh_token", RefreshToken);
-            Utils.AddIfNotNull(param, "checksum", checksum);
-
-            return new TokenSet(Post(Routes.API.Refresh, param));
+            return PostAsync<TokenSet>("/session/refresh_token", formData: formDataBuilder.Build());
         }
 
         /// <summary>
@@ -194,7 +187,7 @@ namespace KiteConnect
         /// <returns>User profile</returns>
         public Task<Profile> GetProfileAsync(CancellationToken cancellationToken = default)
         {
-            return GetAsync<Profile>("/user/profile", cancellationToken);
+            return GetAsync<Profile>("/user/profile", cancellationToken: cancellationToken);
         }
 
         /// <summary>
@@ -318,18 +311,18 @@ namespace KiteConnect
         /// <returns>User margin response with both equity and commodity margins.</returns>
         public Task<UserMarginsResponse> GetMarginsAsync(CancellationToken cancellationToken = default)
         {
-            return GetAsync<UserMarginsResponse>("/user/margins", cancellationToken);
+            return GetAsync<UserMarginsResponse>("/user/margins", cancellationToken: cancellationToken);
         }
 
         /// <summary>
         /// Get account balance and cash margin details for a particular segment.
         /// </summary>
-        /// <param name="Segment">Trading segment (eg: equity or commodity)</param>
+        /// <param name="segment">Trading segment (eg: equity or commodity)</param>
         /// <param name="cancellationToken"></param>
         /// <returns>Margins for specified segment.</returns>
-        public Task<UserMargin> GetMarginsAsync(string Segment, CancellationToken cancellationToken = default)
+        public Task<UserMargin> GetMarginsAsync(string segment, CancellationToken cancellationToken = default)
         {
-            return GetAsync<UserMargin>($"/user/margins/{Segment}", cancellationToken);
+            return GetAsync<UserMargin>($"/user/margins/{segment}", cancellationToken: cancellationToken);
         }
 
         /// <summary>
@@ -354,7 +347,7 @@ namespace KiteConnect
         /// <param name="IcebergLegs">Total number of legs for iceberg order type (number of legs per Iceberg should be between 2 and 10)</param>
         /// <param name="IcebergQuantity">Split quantity for each iceberg leg order (Quantity/IcebergLegs)</param>
         /// <returns>Json response in the form of nested string dictionary.</returns>
-        public Dictionary<string, dynamic> PlaceOrder(
+        public Task<OrderResponse> PlaceOrderAsync(
             string Exchange,
             string TradingSymbol,
             string TransactionType,
@@ -376,29 +369,28 @@ namespace KiteConnect
             string AuctionNumber = null
             )
         {
-            var param = new Dictionary<string, dynamic>();
+            var formDataBuilder = new ParametersBuilder()
+                .AddIfNotNull("exchange", Exchange)
+                .AddIfNotNull("tradingsymbol", TradingSymbol)
+                .AddIfNotNull("transaction_type", TransactionType)
+                .Add("quantity", Quantity)
+                .AddIfNotNull("price", Price)
+                .AddIfNotNull("product", Product)
+                .AddIfNotNull("order_type", OrderType)
+                .AddIfNotNull("validity", Validity)
+                .AddIfNotNull("disclosed_quantity", DisclosedQuantity)
+                .AddIfNotNull("trigger_price", TriggerPrice)
+                .AddIfNotNull("squareoff", SquareOffValue)
+                .AddIfNotNull("stoploss", StoplossValue)
+                .AddIfNotNull("trailing_stoploss", TrailingStoploss)
+                .AddIfNotNull("variety", Variety)
+                .AddIfNotNull("tag", Tag)
+                .AddIfNotNull("validity_ttl", ValidityTTL)
+                .AddIfNotNull("iceberg_legs", IcebergLegs)
+                .AddIfNotNull("iceberg_quantity", IcebergQuantity)
+                .AddIfNotNull("auction_number", AuctionNumber);
 
-            Utils.AddIfNotNull(param, "exchange", Exchange);
-            Utils.AddIfNotNull(param, "tradingsymbol", TradingSymbol);
-            Utils.AddIfNotNull(param, "transaction_type", TransactionType);
-            Utils.AddIfNotNull(param, "quantity", Quantity.ToString());
-            Utils.AddIfNotNull(param, "price", Price.ToString());
-            Utils.AddIfNotNull(param, "product", Product);
-            Utils.AddIfNotNull(param, "order_type", OrderType);
-            Utils.AddIfNotNull(param, "validity", Validity);
-            Utils.AddIfNotNull(param, "disclosed_quantity", DisclosedQuantity.ToString());
-            Utils.AddIfNotNull(param, "trigger_price", TriggerPrice.ToString());
-            Utils.AddIfNotNull(param, "squareoff", SquareOffValue.ToString());
-            Utils.AddIfNotNull(param, "stoploss", StoplossValue.ToString());
-            Utils.AddIfNotNull(param, "trailing_stoploss", TrailingStoploss.ToString());
-            Utils.AddIfNotNull(param, "variety", Variety);
-            Utils.AddIfNotNull(param, "tag", Tag);
-            Utils.AddIfNotNull(param, "validity_ttl", ValidityTTL.ToString());
-            Utils.AddIfNotNull(param, "iceberg_legs", IcebergLegs.ToString());
-            Utils.AddIfNotNull(param, "iceberg_quantity", IcebergQuantity.ToString());
-            Utils.AddIfNotNull(param, "auction_number", AuctionNumber);
-
-            return Post(Routes.Order.Place, param);
+            return PostAsync<OrderResponse>($"/orders/{Variety}", formData: formDataBuilder.Build());
         }
 
         /// <summary>
@@ -418,7 +410,7 @@ namespace KiteConnect
         /// <param name="TriggerPrice">For SL, SL-M etc.</param>
         /// <param name="Variety">You can place orders of varieties; regular orders, after market orders, cover orders etc. </param>
         /// <returns>Json response in the form of nested string dictionary.</returns>
-        public Dictionary<string, dynamic> ModifyOrder(
+        public Task<OrderResponse> ModifyOrder(
             string OrderId,
             string ParentOrderId = null,
             string Exchange = null,
@@ -433,7 +425,7 @@ namespace KiteConnect
             decimal? TriggerPrice = null,
             string Variety = Constants.Variety.Regular)
         {
-            var param = new Dictionary<string, dynamic>();
+            var formDataBuilder = new ParametersBuilder();
 
             string VarietyString = Variety;
             string ProductString = Product;
@@ -441,31 +433,31 @@ namespace KiteConnect
             if ((ProductString == "bo" || ProductString == "co") && VarietyString != ProductString)
                 throw new Exception(string.Format("Invalid variety. It should be: {0}", ProductString));
 
-            Utils.AddIfNotNull(param, "order_id", OrderId);
-            Utils.AddIfNotNull(param, "parent_order_id", ParentOrderId);
-            Utils.AddIfNotNull(param, "trigger_price", TriggerPrice.ToString());
-            Utils.AddIfNotNull(param, "variety", Variety);
+            formDataBuilder.AddIfNotNull("order_id", OrderId)
+                .AddIfNotNull("parent_order_id", ParentOrderId)
+                .AddIfNotNull("trigger_price", TriggerPrice)
+                .AddIfNotNull("variety", Variety);
 
             if (VarietyString == "bo" && ProductString == "bo")
             {
-                Utils.AddIfNotNull(param, "quantity", Quantity.ToString());
-                Utils.AddIfNotNull(param, "price", Price.ToString());
-                Utils.AddIfNotNull(param, "disclosed_quantity", DisclosedQuantity.ToString());
+                formDataBuilder.AddIfNotNull("quantity", Quantity)
+                    .AddIfNotNull("price", Price)
+                    .AddIfNotNull("disclosed_quantity", DisclosedQuantity);
             }
             else if (VarietyString != "co" && ProductString != "co")
             {
-                Utils.AddIfNotNull(param, "exchange", Exchange);
-                Utils.AddIfNotNull(param, "tradingsymbol", TradingSymbol);
-                Utils.AddIfNotNull(param, "transaction_type", TransactionType);
-                Utils.AddIfNotNull(param, "quantity", Quantity.ToString());
-                Utils.AddIfNotNull(param, "price", Price.ToString());
-                Utils.AddIfNotNull(param, "product", Product);
-                Utils.AddIfNotNull(param, "order_type", OrderType);
-                Utils.AddIfNotNull(param, "validity", Validity);
-                Utils.AddIfNotNull(param, "disclosed_quantity", DisclosedQuantity.ToString());
+                formDataBuilder.AddIfNotNull("exchange", Exchange)
+                    .AddIfNotNull("tradingsymbol", TradingSymbol)
+                    .AddIfNotNull("transaction_type", TransactionType)
+                    .AddIfNotNull("quantity", Quantity)
+                    .AddIfNotNull("price", Price)
+                    .AddIfNotNull("product", Product)
+                    .AddIfNotNull("order_type", OrderType)
+                    .AddIfNotNull("validity", Validity)
+                    .AddIfNotNull("disclosed_quantity", DisclosedQuantity);
             }
 
-            return Put(Routes.Order.Modify, param);
+            return PutAsync<OrderResponse>($"/orders/{Variety}/{OrderId}", formData: formDataBuilder.Build());
         }
 
         /// <summary>
@@ -475,31 +467,21 @@ namespace KiteConnect
         /// <param name="Variety">You can place orders of varieties; regular orders, after market orders, cover orders etc. </param>
         /// <param name="ParentOrderId">Id of the parent order (obtained from the /orders call) as BO is a multi-legged order</param>
         /// <returns>Json response in the form of nested string dictionary.</returns>
-        public Dictionary<string, dynamic> CancelOrder(string OrderId, string Variety = Constants.Variety.Regular, string ParentOrderId = null)
+        public Task<OrderResponse> CancelOrderAsync(string OrderId, string Variety = Constants.Variety.Regular, string ParentOrderId = null)
         {
-            var param = new Dictionary<string, dynamic>();
+            var queryParametersBuilder = new ParametersBuilder()
+                .AddIfNotNull("parent_order_id", ParentOrderId);//TODO undocumented parameter
 
-            Utils.AddIfNotNull(param, "order_id", OrderId);
-            Utils.AddIfNotNull(param, "parent_order_id", ParentOrderId);
-            Utils.AddIfNotNull(param, "variety", Variety);
-
-            return Delete(Routes.Order.Cancel, param);
+            return DeleteAsync<OrderResponse>($"/orders/{Variety}/{OrderId}", queryParameters: queryParametersBuilder.Build());
         }
 
         /// <summary>
         /// Gets the collection of orders from the orderbook.
         /// </summary>
         /// <returns>List of orders.</returns>
-        public List<Order> GetOrders()
+        public Task<List<Order>> GetOrdersAsync()
         {
-            var ordersData = Get(Routes.Order.AllOrders);
-
-            List<Order> orders = new List<Order>();
-
-            foreach (Dictionary<string, dynamic> item in ordersData["data"])
-                orders.Add(new Order(item));
-
-            return orders;
+            return GetAsync<List<Order>>("/orders");
         }
 
         /// <summary>
@@ -507,19 +489,9 @@ namespace KiteConnect
         /// </summary>
         /// <param name="OrderId">Unique order id</param>
         /// <returns>List of order objects.</returns>
-        public List<Order> GetOrderHistory(string OrderId)
+        public Task<List<Order>> GetOrderHistoryAsync(string OrderId)
         {
-            var param = new Dictionary<string, dynamic>();
-            param.Add("order_id", OrderId);
-
-            var orderData = Get(Routes.Order.History, param);
-
-            List<Order> orderhistory = new List<Order>();
-
-            foreach (Dictionary<string, dynamic> item in orderData["data"])
-                orderhistory.Add(new Order(item));
-
-            return orderhistory;
+            return GetAsync<List<Order>>($"/orders/{OrderId}");
         }
 
         /// <summary>
@@ -529,34 +501,21 @@ namespace KiteConnect
         /// </summary>
         /// <param name="OrderId">is the ID of the order (optional) whose trades are to be retrieved. If no `OrderId` is specified, all trades for the day are returned.</param>
         /// <returns>List of trades of given order.</returns>
-        public List<Trade> GetOrderTrades(string OrderId = null)
+        public Task<List<Trade>> GetOrderTradesAsync(string OrderId = null)
         {
-            Dictionary<string, dynamic> tradesdata;
             if (!string.IsNullOrEmpty(OrderId))
-            {
-                var param = new Dictionary<string, dynamic>();
-                param.Add("order_id", OrderId);
-                tradesdata = Get(Routes.Order.Trades, param);
-            }
+                return GetAsync<List<Trade>>($"/orders/{OrderId}/trades");
             else
-                tradesdata = Get(Routes.Order.AllTrades);
-
-            List<Trade> trades = new List<Trade>();
-
-            foreach (Dictionary<string, dynamic> item in tradesdata["data"])
-                trades.Add(new Trade(item));
-
-            return trades;
+                return GetAsync<List<Trade>>("/trades");
         }
 
         /// <summary>
         /// Retrieve the list of positions.
         /// </summary>
         /// <returns>Day and net positions.</returns>
-        public PositionResponse GetPositions()
+        public Task<PositionResponse> GetPositionsAsync()
         {
-            var positionsdata = Get(Routes.Portfolio.Positions);
-            return new PositionResponse(positionsdata["data"]);
+            return GetAsync<PositionResponse>("/portfolio/positions");
         }
 
         /// <summary>
@@ -772,16 +731,9 @@ namespace KiteConnect
         /// Retrieve the list of GTTs.
         /// </summary>
         /// <returns>List of GTTs.</returns>
-        public List<GTT> GetGTTs()
+        public Task<List<GTT>> GetGTTsAsync()
         {
-            var gttsdata = Get(Routes.GTT.AllGTTs);
-
-            List<GTT> gtts = new List<GTT>();
-
-            foreach (Dictionary<string, dynamic> item in gttsdata["data"])
-                gtts.Add(new GTT(item));
-
-            return gtts;
+            return GetAsync<List<GTT>>("/gtt/triggers");
         }
 
 
@@ -790,14 +742,9 @@ namespace KiteConnect
         /// </summary>
         /// <param name="GTTId">Id of the GTT</param>
         /// <returns>GTT info</returns>
-        public GTT GetGTT(int GTTId)
+        public Task<GTT> GetGTTAsync(int GTTId)
         {
-            var param = new Dictionary<string, dynamic>();
-            param.Add("id", GTTId.ToString());
-
-            var gttdata = Get(Routes.GTT.Info, param);
-
-            return new GTT(gttdata["data"]);
+            return GetAsync<GTT>($"/gtt/triggers/{GTTId}");
         }
 
         /// <summary>
@@ -805,35 +752,39 @@ namespace KiteConnect
         /// </summary>
         /// <param name="gttParams">Contains the parameters for the GTT order</param>
         /// <returns>Json response in the form of nested string dictionary.</returns>
-        public Dictionary<string, dynamic> PlaceGTT(GTTParams gttParams)
+        public Task<GTTResponse> PlaceGTTAsync(GTTParams gttParams)
         {
-            var condition = new Dictionary<string, dynamic>();
-            condition.Add("exchange", gttParams.Exchange);
-            condition.Add("tradingsymbol", gttParams.TradingSymbol);
-            condition.Add("trigger_values", gttParams.TriggerPrices);
-            condition.Add("last_price", gttParams.LastPrice);
-            condition.Add("instrument_token", gttParams.InstrumentToken);
+            var condition = new Dictionary<string, object>
+            {
+                { "exchange", gttParams.Exchange },
+                { "tradingsymbol", gttParams.TradingSymbol },
+                { "trigger_values", gttParams.TriggerPrices },
+                { "last_price", gttParams.LastPrice },
+                { "instrument_token", gttParams.InstrumentToken } //TODO undocumented
+            };
 
-            var ordersParam = new List<Dictionary<string, dynamic>>();
+            var ordersParam = new List<Dictionary<string, object>>();
             foreach (var o in gttParams.Orders)
             {
-                var order = new Dictionary<string, dynamic>();
-                order["exchange"] = gttParams.Exchange;
-                order["tradingsymbol"] = gttParams.TradingSymbol;
-                order["transaction_type"] = o.TransactionType;
-                order["quantity"] = o.Quantity;
-                order["price"] = o.Price;
-                order["order_type"] = o.OrderType;
-                order["product"] = o.Product;
+                var order = new Dictionary<string, object>()
+                {
+                    { "exchange", gttParams.Exchange },
+                    { "tradingsymbol", gttParams.TradingSymbol },
+                    { "transaction_type", o.TransactionType },
+                    { "quantity", o.Quantity },
+                    { "price", o.Price },
+                    { "order_type", o.OrderType },
+                    { "product", o.Product },
+                };
                 ordersParam.Add(order);
             }
 
-            var parms = new Dictionary<string, dynamic>();
-            parms.Add("condition", Utils.JsonSerialize(condition));
-            parms.Add("orders", Utils.JsonSerialize(ordersParam));
-            parms.Add("type", gttParams.TriggerType);
+            var formDataBuilder = new ParametersBuilder()
+                .Add("condition", JsonSerializer.Serialize(condition, JsonSerializerOptions))
+                .Add("orders", JsonSerializer.Serialize(ordersParam, JsonSerializerOptions))
+                .Add("type", gttParams.TriggerType);
 
-            return Post(Routes.GTT.Place, parms);
+            return PostAsync<GTTResponse>("/gtt/triggers", formData: formDataBuilder.Build());
         }
 
         /// <summary>
@@ -842,36 +793,39 @@ namespace KiteConnect
         /// <param name="GTTId">Id of the GTT to be modified</param>
         /// <param name="gttParams">Contains the parameters for the GTT order</param>
         /// <returns>Json response in the form of nested string dictionary.</returns>
-        public Dictionary<string, dynamic> ModifyGTT(int GTTId, GTTParams gttParams)
+        public Task<GTTResponse> ModifyGTTAsync(int GTTId, GTTParams gttParams)
         {
-            var condition = new Dictionary<string, dynamic>();
-            condition.Add("exchange", gttParams.Exchange);
-            condition.Add("tradingsymbol", gttParams.TradingSymbol);
-            condition.Add("trigger_values", gttParams.TriggerPrices);
-            condition.Add("last_price", gttParams.LastPrice);
-            condition.Add("instrument_token", gttParams.InstrumentToken);
+            var condition = new Dictionary<string, object>
+            {
+                { "exchange", gttParams.Exchange },
+                { "tradingsymbol", gttParams.TradingSymbol },
+                { "trigger_values", gttParams.TriggerPrices },
+                { "last_price", gttParams.LastPrice },
+                { "instrument_token", gttParams.InstrumentToken } //TODO undocumented
+            };
 
-            var ordersParam = new List<Dictionary<string, dynamic>>();
+            var ordersParam = new List<Dictionary<string, object>>();
             foreach (var o in gttParams.Orders)
             {
-                var order = new Dictionary<string, dynamic>();
-                order["exchange"] = gttParams.Exchange;
-                order["tradingsymbol"] = gttParams.TradingSymbol;
-                order["transaction_type"] = o.TransactionType;
-                order["quantity"] = o.Quantity;
-                order["price"] = o.Price;
-                order["order_type"] = o.OrderType;
-                order["product"] = o.Product;
+                var order = new Dictionary<string, object>()
+                {
+                    { "exchange", gttParams.Exchange },
+                    { "tradingsymbol", gttParams.TradingSymbol },
+                    { "transaction_type", o.TransactionType },
+                    { "quantity", o.Quantity },
+                    { "price", o.Price },
+                    { "order_type", o.OrderType },
+                    { "product", o.Product },
+                };
                 ordersParam.Add(order);
             }
 
-            var parms = new Dictionary<string, dynamic>();
-            parms.Add("condition", Utils.JsonSerialize(condition));
-            parms.Add("orders", Utils.JsonSerialize(ordersParam));
-            parms.Add("type", gttParams.TriggerType);
-            parms.Add("id", GTTId.ToString());
+            var formDataBuilder = new ParametersBuilder()
+                .Add("condition", JsonSerializer.Serialize(condition, JsonSerializerOptions))
+                .Add("orders", JsonSerializer.Serialize(ordersParam, JsonSerializerOptions))
+                .Add("type", gttParams.TriggerType);
 
-            return Put(Routes.GTT.Modify, parms);
+            return PutAsync<GTTResponse>($"/gtt/triggers/{GTTId}", formDataBuilder.Build());
         }
 
         /// <summary>
@@ -879,12 +833,9 @@ namespace KiteConnect
         /// </summary>
         /// <param name="GTTId">Id of the GTT to be modified</param>
         /// <returns>Json response in the form of nested string dictionary.</returns>
-        public Dictionary<string, dynamic> CancelGTT(int GTTId)
+        public Task<GTTResponse> CancelGTT(int GTTId)
         {
-            var parms = new Dictionary<string, dynamic>();
-            parms.Add("id", GTTId.ToString());
-
-            return Delete(Routes.GTT.Delete, parms);
+            return DeleteAsync<GTTResponse>($"/gtt/triggers/{GTTId}");
         }
 
         #endregion GTT
@@ -1169,21 +1120,21 @@ namespace KiteConnect
         /// <summary>
         /// Adds extra headers to request
         /// </summary>
-        /// <param name="Req">Request object to add headers</param>
-        private void AddExtraHeaders(ref HttpRequestMessage Req)
+        /// <param name="request">Request object to add headers</param>
+        private void AddExtraHeaders(HttpRequestMessage request)
         {
             var KiteAssembly = Assembly.GetAssembly(typeof(Kite));
             if (KiteAssembly != null)
             {
-                Req.Headers.UserAgent.TryParseAdd("KiteConnect.Net/" + KiteAssembly.GetName().Version);
+                request.Headers.UserAgent.TryParseAdd("KiteConnect.Net/" + KiteAssembly.GetName().Version);
             }
 
-            Req.Headers.Add("X-Kite-Version", "3");
-            Req.Headers.Add("Authorization", "token " + _apiKey + ":" + _accessToken);
+            request.Headers.Add("X-Kite-Version", "3");
+            request.Headers.Add("Authorization", "token " + _apiKey + ":" + _accessToken);
 
             if (_enableLogging)
             {
-                foreach (var header in Req.Headers)
+                foreach (var header in request.Headers)
                 {
                     Console.WriteLine("DEBUG: " + header.Key + ": " + string.Join(",", header.Value.ToArray()));
                 }
@@ -1237,7 +1188,7 @@ namespace KiteConnect
 
                 request.RequestUri = new Uri(url);
                 request.Method = new HttpMethod(Method);
-                AddExtraHeaders(ref request);
+                AddExtraHeaders(request);
 
                 if (_enableLogging) Console.WriteLine("DEBUG: " + Method + " " + url + "\n" + requestBody);
 
@@ -1265,7 +1216,7 @@ namespace KiteConnect
                 request.RequestUri = new Uri(url);
                 request.Method = new HttpMethod(Method);
                 if (_enableLogging) Console.WriteLine("DEBUG: " + Method + " " + url);
-                AddExtraHeaders(ref request);
+                AddExtraHeaders(request);
             }
 
             HttpResponseMessage response = httpClient.Send(request);
@@ -1315,13 +1266,68 @@ namespace KiteConnect
 
         }
 
-        private async Task<T> GetAsync<T>(string path, CancellationToken cancellationToken)
+        private Task<TResult> GetAsync<TResult>(string path, IReadOnlyCollection<KeyValuePair<string, string>> queryParameters = null, CancellationToken cancellationToken = default)
         {
-            string url = _root + path;
-            var httpResponse = await httpClient.GetAsync(url, cancellationToken);
+            string url = BuildUrl(_root, path, queryParameters);
+            return SendRequestAsync<TResult>(HttpMethod.Get, url, cancellationToken: cancellationToken);
+        }
+
+        private Task<TResult> PostAsync<TResult>(string path, IReadOnlyCollection<KeyValuePair<string, string>> queryParameters = null, IReadOnlyCollection<KeyValuePair<string, string>> formData = default, CancellationToken cancellationToken = default)
+        {
+            string url = BuildUrl(_root, path, queryParameters);
+            HttpContent content = null;
+            if (formData != null && formData.Count > 0)
+                content = new FormUrlEncodedContent(formData);
+            return SendRequestAsync<TResult>(HttpMethod.Post, url, content, cancellationToken);
+        }
+
+        private Task<TResult> PutAsync<TResult>(string path, IReadOnlyCollection<KeyValuePair<string, string>> queryParameters = null, IReadOnlyCollection<KeyValuePair<string, string>> formData = default, CancellationToken cancellationToken = default)
+        {
+            string url = BuildUrl(_root, path, queryParameters);
+            HttpContent content = null;
+            if (formData != null && formData.Count > 0)
+                content = new FormUrlEncodedContent(formData);
+            return SendRequestAsync<TResult>(HttpMethod.Put, url, content, cancellationToken);
+        }
+
+        private Task<TResult> DeleteAsync<TResult>(string path, IReadOnlyCollection<KeyValuePair<string, string>> queryParameters = null, CancellationToken cancellationToken = default)
+        {
+            string url = BuildUrl(_root, path, queryParameters);
+            return SendRequestAsync<TResult>(HttpMethod.Delete, url, cancellationToken: cancellationToken);
+        }
+
+        private async Task<TResult> SendRequestAsync<TResult>(HttpMethod httpMethod, string url, HttpContent content = null, CancellationToken cancellationToken = default)
+        {
+            using var httpRequestMessage = new HttpRequestMessage(httpMethod, url);
+            AddExtraHeaders(httpRequestMessage);
+            if (content != null)
+                httpRequestMessage.Content = content;
+            using var httpResponse = await httpClient.SendAsync(httpRequestMessage);
+            return await ParseResponseAsync<TResult>(httpResponse, cancellationToken);
+        }
+
+        private static string BuildUrl(string baseUrl, string path, IReadOnlyCollection<KeyValuePair<string, string>> queryParameters)
+        {
+            string url = baseUrl + path;
+            if (queryParameters != null && queryParameters.Count > 0)
+            {
+                var uriBuilder = new UriBuilder(url);
+                var existingQueryParamters = HttpUtility.ParseQueryString(url.Contains('?') ? uriBuilder.Query : string.Empty);
+                foreach (var item in queryParameters)
+                {
+                    existingQueryParamters.Add(item.Key, item.Value);
+                }
+                uriBuilder.Query = existingQueryParamters.ToString();
+                url = uriBuilder.Uri.ToString();
+            }
+            return url;
+        }
+
+        private async Task<T> ParseResponseAsync<T>(HttpResponseMessage httpResponse, CancellationToken cancellationToken)
+        {
             if (httpResponse.IsSuccessStatusCode)
             {
-                var response = await httpResponse.Content.ReadFromJsonAsync<SucessResponse<T>>(jsonSerializerOptions, cancellationToken);
+                var response = await httpResponse.Content.ReadFromJsonAsync<SucessResponse<T>>(JsonSerializerOptions, cancellationToken);
                 if (response.Status == ResponseStatus.Success)
                     return response.Data;
                 else
@@ -1336,7 +1342,7 @@ namespace KiteConnect
 
         private async Task ThrowErrorAsync(HttpResponseMessage httpResponse, CancellationToken cancellationToken)
         {
-            var response = await httpResponse.Content.ReadFromJsonAsync<ErrorResponse>(jsonSerializerOptions, cancellationToken);
+            var response = await httpResponse.Content.ReadFromJsonAsync<ErrorResponse>(JsonSerializerOptions, cancellationToken);
             switch (response.ErrorType)
             {
                 case "GeneralException": throw new GeneralException(response.Message, httpResponse.StatusCode);
