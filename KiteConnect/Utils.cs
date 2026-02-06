@@ -22,7 +22,7 @@ namespace KiteConnect
         /// <returns>Date object/</returns>
         public static DateTime? StringToDate(string DateString)
         {
-            if (String.IsNullOrEmpty(DateString))
+            if (string.IsNullOrEmpty(DateString))
                 return null;
 
             try
@@ -53,7 +53,7 @@ namespace KiteConnect
             MatchCollection mc = Regex.Matches(json, @"\\/Date\((\d*?)\)\\/");
             foreach (Match m in mc)
             {
-                UInt64 unix = UInt64.Parse(m.Groups[1].Value) / 1000;
+                ulong unix = ulong.Parse(m.Groups[1].Value) / 1000;
                 json = json.Replace(m.Groups[0].Value, UnixToDateTime(unix).ToString());
             }
             return json;
@@ -94,7 +94,7 @@ namespace KiteConnect
             else if (obj.ValueKind == JsonValueKind.Object)
             {
                 var map = obj.EnumerateObject().ToList();
-                var newMap = new Dictionary<String, dynamic>();
+                var newMap = new Dictionary<string, dynamic>();
                 for (int i = 0; i < map.Count; i++)
                 {
                     newMap.Add(map[i].Name, ElementToDict(map[i].Value));
@@ -122,7 +122,7 @@ namespace KiteConnect
         /// </summary>
         /// <param name="value">Input string.</param>
         /// <returns>Decimal value</returns>
-        public static decimal StringToDecimal(String value)
+        public static decimal StringToDecimal(string value)
         {
             return decimal.Parse(value, NumberStyles.Any, CultureInfo.InvariantCulture);
         }
@@ -180,7 +180,7 @@ namespace KiteConnect
         /// <param name="Value">Value of the parameter</param>
         public static void AddIfNotNull(Dictionary<string, dynamic> Params, string Key, string Value)
         {
-            if (!String.IsNullOrEmpty(Value))
+            if (!string.IsNullOrEmpty(Value))
                 Params.Add(Key, Value);
         }
 
@@ -215,7 +215,7 @@ namespace KiteConnect
             else
             {
                 string[] values = (string[])Value;
-                return String.Join("&", values.Select(x => HttpUtility.UrlEncode(Key) + "=" + HttpUtility.UrlEncode(x)));
+                return string.Join("&", values.Select(x => HttpUtility.UrlEncode(Key) + "=" + HttpUtility.UrlEncode(x)));
             }
         }
 
@@ -224,7 +224,7 @@ namespace KiteConnect
         /// </summary>
         /// <param name="unixTimeStamp">Unix timestamp in seconds.</param>
         /// <returns>DateTime object.</returns>
-        public static DateTime UnixToDateTime(UInt64 unixTimeStamp)
+        public static DateTime UnixToDateTime(ulong unixTimeStamp)
         {
             // Unix timestamp is seconds past epoch
             DateTime dateTime = new DateTime(1970, 1, 1, 5, 30, 0, 0, DateTimeKind.Unspecified);

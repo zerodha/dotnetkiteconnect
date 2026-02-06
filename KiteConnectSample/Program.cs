@@ -1,6 +1,8 @@
-﻿using System;
-using KiteConnect;
+﻿using KiteConnect;
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace KiteConnectSample
 {
@@ -19,9 +21,9 @@ namespace KiteConnectSample
         static string MyPublicToken = "abcdefghijklmnopqrstuvwxyz";
         static string MyAccessToken = "abcdefghijklmnopqrstuvwxyz";
 
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
-            kite = new Kite(MyAPIKey, Debug: true);
+            kite = new Kite(MyAPIKey, debug: true);
 
             // For handling 403 errors
 
@@ -31,7 +33,7 @@ namespace KiteConnectSample
 
             try
             {
-                initSession();
+                await initSession();
             }
             catch (Exception e)
             {
@@ -49,25 +51,25 @@ namespace KiteConnectSample
 
             // Get all GTTs
 
-            List<GTT> gtts = kite.GetGTTs();
+            List<Gtt> gtts = await kite.GetGttsAsync();
             Console.WriteLine(Utils.JsonSerialize(gtts[0]));
 
             // Get GTT by Id
 
-            GTT gtt = kite.GetGTT(99691);
+            Gtt gtt = await kite.GetGttAsync(305642230);
             Console.WriteLine(Utils.JsonSerialize(gtt));
 
             // Cacncel GTT by Id
 
-            var gttCancelResponse = kite.CancelGTT(1582);
+            var gttCancelResponse = await kite.CancelGttAsync(305642230);
             Console.WriteLine(Utils.JsonSerialize(gttCancelResponse));
 
             // Place GTT
 
-            GTTParams gttParams = new GTTParams();
+            GttParams gttParams = new GttParams();
             gttParams.TriggerType = Constants.GTT.Trigger.OCO;
             gttParams.Exchange = "NSE";
-            gttParams.TradingSymbol = "SBIN";
+            gttParams.Tradingsymbol = "SBIN";
             gttParams.LastPrice = 288.9m;
 
             List<decimal> triggerPrices = new List<decimal>();
@@ -81,14 +83,14 @@ namespace KiteConnectSample
             // A stop-loss order must have trigger and price below last price and target order must have trigger and price above last price.
             // Only limit order type  and CNC product type is allowed for now.
 
-            GTTOrderParams order1Params = new GTTOrderParams();
+            GttOrderParams order1Params = new GttOrderParams();
             order1Params.OrderType = Constants.OrderType.Limit;
             order1Params.Price = 250m;
             order1Params.Product = Constants.Product.CNC;
             order1Params.TransactionType = Constants.Transaction.Sell;
             order1Params.Quantity = 0;
 
-            GTTOrderParams order2Params = new GTTOrderParams();
+            GttOrderParams order2Params = new GttOrderParams();
             order2Params.OrderType = Constants.OrderType.Limit;
             order2Params.Price = 320m;
             order2Params.Product = Constants.Product.CNC;
@@ -96,260 +98,260 @@ namespace KiteConnectSample
             order2Params.Quantity = 1;
 
             // Target or upper trigger
-            List<GTTOrderParams> ordersList = new List<GTTOrderParams>();
+            List<GttOrderParams> ordersList = new List<GttOrderParams>();
             ordersList.Add(order1Params);
             ordersList.Add(order2Params);
             gttParams.Orders = ordersList;
 
-            var placeGTTResponse = kite.PlaceGTT(gttParams);
+            var placeGTTResponse = await kite.PlaceGttAsync(gttParams);
             Console.WriteLine(Utils.JsonSerialize(placeGTTResponse));
 
-            var modifyGTTResponse = kite.ModifyGTT(407301, gttParams);
+            var modifyGTTResponse = await kite.ModifyGttAsync(407301, gttParams);
             Console.WriteLine(Utils.JsonSerialize(modifyGTTResponse));
 
             // Positions
 
-            PositionResponse positions = kite.GetPositions();
+            PositionResponse positions = await kite.GetPositionsAsync();
             Console.WriteLine(Utils.JsonSerialize(positions.Net[0]));
 
-            kite.ConvertPosition(
-                Exchange: Constants.Exchange.NSE,
-                TradingSymbol: "ASHOKLEY",
-                TransactionType: Constants.Transaction.Buy,
-                PositionType: Constants.Position.Day,
-                Quantity: 1,
-                OldProduct: Constants.Product.MIS,
-                NewProduct: Constants.Product.CNC
+            await kite.ConvertPositionAsync(
+                exchange: Constants.Exchange.NSE,
+                tradingSymbol: "ASHOKLEY",
+                transactionType: Constants.Transaction.Buy,
+                positionType: Constants.Position.Day,
+                quantity: 1,
+                oldProduct: Constants.Product.MIS,
+                newProduct: Constants.Product.CNC
             );
 
             // Holdings
 
-            List<Holding> holdings = kite.GetHoldings();
+            List<Holding> holdings = await kite.GetHoldingsAsync();
             Console.WriteLine(Utils.JsonSerialize(holdings[0]));
 
             // Instruments
 
-            List<Instrument> instruments = kite.GetInstruments();
-            Console.WriteLine(Utils.JsonSerialize(instruments[0]));
+            Instrument instrument = kite.GetInstrumentsAsync().ToBlockingEnumerable().FirstOrDefault();
+            Console.WriteLine(Utils.JsonSerialize(instrument));
 
             // Get quotes of upto 200 scrips
 
-            Dictionary<string, Quote> quotes = kite.GetQuote(InstrumentId: new string[] { "NSE:INFY", "NSE:ASHOKLEY" });
+            Dictionary<string, Quote> quotes = await kite.GetQuoteAsync(instrumentId: new string[] { "NSE:INFY", "NSE:ASHOKLEY" });
             Console.WriteLine(Utils.JsonSerialize(quotes));
 
             // Get OHLC and LTP of upto 200 scrips
 
-            Dictionary<string, OHLC> ohlcs = kite.GetOHLC(InstrumentId: new string[] { "NSE:INFY", "NSE:ASHOKLEY" });
+            Dictionary<string, OhlcResponse> ohlcs = await kite.GetOhlcAsync(instrumentId: new string[] { "NSE:INFY", "NSE:ASHOKLEY" });
             Console.WriteLine(Utils.JsonSerialize(ohlcs));
 
             // Get LTP of upto 200 scrips
 
-            Dictionary<string, LTP> ltps = kite.GetLTP(InstrumentId: new string[] { "NSE:INFY", "NSE:ASHOKLEY" });
+            Dictionary<string, Ltp> ltps = await kite.GetLtpAsync(instrumentId: new string[] { "NSE:INFY", "NSE:ASHOKLEY" });
             Console.WriteLine(Utils.JsonSerialize(ltps));
 
             // Trigger Range
 
             Dictionary<string, TrigerRange> triggerRange = kite.GetTriggerRange(
-                InstrumentId: new string[] { "NSE:ASHOKLEY" },
-                TrasactionType: Constants.Transaction.Buy
+                instrumentId: new string[] { "NSE:ASHOKLEY" },
+                trasactionType: Constants.Transaction.Buy
             );
             Console.WriteLine(Utils.JsonSerialize(triggerRange));
 
             // Get all orders
 
-            List<Order> orders = kite.GetOrders();
+            List<Order> orders = await kite.GetOrdersAsync();
             Console.WriteLine(Utils.JsonSerialize(orders[0]));
 
             // Get order by id
 
-            List<Order> orderinfo = kite.GetOrderHistory("1234");
+            List<Order> orderinfo = await kite.GetOrderHistoryAsync("1234");
             Console.WriteLine(Utils.JsonSerialize(orderinfo[0]));
 
             // Place sell order
 
-            Dictionary<string, dynamic> response = kite.PlaceOrder(
-                Exchange: Constants.Exchange.CDS,
-                TradingSymbol: "USDINR17AUGFUT",
-                TransactionType: Constants.Transaction.Sell,
-                Quantity: 1,
-                Price: 64.0000m,
-                OrderType: Constants.OrderType.Market,
-                Product: Constants.Product.MIS
+            OrderResponse response = await kite.PlaceOrderAsync(
+                exchange: Constants.Exchange.CDS,
+                tradingSymbol: "USDINR17AUGFUT",
+                transactionType: Constants.Transaction.Sell,
+                quantity: 1,
+                price: 64.0000m,
+                orderType: Constants.OrderType.Market,
+                product: Constants.Product.MIS
             );
-            Console.WriteLine("Order Id: " + response["data"]["order_id"]);
+            Console.WriteLine("Order Id: " + response.OrderId);
 
             // Place buy order
 
-            kite.PlaceOrder(
-                Exchange: Constants.Exchange.CDS,
-                TradingSymbol: "USDINR17AUGFUT",
-                TransactionType: Constants.Transaction.Buy,
-                Quantity: 1,
-                Price: 63.9000m,
-                OrderType: Constants.OrderType.Limit,
-                Product: Constants.Product.MIS
+            await kite.PlaceOrderAsync(
+                exchange: Constants.Exchange.CDS,
+                tradingSymbol: "USDINR17AUGFUT",
+                transactionType: Constants.Transaction.Buy,
+                quantity: 1,
+                price: 63.9000m,
+                orderType: Constants.OrderType.Limit,
+                product: Constants.Product.MIS
             );
 
             // Cancel order by id
 
-            kite.CancelOrder("1234");
+            await kite.CancelOrderAsync("1234");
 
             //BO LIMIT order placing
 
-            kite.PlaceOrder(
-                Exchange: Constants.Exchange.NSE,
-                TradingSymbol: "ASHOKLEY",
-                TransactionType: Constants.Transaction.Buy,
-                Quantity: 1,
-                Price: 115,
-                Product: Constants.Product.MIS,
-                OrderType: Constants.OrderType.Limit,
-                Validity: Constants.Validity.Day,
-                SquareOffValue: 2,
-                StoplossValue: 2,
-                Variety: Constants.Variety.BO
+            await kite.PlaceOrderAsync(
+                exchange: Constants.Exchange.NSE,
+                tradingSymbol: "ASHOKLEY",
+                transactionType: Constants.Transaction.Buy,
+                quantity: 1,
+                price: 115,
+                product: Constants.Product.MIS,
+                orderType: Constants.OrderType.Limit,
+                validity: Constants.Validity.Day,
+                squareOffValue: 2,
+                stoplossValue: 2,
+                variety: Constants.Variety.BO
             );
 
             // BO LIMIT exiting
 
-            kite.CancelOrder(
-                OrderId: "1234",
-                Variety: Constants.Variety.BO,
-                ParentOrderId: "5678"
+            await kite.CancelOrderAsync(
+                orderId: "1234",
+                variety: Constants.Variety.BO,
+                parentOrderId: "5678"
             );
 
             // BO SL order placing
 
-            kite.PlaceOrder(
-                Exchange: Constants.Exchange.NSE,
-                TradingSymbol: "ASHOKLEY",
-                TransactionType: Constants.Transaction.Buy,
-                Quantity: 1,
-                Price: 117,
-                Product: Constants.Product.MIS,
-                OrderType: Constants.OrderType.SL,
-                Validity: Constants.Validity.Day,
-                SquareOffValue: 2,
-                StoplossValue: 2,
-                TriggerPrice: 117.5m,
-                Variety: Constants.Variety.BO
+            await kite.PlaceOrderAsync(
+                exchange: Constants.Exchange.NSE,
+                tradingSymbol: "ASHOKLEY",
+                transactionType: Constants.Transaction.Buy,
+                quantity: 1,
+                price: 117,
+                product: Constants.Product.MIS,
+                orderType: Constants.OrderType.SL,
+                validity: Constants.Validity.Day,
+                squareOffValue: 2,
+                stoplossValue: 2,
+                triggerPrice: 117.5m,
+                variety: Constants.Variety.BO
             );
 
             // BO SL exiting
 
-            kite.CancelOrder(
-               OrderId: "1234",
-               Variety: Constants.Variety.BO,
-               ParentOrderId: "5678"
+            await kite.CancelOrderAsync(
+               orderId: "1234",
+               variety: Constants.Variety.BO,
+               parentOrderId: "5678"
            );
 
             // CO LIMIT order placing
 
-            kite.PlaceOrder(
-                Exchange: Constants.Exchange.NSE,
-                TradingSymbol: "ASHOKLEY",
-                TransactionType: Constants.Transaction.Buy,
-                Quantity: 1,
-                Price: 115.5m,
-                Product: Constants.Product.MIS,
-                OrderType: Constants.OrderType.Limit,
-                Validity: Constants.Validity.Day,
-                TriggerPrice: 116.5m,
-                Variety: Constants.Variety.CO
+            await kite.PlaceOrderAsync(
+                exchange: Constants.Exchange.NSE,
+                tradingSymbol: "ASHOKLEY",
+                transactionType: Constants.Transaction.Buy,
+                quantity: 1,
+                price: 115.5m,
+                product: Constants.Product.MIS,
+                orderType: Constants.OrderType.Limit,
+                validity: Constants.Validity.Day,
+                triggerPrice: 116.5m,
+                variety: Constants.Variety.CO
             );
 
             // CO LIMIT exiting
 
-            kite.CancelOrder(
-               OrderId: "1234",
-               Variety: Constants.Variety.BO,
-               ParentOrderId: "5678"
+            await kite.CancelOrderAsync(
+               orderId: "1234",
+               variety: Constants.Variety.BO,
+               parentOrderId: "5678"
            );
 
             // CO MARKET order placing
 
-            kite.PlaceOrder(
-                Exchange: Constants.Exchange.NSE,
-                TradingSymbol: "ASHOKLEY",
-                TransactionType: Constants.Transaction.Buy,
-                Quantity: 1,
-                Product: Constants.Product.MIS,
-                OrderType: Constants.OrderType.Market,
-                Validity: Constants.Validity.Day,
-                TriggerPrice: 116.5m,
-                Variety: Constants.Variety.CO
+            await kite.PlaceOrderAsync(
+                exchange: Constants.Exchange.NSE,
+                tradingSymbol: "ASHOKLEY",
+                transactionType: Constants.Transaction.Buy,
+                quantity: 1,
+                product: Constants.Product.MIS,
+                orderType: Constants.OrderType.Market,
+                validity: Constants.Validity.Day,
+                triggerPrice: 116.5m,
+                variety: Constants.Variety.CO
             );
 
             // CO MARKET exiting
 
-            kite.CancelOrder(
-                OrderId: "1234",
-                Variety: Constants.Variety.BO,
-                ParentOrderId: "5678"
+            await kite.CancelOrderAsync(
+                orderId: "1234",
+                variety: Constants.Variety.BO,
+                parentOrderId: "5678"
             );
 
             // Place order with TTL validity
-            kite.PlaceOrder(
-                Exchange: Constants.Exchange.NSE,
-                TradingSymbol: "INFY",
-                TransactionType: Constants.Transaction.Buy,
-                Quantity: 1,
-                Price: 1500.0m,
-                OrderType: Constants.OrderType.Limit,
-                Product: Constants.Product.MIS,
-                Validity: Constants.Validity.TTL,
-                ValidityTTL: 5
+            await kite.PlaceOrderAsync(
+                exchange: Constants.Exchange.NSE,
+                tradingSymbol: "INFY",
+                transactionType: Constants.Transaction.Buy,
+                quantity: 1,
+                price: 1500.0m,
+                orderType: Constants.OrderType.Limit,
+                product: Constants.Product.MIS,
+                validity: Constants.Validity.TTL,
+                validityTtl: 5
             );
 
             // Place an Iceberg order
-            kite.PlaceOrder(
-                Exchange: Constants.Exchange.NSE,
-                TradingSymbol: "INFY",
-                TransactionType: Constants.Transaction.Buy,
-                Quantity: 10,
-                Price: 1500.0m,
-                OrderType: Constants.OrderType.Limit,
-                Product: Constants.Product.MIS,
-                Variety: Constants.Variety.Iceberg,
-                IcebergLegs: 2,
-                IcebergQuantity: 5
+            await kite.PlaceOrderAsync(
+                exchange: Constants.Exchange.NSE,
+                tradingSymbol: "INFY",
+                transactionType: Constants.Transaction.Buy,
+                quantity: 10,
+                price: 1500.0m,
+                orderType: Constants.OrderType.Limit,
+                product: Constants.Product.MIS,
+                variety: Constants.Variety.Iceberg,
+                icebergLegs: 2,
+                icebergQuantity: 5
             );
 
             // Trades
 
-            List<Trade> trades = kite.GetOrderTrades("1234");
+            List<Trade> trades = await kite.GetOrderTradesAsync("1234");
             Console.WriteLine(Utils.JsonSerialize(trades[0]));
 
             // Margins
 
-            UserMargin commodityMargins = kite.GetMargins(Constants.Margin.Commodity);
-            UserMargin equityMargins = kite.GetMargins(Constants.Margin.Equity);
+            UserMargin commodityMargins = await kite.GetMarginsAsync(Constants.Margin.Commodity);
+            UserMargin equityMargins = await kite.GetMarginsAsync(Constants.Margin.Equity);
 
             // Order margins
 
             OrderMarginParams orderParam = new OrderMarginParams();
             orderParam.Exchange = Constants.Exchange.NFO;
-            orderParam.TradingSymbol = "ASHOKLEY21JULFUT";
+            orderParam.Tradingsymbol = "ASHOKLEY21JULFUT";
             orderParam.TransactionType = Constants.Transaction.Sell;
             orderParam.Quantity = 1;
             orderParam.Price = 64.0000m;
             orderParam.OrderType = Constants.OrderType.Market;
             orderParam.Product = Constants.Product.MIS;
 
-            List<OrderMargin> margins = kite.GetOrderMargins(new List<OrderMarginParams>() { orderParam });
+            List<OrderMargin> margins = await kite.GetOrderMarginsAsync(new List<OrderMarginParams>() { orderParam });
 
             // Basket margins
 
             OrderMarginParams basketParam = new OrderMarginParams();
             basketParam.Exchange = Constants.Exchange.NFO;
-            basketParam.TradingSymbol = "NIFTY21JUL15000PE";
+            basketParam.Tradingsymbol = "NIFTY21JUL15000PE";
             basketParam.TransactionType = Constants.Transaction.Buy;
             basketParam.Quantity = 75;
             basketParam.Price = 300;
             basketParam.Product = Constants.Product.MIS;
             basketParam.OrderType = Constants.OrderType.Limit;
 
-            BasketMargin basketMargins = kite.GetBasketMargins(new List<OrderMarginParams>() { basketParam }, ConsiderPositions: true);
+            BasketMargin basketMargins = await kite.GetBasketMarginsAsync(new List<OrderMarginParams>() { basketParam }, considerPositions: true);
 
             // Virtual contract notes
 
@@ -358,76 +360,76 @@ namespace KiteConnectSample
             contractNoteParam.Quantity = 1;
             contractNoteParam.AveragePrice = 99.7m;
             contractNoteParam.Exchange = "NSE";
-            contractNoteParam.TradingSymbol = "BHEL";
+            contractNoteParam.Tradingsymbol = "BHEL";
             contractNoteParam.TransactionType = Constants.Transaction.Buy;
             contractNoteParam.Variety = Constants.Variety.Regular;
             contractNoteParam.OrderType = Constants.OrderType.Limit;
             contractNoteParam.Product = Constants.Product.MIS;
-            List<ContractNote> contractNotes = kite.GetVirtualContractNote(new List<ContractNoteParams>() { contractNoteParam });
+            List<ContractNote> contractNotes = await kite.GetVirtualContractNoteAsync(new List<ContractNoteParams>() { contractNoteParam });
             Console.WriteLine(Utils.JsonSerialize(contractNotes));
-            
+
             // Historical Data With Dates
 
-            List<Historical> historical = kite.GetHistoricalData(
+            HistoricalResponse historical = await kite.GetHistoricalDataAsync(
                 InstrumentToken: "5633",
                 FromDate: new DateTime(2016, 1, 1, 12, 50, 0),   // 2016-01-01 12:50:00 AM
                 ToDate: new DateTime(2016, 1, 1, 13, 10, 0),    // 2016-01-01 01:10:00 PM
                 Interval: Constants.Interval.Minute,
                 Continuous: false
             );
-            Console.WriteLine(Utils.JsonSerialize(historical[0]));
+            Console.WriteLine(Utils.JsonSerialize(historical.Candles[0]));
 
             // Mutual Funds Instruments
 
-            List<MFInstrument> mfinstruments = kite.GetMFInstruments();
-            Console.WriteLine(Utils.JsonSerialize(mfinstruments[0]));
+            MFInstrument mfinstrument = kite.GetMFInstrumentsAsync().ToBlockingEnumerable().FirstOrDefault();
+            Console.WriteLine(Utils.JsonSerialize(mfinstrument));
 
             // Mutual funds get all orders
 
-            List<MFOrder> mforders = kite.GetMFOrders();
+            List<MFOrder> mforders = await kite.GetMFOrdersAsync();
             Console.WriteLine(Utils.JsonSerialize(mforders[0]));
 
             // Mutual funds get order by id
 
-            MFOrder mforder = kite.GetMFOrders(OrderId: "1234");
+            MFOrder mforder = await kite.GetMFOrdersAsync(orderId: "1234");
             Console.WriteLine(Utils.JsonSerialize(mforder));
 
             // Mutual funds place order
 
             kite.PlaceMFOrder(
-                TradingSymbol: "INF174K01LS2",
-                TransactionType: Constants.Transaction.Buy,
-                Amount: 20000
+                tradingSymbol: "INF174K01LS2",
+                transactionType: Constants.Transaction.Buy,
+                amount: 20000
             );
 
             // Mutual funds cancel order by id
 
-            kite.CancelMFOrder(OrderId: "1234");
+            kite.CancelMFOrder(orderId: "1234");
 
             // Mutual Funds get all SIPs
 
-            List<MFSIP> mfsips = kite.GetMFSIPs();
+            List<MFSip> mfsips = await kite.GetMFSipsAsync();
             Console.WriteLine(Utils.JsonSerialize(mfsips[0]));
 
             // Mutual Funds get SIP by id
 
-            MFSIP sip = kite.GetMFSIPs("63429");
+            MFSip sip = await kite.GetMFSipsAsync("63429");
             Console.WriteLine(Utils.JsonSerialize(sip));
 
             // Mutual Funds place SIP order
 
-            kite.PlaceMFSIP(
-                TradingSymbol: "INF174K01LS2",
-                Amount: 1000,
-                InitialAmount: 5000,
-                Frequency: "monthly",
-                InstalmentDay: 1,
-                Instalments: -1 // -1 means infinite
+            kite.PlaceMFSip(
+                tradingSymbol: "INF174K01LS2",
+                amount: 1000,
+                initialAmount: 5000,
+                frequency: "monthly",
+                instalmentDay: 1,
+                instalments: -1 // -1 means infinite
             );
 
             // Mutual Funds modify SIP order
 
-            kite.ModifyMFSIP(
+            kite.ModifyMFSip(
                 SIPId: "1234",
                 Amount: 1000,
                 Frequency: "monthly",
@@ -440,7 +442,7 @@ namespace KiteConnectSample
 
             // Mutual Funds Holdings
 
-            List<MFHolding> mfholdings = kite.GetMFHoldings();
+            List<MFHolding> mfholdings = await kite.GetMFHoldingsAsync();
             Console.WriteLine(Utils.JsonSerialize(mfholdings[0]));
 
             Console.ReadKey();
@@ -450,12 +452,12 @@ namespace KiteConnectSample
             ticker.Close();
         }
 
-        private static void initSession()
+        private static async Task initSession()
         {
-            Console.WriteLine("Goto " + kite.GetLoginURL());
+            Console.WriteLine("Goto " + kite.GetLoginUrl());
             Console.WriteLine("Enter request token: ");
             string requestToken = Console.ReadLine();
-            User user = kite.GenerateSession(requestToken, MySecret);
+            User user = await kite.GenerateSessionAsync(requestToken, MySecret);
 
             Console.WriteLine(Utils.JsonSerialize(user));
 
@@ -479,8 +481,8 @@ namespace KiteConnectSample
             ticker.Connect();
 
             // Subscribing to NIFTY50 and setting mode to LTP
-            ticker.Subscribe(Tokens: new UInt32[] { 256265 });
-            ticker.SetMode(Tokens: new UInt32[] { 256265 }, Mode: Constants.TickerMode.LTP);
+            ticker.Subscribe(Tokens: new uint[] { 256265 });
+            ticker.SetMode(Tokens: new uint[] { 256265 }, Mode: Constants.TickerMode.LTP);
         }
 
         private static void OnTokenExpire()

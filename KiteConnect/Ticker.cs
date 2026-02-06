@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.WebSockets;
 using System.Text;
-using System.Threading;
+using System.Text.Json;
 
 namespace KiteConnect
 {
@@ -35,7 +34,7 @@ namespace KiteConnect
         private IWebSocket _ws;
 
         // Dictionary that keeps instrument_token -> mode data
-        private Dictionary<UInt32, string> _subscribedTokens;
+        private Dictionary<uint, string> _subscribedTokens;
 
         // Delegates for callbacks
 
@@ -133,14 +132,14 @@ namespace KiteConnect
             _debug = Debug;
             _apiKey = APIKey;
             _accessToken = AccessToken;
-            _subscribedTokens = new Dictionary<UInt32, string>();
+            _subscribedTokens = new Dictionary<uint, string>();
             _interval = ReconnectInterval;
             _timerTick = ReconnectInterval;
             _retries = ReconnectTries;
-            if (!String.IsNullOrEmpty(Root))
+            if (!string.IsNullOrEmpty(Root))
                 _root = Root;
             _isReconnect = Reconnect;
-            _socketUrl = _root + String.Format("?api_key={0}&access_token={1}", _apiKey, _accessToken);
+            _socketUrl = _root + string.Format("?api_key={0}&access_token={1}", _apiKey, _accessToken);
 
             // initialize websocket
             if (CustomWebSocket != null)
@@ -189,9 +188,9 @@ namespace KiteConnect
         /// <summary>
         /// Reads 4 byte int32 from byte stream
         /// </summary>
-        private UInt32 ReadInt(byte[] b, ref int offset)
+        private uint ReadInt(byte[] b, ref int offset)
         {
-            UInt32 data = (UInt32)BitConverter.ToUInt32(new byte[] { b[offset + 3], b[offset + 2], b[offset + 1], b[offset + 0] }, 0);
+            uint data = (uint)BitConverter.ToUInt32(new byte[] { b[offset + 3], b[offset + 2], b[offset + 1], b[offset + 0] }, 0);
             offset += 4;
             return data;
         }
@@ -395,14 +394,16 @@ namespace KiteConnect
                 string message = Encoding.UTF8.GetString(Data.Take(Count).ToArray());
                 if (_debug) Console.WriteLine("WebSocket Message: " + message);
 
-                Dictionary<string, dynamic> messageDict = Utils.JsonDeserialize(message);
-                if (messageDict["type"] == "order")
+                WebsocketMessage messageDict = JsonSerializer.Deserialize<WebsocketMessage>(message, Kite.JsonSerializerOptions);
+                if (messageDict.Type == "order")
                 {
-                    OnOrderUpdate?.Invoke(new Order(messageDict["data"]));
+                    var order = JsonSerializer.Deserialize<WebsocketMessage<Order>>(message, Kite.JsonSerializerOptions);
+                    OnOrderUpdate?.Invoke(order.Data);
                 }
-                else if (messageDict["type"] == "error")
+                else if (messageDict.Type == "error")
                 {
-                    OnError?.Invoke(messageDict["data"]);
+                    var error = JsonSerializer.Deserialize<WebsocketMessage<string>>(message, Kite.JsonSerializerOptions);
+                    OnError?.Invoke(error.Data);
                 }
             }
             else if (MessageType == "Close")
@@ -496,16 +497,16 @@ namespace KiteConnect
         /// Subscribe to a list of instrument_tokens.
         /// </summary>
         /// <param name="Tokens">List of instrument instrument_tokens to subscribe</param>
-        public void Subscribe(UInt32[] Tokens)
+        public void Subscribe(uint[] Tokens)
         {
             if (Tokens.Length == 0) return;
 
-            string msg = "{\"a\":\"subscribe\",\"v\":[" + String.Join(",", Tokens) + "]}";
+            string msg = "{\"a\":\"subscribe\",\"v\":[" + string.Join(",", Tokens) + "]}";
             if (_debug) Console.WriteLine(msg.Length);
 
             if (IsConnected)
                 _ws.Send(msg);
-            foreach (UInt32 token in Tokens)
+            foreach (uint token in Tokens)
                 if (!_subscribedTokens.ContainsKey(token))
                     _subscribedTokens.Add(token, "quote");
         }
@@ -514,16 +515,16 @@ namespace KiteConnect
         /// Unsubscribe the given list of instrument_tokens.
         /// </summary>
         /// <param name="Tokens">List of instrument instrument_tokens to unsubscribe</param>
-        public void UnSubscribe(UInt32[] Tokens)
+        public void UnSubscribe(uint[] Tokens)
         {
             if (Tokens.Length == 0) return;
 
-            string msg = "{\"a\":\"unsubscribe\",\"v\":[" + String.Join(",", Tokens) + "]}";
+            string msg = "{\"a\":\"unsubscribe\",\"v\":[" + string.Join(",", Tokens) + "]}";
             if (_debug) Console.WriteLine(msg);
 
             if (IsConnected)
                 _ws.Send(msg);
-            foreach (UInt32 token in Tokens)
+            foreach (uint token in Tokens)
                 if (_subscribedTokens.ContainsKey(token))
                     _subscribedTokens.Remove(token);
         }
@@ -533,16 +534,16 @@ namespace KiteConnect
         /// </summary>
         /// <param name="Tokens">List of instrument tokens on which the mode should be applied</param>
         /// <param name="Mode">Mode to set. It can be one of the following: ltp, quote, full.</param>
-        public void SetMode(UInt32[] Tokens, string Mode)
+        public void SetMode(uint[] Tokens, string Mode)
         {
             if (Tokens.Length == 0) return;
 
-            string msg = "{\"a\":\"mode\",\"v\":[\"" + Mode + "\", [" + String.Join(",", Tokens) + "]]}";
+            string msg = "{\"a\":\"mode\",\"v\":[\"" + Mode + "\", [" + string.Join(",", Tokens) + "]]}";
             if (_debug) Console.WriteLine(msg);
 
             if (IsConnected)
                 _ws.Send(msg);
-            foreach (UInt32 token in Tokens)
+            foreach (uint token in Tokens)
                 if (_subscribedTokens.ContainsKey(token))
                     _subscribedTokens[token] = Mode;
         }
@@ -553,11 +554,11 @@ namespace KiteConnect
         public void ReSubscribe()
         {
             if (_debug) Console.WriteLine("Resubscribing");
-            UInt32[] all_tokens = _subscribedTokens.Keys.ToArray();
+            uint[] all_tokens = _subscribedTokens.Keys.ToArray();
 
-            UInt32[] ltp_tokens = all_tokens.Where(key => _subscribedTokens[key] == "ltp").ToArray();
-            UInt32[] quote_tokens = all_tokens.Where(key => _subscribedTokens[key] == "quote").ToArray();
-            UInt32[] full_tokens = all_tokens.Where(key => _subscribedTokens[key] == "full").ToArray();
+            uint[] ltp_tokens = all_tokens.Where(key => _subscribedTokens[key] == "ltp").ToArray();
+            uint[] quote_tokens = all_tokens.Where(key => _subscribedTokens[key] == "quote").ToArray();
+            uint[] full_tokens = all_tokens.Where(key => _subscribedTokens[key] == "full").ToArray();
 
             UnSubscribe(all_tokens);
             Subscribe(all_tokens);

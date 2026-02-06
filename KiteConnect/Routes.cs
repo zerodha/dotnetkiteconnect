@@ -4,12 +4,6 @@ namespace KiteConnect
     {
         public const string Parameters = "/parameters";
 
-        public static class API
-        {
-            public const string Token = "/session/token";
-            public const string Refresh = "/session/refresh_token";
-        }
-
         public static class Instrument
         {
             public const string Margins = "/margins/{segment}";
@@ -31,13 +25,6 @@ namespace KiteConnect
         public static class Basket
         {
             public const string Margins = "/margins/basket";
-        }
-
-        public static class User
-        {
-            public const string Profile = "/user/profile";
-            public const string Margins = "/user/margins";
-            public const string SegmentMargins = "/user/margins/{segment}";
         }
 
         public static class GTT
