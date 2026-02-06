@@ -3,6 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -62,28 +63,28 @@ namespace KiteConnectTest
             ms.SetResponse("application/json", json);
             Kite kite = new Kite("apikey", Root: "http://localhost:8080");
             PositionResponse positionResponse = await kite.GetPositionsAsync();
-            Assert.AreEqual(positionResponse.Net[0].TradingSymbol, "LEADMINI17DECFUT");
-            Assert.AreEqual(positionResponse.Day[0].TradingSymbol, "GOLDGUINEA17DECFUT");
+            Assert.AreEqual(positionResponse.Net[0].Tradingsymbol, "LEADMINI17DECFUT");
+            Assert.AreEqual(positionResponse.Day[0].Tradingsymbol, "GOLDGUINEA17DECFUT");
         }
 
         [TestMethod]
-        public void TestHoldings()
+        public async Task TestHoldings()
         {
             string json = File.ReadAllText(@"responses/holdings.json", Encoding.UTF8);
             ms.SetResponse("application/json", json);
             Kite kite = new Kite("apikey", Root: "http://localhost:8080");
-            List<Holding> holdings = kite.GetHoldings();
+            List<Holding> holdings = await kite.GetHoldingsAsync();
             Assert.AreEqual(holdings[0].AveragePrice, 40.67m);
             Assert.AreEqual(holdings[0].MTF.Quantity, 1000m);
         }
 
         [TestMethod]
-        public void TestAuctionInstruments()
+        public async Task TestAuctionInstruments()
         {
             string json = File.ReadAllText(@"responses/auction_instruments.json", Encoding.UTF8);
             ms.SetResponse("application/json", json);
             Kite kite = new Kite("apikey", Root: "http://localhost:8080");
-            List<AuctionInstrument> instruments = kite.GetAuctionInstruments();
+            List<AuctionInstrument> instruments = await kite.GetAuctionInstrumentsAsync();
             Assert.AreEqual(instruments[0].PNL, 564.8000000000002m);
         }
 
@@ -112,7 +113,7 @@ namespace KiteConnectTest
         }
 
         [TestMethod]
-        public void TestOrderMargins()
+        public async Task TestOrderMargins()
         {
             string json = File.ReadAllText(@"responses/order_margins.json", Encoding.UTF8);
             ms.SetResponse("application/json", json);
@@ -120,14 +121,14 @@ namespace KiteConnectTest
 
             OrderMarginParams param = new OrderMarginParams();
             param.Exchange = Constants.Exchange.NFO;
-            param.TradingSymbol = "ASHOKLEY20NOVFUT";
+            param.Tradingsymbol = "ASHOKLEY20NOVFUT";
             param.TransactionType = Constants.Transaction.Sell;
             param.Quantity = 1;
             param.Price = 64.0000m;
             param.OrderType = Constants.OrderType.Market;
             param.Product = Constants.Product.MIS;
 
-            List<OrderMargin> margins = kite.GetOrderMargins(new List<OrderMarginParams>() { param });
+            List<OrderMargin> margins = await kite.GetOrderMarginsAsync(new List<OrderMarginParams>() { param });
 
             Assert.AreEqual(margins[0].Total, (decimal)8.36025);
             Assert.AreEqual(margins[0].SPAN, (decimal)5.408);
@@ -137,7 +138,7 @@ namespace KiteConnectTest
         }
 
         [TestMethod]
-        public void TestOrderMarginsCompact()
+        public async Task TestOrderMarginsCompact()
         {
             string json = File.ReadAllText(@"responses/order_margins_compact.json", Encoding.UTF8);
             ms.SetResponse("application/json", json);
@@ -145,7 +146,7 @@ namespace KiteConnectTest
 
             OrderMarginParams param = new OrderMarginParams();
             param.Exchange = Constants.Exchange.NFO;
-            param.TradingSymbol = "ASHOKLEY21JULFUT";
+            param.Tradingsymbol = "ASHOKLEY21JULFUT";
             param.TransactionType = Constants.Transaction.Sell;
             param.Quantity = 1;
             param.Price = 64.0000m;
@@ -154,21 +155,21 @@ namespace KiteConnectTest
 
             OrderMarginParams param2 = new OrderMarginParams();
             param2.Exchange = Constants.Exchange.NFO;
-            param2.TradingSymbol = "NIFTY21JUL15000PE";
+            param2.Tradingsymbol = "NIFTY21JUL15000PE";
             param.TransactionType = Constants.Transaction.Buy;
             param2.Quantity = 75;
             param2.Price = 300;
             param2.Product = Constants.Product.MIS;
             param2.OrderType = Constants.OrderType.Limit;
 
-            List<OrderMargin> margins = kite.GetOrderMargins(new List<OrderMarginParams>() { param, param2 }, Mode: Constants.Margin.Mode.Compact);
+            List<OrderMargin> margins = await kite.GetOrderMarginsAsync(new List<OrderMarginParams>() { param, param2 }, Mode: Constants.Margin.Mode.Compact);
 
             Assert.AreEqual(margins[0].Total, (decimal)30.2280825);
             Assert.AreEqual(margins[0].SPAN, (decimal)0);
         }
 
         [TestMethod]
-        public void TestBasketMargins()
+        public async Task TestBasketMargins()
         {
             string json = File.ReadAllText(@"responses/basket_margins.json", Encoding.UTF8);
             ms.SetResponse("application/json", json);
@@ -176,7 +177,7 @@ namespace KiteConnectTest
 
             OrderMarginParams param = new OrderMarginParams();
             param.Exchange = Constants.Exchange.NFO;
-            param.TradingSymbol = "ASHOKLEY21JULFUT";
+            param.Tradingsymbol = "ASHOKLEY21JULFUT";
             param.TransactionType = Constants.Transaction.Sell;
             param.Quantity = 1;
             param.Price = 64.0000m;
@@ -185,21 +186,21 @@ namespace KiteConnectTest
 
             OrderMarginParams param2 = new OrderMarginParams();
             param2.Exchange = Constants.Exchange.NFO;
-            param2.TradingSymbol = "NIFTY21JUL15000PE";
+            param2.Tradingsymbol = "NIFTY21JUL15000PE";
             param.TransactionType = Constants.Transaction.Buy;
             param2.Quantity = 75;
             param2.Price = 300;
             param2.Product = Constants.Product.MIS;
             param2.OrderType = Constants.OrderType.Limit;
 
-            BasketMargin margins = kite.GetBasketMargins(new List<OrderMarginParams>() { param, param2 });
+            BasketMargin margins = await kite.GetBasketMarginsAsync(new List<OrderMarginParams>() { param, param2 });
 
             Assert.AreEqual(margins.Final.Total, (decimal)22530.221345);
             Assert.AreEqual(margins.Final.SPAN, (decimal)26.9577);
         }
 
         [TestMethod]
-        public void TestBasketMarginsCompact()
+        public async Task TestBasketMarginsCompact()
         {
             string json = File.ReadAllText(@"responses/basket_margins_compact.json", Encoding.UTF8);
             ms.SetResponse("application/json", json);
@@ -207,7 +208,7 @@ namespace KiteConnectTest
 
             OrderMarginParams param = new OrderMarginParams();
             param.Exchange = Constants.Exchange.NFO;
-            param.TradingSymbol = "ASHOKLEY21JULFUT";
+            param.Tradingsymbol = "ASHOKLEY21JULFUT";
             param.TransactionType = Constants.Transaction.Sell;
             param.Quantity = 1;
             param.Price = 64.0000m;
@@ -216,14 +217,14 @@ namespace KiteConnectTest
 
             OrderMarginParams param2 = new OrderMarginParams();
             param2.Exchange = Constants.Exchange.NFO;
-            param2.TradingSymbol = "NIFTY21JUL15000PE";
+            param2.Tradingsymbol = "NIFTY21JUL15000PE";
             param.TransactionType = Constants.Transaction.Buy;
             param2.Quantity = 75;
             param2.Price = 300;
             param2.Product = Constants.Product.MIS;
             param2.OrderType = Constants.OrderType.Limit;
 
-            BasketMargin margins = kite.GetBasketMargins(new List<OrderMarginParams>() { param, param2 }, Mode: Constants.Margin.Mode.Compact);
+            BasketMargin margins = await kite.GetBasketMarginsAsync(new List<OrderMarginParams>() { param, param2 }, Mode: Constants.Margin.Mode.Compact);
 
             Assert.AreEqual(margins.Final.Total, (decimal)22530.2280825);
             Assert.AreEqual(margins.Final.SPAN, (decimal)0);
@@ -252,37 +253,42 @@ namespace KiteConnectTest
         }
 
         [TestMethod]
-        public void TestOHLC()
+        public async Task TestOHLC()
         {
             string json = File.ReadAllText(@"responses/ohlc.json", Encoding.UTF8);
             ms.SetResponse("application/json", json);
             Kite kite = new Kite("apikey", Root: "http://localhost:8080");
-            Dictionary<string, OHLC> ohlcs = kite.GetOHLC(new string[] { "408065", "NSE:INFY" });
+            Dictionary<string, OHLCResponse> ohlcs = await kite.GetOHLCAsync(new string[] { "408065", "NSE:INFY" });
 
-            Assert.AreEqual(ohlcs["408065"].LastPrice, (decimal)966.8);
+            Assert.AreEqual(ohlcs["408065"].LastPrice, 966.8m);
+            Assert.AreEqual(ohlcs["408065"].Ohlc.Open, 966.6m);
         }
 
         [TestMethod]
-        public void TestLTP()
+        public async Task TestLTP()
         {
             string json = File.ReadAllText(@"responses/ltp.json", Encoding.UTF8);
             ms.SetResponse("application/json", json);
             Kite kite = new Kite("apikey", Root: "http://localhost:8080");
-            Dictionary<string, LTP> ltps = kite.GetLTP(new string[] { "NSE:INFY" });
+            Dictionary<string, LTP> ltps = await kite.GetLTPAsync(new string[] { "NSE:INFY" });
 
             Assert.AreEqual(ltps["NSE:INFY"].LastPrice, (decimal)989.2);
         }
 
         [TestMethod]
-        public void TestQuote()
+        public async Task TestQuote()
         {
             string json = File.ReadAllText(@"responses/quote.json", Encoding.UTF8);
             ms.SetResponse("application/json", json);
             Kite kite = new Kite("apikey", Root: "http://localhost:8080");
-            Dictionary<string, Quote> quotes = kite.GetQuote(new string[] { "NSE:ASHOKLEY", "NSE:NIFTY 50" });
+            Dictionary<string, Quote> quotes = await kite.GetQuoteAsync(new string[] { "NSE:ASHOKLEY", "NSE:NIFTY 50" });
 
-            Assert.AreEqual(quotes["NSE:ASHOKLEY"].LastPrice, (decimal)76.6);
+            Assert.AreEqual(quotes["NSE:ASHOKLEY"].LastPrice, 76.6m);
             Assert.AreEqual(quotes["NSE:NIFTY 50"].LowerCircuitLimit, 0);
+            Assert.AreEqual(quotes["NSE:ASHOKLEY"].Ohlc.Close, 76.45m);
+            Assert.AreEqual(quotes["NSE:NIFTY 50"].Ohlc.Low, 11888.85m);
+            Assert.AreEqual(quotes["NSE:ASHOKLEY"].Depth.Bids[0].Price, 76.5m);
+            Assert.AreEqual(quotes["NSE:ASHOKLEY"].Depth.Offers[0].Price, 76.6m);
         }
 
         [TestMethod]
@@ -344,27 +350,55 @@ namespace KiteConnectTest
         }
 
         [TestMethod]
-        public void TestInstruments()
+        public async Task TestInstruments()
         {
             string csv = File.ReadAllText(@"responses/instruments_all.csv", Encoding.UTF8);
             ms.SetResponse("text/csv", csv);
             Kite kite = new Kite("apikey", Root: "http://localhost:8080");
-            List<Instrument> instruments = kite.GetInstruments();
+            var instrument = kite.GetInstrumentsAsync().ToBlockingEnumerable().First();
 
-            Assert.AreEqual(instruments[0].InstrumentToken, (uint)3813889);
-            Assert.AreEqual(instruments[0].LastPrice, 10.01m);
-            Assert.AreEqual(instruments[0].Strike, 13.14m);
+            Assert.AreEqual(instrument.InstrumentToken, (uint)3813889);
+            Assert.AreEqual(instrument.LastPrice, 10.01m);
+            Assert.AreEqual(instrument.Strike, 13.14m);
         }
 
         [TestMethod]
-        public void TestSegmentInstruments()
+        public async Task TestHistoricalData()
+        {
+            string csv = File.ReadAllText(@"responses/historical.json", Encoding.UTF8);
+            ms.SetResponse("application/json", csv);
+            Kite kite = new Kite("apikey", Root: "http://localhost:8080");
+            var historicalData = await kite.GetHistoricalDataAsync("3813889", DateTime.Now, DateTime.Now, "Minutes");
+
+            Assert.HasCount(6, historicalData.Candles);
+            Assert.AreEqual(886.7m, historicalData.Candles[0].Open);
+            Assert.AreEqual(886.95m, historicalData.Candles[1].High);
+            Assert.AreEqual(886.3m, historicalData.Candles[2].Low);
+            Assert.AreEqual(886.75m, historicalData.Candles[3].Close);
+            Assert.AreEqual((ulong)9414, historicalData.Candles[4].Volume);
+        }
+
+        [TestMethod]
+        public async Task TestHistoricalDataWithOI()
+        {
+            string csv = File.ReadAllText(@"responses/historical-oi.json", Encoding.UTF8);
+            ms.SetResponse("application/json", csv);
+            Kite kite = new Kite("apikey", Root: "http://localhost:8080");
+            var historicalData = await kite.GetHistoricalDataAsync("3813889", DateTime.Now, DateTime.Now, "Minutes");
+
+            Assert.HasCount(6, historicalData.Candles);
+            Assert.AreEqual((ulong)13667775, historicalData.Candles[0].OI);
+        }
+
+        [TestMethod]
+        public async Task TestSegmentInstruments()
         {
             string csv = File.ReadAllText(@"responses/instruments_nse.csv", Encoding.UTF8);
             ms.SetResponse("text/csv", csv);
             Kite kite = new Kite("apikey", Root: "http://localhost:8080");
-            List<Instrument> instruments = kite.GetInstruments(Constants.Exchange.NSE);
+            var instrument = kite.GetInstrumentsAsync(Constants.Exchange.NSE).ToBlockingEnumerable().First();
 
-            Assert.AreEqual(instruments[0].InstrumentToken, (uint)3813889);
+            Assert.AreEqual(instrument.InstrumentToken, (uint)3813889);
         }
 
         [TestMethod]
@@ -379,56 +413,56 @@ namespace KiteConnectTest
         }
 
         [TestMethod]
-        public void TestMFSIPs()
+        public async Task TestMFSIPs()
         {
             string json = File.ReadAllText(@"responses/mf_sips.json", Encoding.UTF8);
             ms.SetResponse("application/json", json);
             Kite kite = new Kite("apikey", Root: "http://localhost:8080");
-            List<MFSIP> sips = kite.GetMFSIPs();
+            List<MFSIP> sips = await kite.GetMFSIPsAsync();
 
             Assert.AreEqual(sips[0].SIPId, "1234");
         }
 
         [TestMethod]
-        public void TestMFSIP()
+        public async Task TestMFSIP()
         {
             string json = File.ReadAllText(@"responses/mf_sip.json", Encoding.UTF8);
             ms.SetResponse("application/json", json);
             Kite kite = new Kite("apikey", Root: "http://localhost:8080");
-            MFSIP sip = kite.GetMFSIPs("1234");
+            MFSIP sip = await kite.GetMFSIPsAsync("1234");
 
             Assert.AreEqual(sip.SIPId, "1234");
         }
 
         [TestMethod]
-        public void TestMFOrders()
+        public async Task TestMFOrders()
         {
             string json = File.ReadAllText(@"responses/mf_orders.json", Encoding.UTF8);
             ms.SetResponse("application/json", json);
             Kite kite = new Kite("apikey", Root: "http://localhost:8080");
-            List<MFOrder> orders = kite.GetMFOrders();
+            List<MFOrder> orders = await kite.GetMFOrdersAsync();
 
             Assert.AreEqual(orders[0].OrderId, "123123");
         }
 
         [TestMethod]
-        public void TestMFOrder()
+        public async Task TestMFOrder()
         {
             string json = File.ReadAllText(@"responses/mf_order.json", Encoding.UTF8);
             ms.SetResponse("application/json", json);
             Kite kite = new Kite("apikey", Root: "http://localhost:8080");
-            MFOrder order = kite.GetMFOrders("123123");
+            MFOrder order = await kite.GetMFOrdersAsync("123123");
 
             Assert.AreEqual(order.OrderId, "123123");
         }
 
         [TestMethod]
-        public void TestMFHoldings()
+        public async Task TestMFHoldings()
         {
             string json = File.ReadAllText(@"responses/mf_holdings.json", Encoding.UTF8);
             ms.SetResponse("application/json", json);
             Kite kite = new Kite("apikey", Root: "http://localhost:8080");
-            List<MFHolding> holdings = kite.GetMFHoldings();
+            List<MFHolding> holdings = await kite.GetMFHoldingsAsync();
 
             Assert.AreEqual(holdings[0].Folio, "123123/123");
         }
@@ -439,11 +473,11 @@ namespace KiteConnectTest
             string csv = File.ReadAllText(@"responses/mf_instruments.csv", Encoding.UTF8);
             ms.SetResponse("text/csv", csv);
             Kite kite = new Kite("apikey", Root: "http://localhost:8080");
-            List<MFInstrument> instruments = kite.GetMFInstruments();
+            var instrument = kite.GetMFInstrumentsAsync().ToBlockingEnumerable().First();
 
-            Assert.AreEqual(instruments[0].TradingSymbol, "INF209K01157");
-            Assert.AreEqual(instruments[0].MinimumPurchaseAmount, 1234.0m);
-            Assert.AreEqual(instruments[0].PurchaseAmountMultiplier, 13.14m);
+            Assert.AreEqual(instrument.Tradingsymbol, "INF209K01157");
+            Assert.AreEqual(instrument.MinimumPurchaseAmount, 1234.0m);
+            Assert.AreEqual(instrument.PurchaseAmountMultiplier, 13.14m);
         }
     }
 }

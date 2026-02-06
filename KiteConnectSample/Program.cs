@@ -1,6 +1,7 @@
 ﻿using KiteConnect;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace KiteConnectSample
@@ -68,7 +69,7 @@ namespace KiteConnectSample
             GTTParams gttParams = new GTTParams();
             gttParams.TriggerType = Constants.GTT.Trigger.OCO;
             gttParams.Exchange = "NSE";
-            gttParams.TradingSymbol = "SBIN";
+            gttParams.Tradingsymbol = "SBIN";
             gttParams.LastPrice = 288.9m;
 
             List<decimal> triggerPrices = new List<decimal>();
@@ -105,7 +106,7 @@ namespace KiteConnectSample
             var placeGTTResponse = await kite.PlaceGTTAsync(gttParams);
             Console.WriteLine(Utils.JsonSerialize(placeGTTResponse));
 
-            var modifyGTTResponse = kite.ModifyGTTAsync(407301, gttParams);
+            var modifyGTTResponse = await kite.ModifyGTTAsync(407301, gttParams);
             Console.WriteLine(Utils.JsonSerialize(modifyGTTResponse));
 
             // Positions
@@ -113,7 +114,7 @@ namespace KiteConnectSample
             PositionResponse positions = await kite.GetPositionsAsync();
             Console.WriteLine(Utils.JsonSerialize(positions.Net[0]));
 
-            kite.ConvertPosition(
+            await kite.ConvertPositionAsync(
                 Exchange: Constants.Exchange.NSE,
                 TradingSymbol: "ASHOKLEY",
                 TransactionType: Constants.Transaction.Buy,
@@ -125,27 +126,27 @@ namespace KiteConnectSample
 
             // Holdings
 
-            List<Holding> holdings = kite.GetHoldings();
+            List<Holding> holdings = await kite.GetHoldingsAsync();
             Console.WriteLine(Utils.JsonSerialize(holdings[0]));
 
             // Instruments
 
-            List<Instrument> instruments = kite.GetInstruments();
-            Console.WriteLine(Utils.JsonSerialize(instruments[0]));
+            Instrument instrument = kite.GetInstrumentsAsync().ToBlockingEnumerable().FirstOrDefault();
+            Console.WriteLine(Utils.JsonSerialize(instrument));
 
             // Get quotes of upto 200 scrips
 
-            Dictionary<string, Quote> quotes = kite.GetQuote(InstrumentId: new string[] { "NSE:INFY", "NSE:ASHOKLEY" });
+            Dictionary<string, Quote> quotes = await kite.GetQuoteAsync(InstrumentId: new string[] { "NSE:INFY", "NSE:ASHOKLEY" });
             Console.WriteLine(Utils.JsonSerialize(quotes));
 
             // Get OHLC and LTP of upto 200 scrips
 
-            Dictionary<string, OHLC> ohlcs = kite.GetOHLC(InstrumentId: new string[] { "NSE:INFY", "NSE:ASHOKLEY" });
+            Dictionary<string, OHLCResponse> ohlcs = await kite.GetOHLCAsync(InstrumentId: new string[] { "NSE:INFY", "NSE:ASHOKLEY" });
             Console.WriteLine(Utils.JsonSerialize(ohlcs));
 
             // Get LTP of upto 200 scrips
 
-            Dictionary<string, LTP> ltps = kite.GetLTP(InstrumentId: new string[] { "NSE:INFY", "NSE:ASHOKLEY" });
+            Dictionary<string, LTP> ltps = await kite.GetLTPAsync(InstrumentId: new string[] { "NSE:INFY", "NSE:ASHOKLEY" });
             Console.WriteLine(Utils.JsonSerialize(ltps));
 
             // Trigger Range
@@ -330,27 +331,27 @@ namespace KiteConnectSample
 
             OrderMarginParams orderParam = new OrderMarginParams();
             orderParam.Exchange = Constants.Exchange.NFO;
-            orderParam.TradingSymbol = "ASHOKLEY21JULFUT";
+            orderParam.Tradingsymbol = "ASHOKLEY21JULFUT";
             orderParam.TransactionType = Constants.Transaction.Sell;
             orderParam.Quantity = 1;
             orderParam.Price = 64.0000m;
             orderParam.OrderType = Constants.OrderType.Market;
             orderParam.Product = Constants.Product.MIS;
 
-            List<OrderMargin> margins = kite.GetOrderMargins(new List<OrderMarginParams>() { orderParam });
+            List<OrderMargin> margins = await kite.GetOrderMarginsAsync(new List<OrderMarginParams>() { orderParam });
 
             // Basket margins
 
             OrderMarginParams basketParam = new OrderMarginParams();
             basketParam.Exchange = Constants.Exchange.NFO;
-            basketParam.TradingSymbol = "NIFTY21JUL15000PE";
+            basketParam.Tradingsymbol = "NIFTY21JUL15000PE";
             basketParam.TransactionType = Constants.Transaction.Buy;
             basketParam.Quantity = 75;
             basketParam.Price = 300;
             basketParam.Product = Constants.Product.MIS;
             basketParam.OrderType = Constants.OrderType.Limit;
 
-            BasketMargin basketMargins = kite.GetBasketMargins(new List<OrderMarginParams>() { basketParam }, ConsiderPositions: true);
+            BasketMargin basketMargins = await kite.GetBasketMarginsAsync(new List<OrderMarginParams>() { basketParam }, ConsiderPositions: true);
 
             // Virtual contract notes
 
@@ -359,38 +360,38 @@ namespace KiteConnectSample
             contractNoteParam.Quantity = 1;
             contractNoteParam.AveragePrice = 99.7m;
             contractNoteParam.Exchange = "NSE";
-            contractNoteParam.TradingSymbol = "BHEL";
+            contractNoteParam.Tradingsymbol = "BHEL";
             contractNoteParam.TransactionType = Constants.Transaction.Buy;
             contractNoteParam.Variety = Constants.Variety.Regular;
             contractNoteParam.OrderType = Constants.OrderType.Limit;
             contractNoteParam.Product = Constants.Product.MIS;
-            List<ContractNote> contractNotes = kite.GetVirtualContractNote(new List<ContractNoteParams>() { contractNoteParam });
+            List<ContractNote> contractNotes = await kite.GetVirtualContractNoteAsync(new List<ContractNoteParams>() { contractNoteParam });
             Console.WriteLine(Utils.JsonSerialize(contractNotes));
 
             // Historical Data With Dates
 
-            List<Historical> historical = kite.GetHistoricalData(
+            HistoricalResponse historical = await kite.GetHistoricalDataAsync(
                 InstrumentToken: "5633",
                 FromDate: new DateTime(2016, 1, 1, 12, 50, 0),   // 2016-01-01 12:50:00 AM
                 ToDate: new DateTime(2016, 1, 1, 13, 10, 0),    // 2016-01-01 01:10:00 PM
                 Interval: Constants.Interval.Minute,
                 Continuous: false
             );
-            Console.WriteLine(Utils.JsonSerialize(historical[0]));
+            Console.WriteLine(Utils.JsonSerialize(historical.Candles[0]));
 
             // Mutual Funds Instruments
 
-            List<MFInstrument> mfinstruments = kite.GetMFInstruments();
-            Console.WriteLine(Utils.JsonSerialize(mfinstruments[0]));
+            MFInstrument mfinstrument = kite.GetMFInstrumentsAsync().ToBlockingEnumerable().FirstOrDefault();
+            Console.WriteLine(Utils.JsonSerialize(mfinstrument));
 
             // Mutual funds get all orders
 
-            List<MFOrder> mforders = kite.GetMFOrders();
+            List<MFOrder> mforders = await kite.GetMFOrdersAsync();
             Console.WriteLine(Utils.JsonSerialize(mforders[0]));
 
             // Mutual funds get order by id
 
-            MFOrder mforder = kite.GetMFOrders(OrderId: "1234");
+            MFOrder mforder = await kite.GetMFOrdersAsync(OrderId: "1234");
             Console.WriteLine(Utils.JsonSerialize(mforder));
 
             // Mutual funds place order
@@ -407,12 +408,12 @@ namespace KiteConnectSample
 
             // Mutual Funds get all SIPs
 
-            List<MFSIP> mfsips = kite.GetMFSIPs();
+            List<MFSIP> mfsips = await kite.GetMFSIPsAsync();
             Console.WriteLine(Utils.JsonSerialize(mfsips[0]));
 
             // Mutual Funds get SIP by id
 
-            MFSIP sip = kite.GetMFSIPs("63429");
+            MFSIP sip = await kite.GetMFSIPsAsync("63429");
             Console.WriteLine(Utils.JsonSerialize(sip));
 
             // Mutual Funds place SIP order
@@ -441,7 +442,7 @@ namespace KiteConnectSample
 
             // Mutual Funds Holdings
 
-            List<MFHolding> mfholdings = kite.GetMFHoldings();
+            List<MFHolding> mfholdings = await kite.GetMFHoldingsAsync();
             Console.WriteLine(Utils.JsonSerialize(mfholdings[0]));
 
             Console.ReadKey();

@@ -1,12 +1,15 @@
-﻿using System;
-using System.Collections;
+﻿using CsvHelper;
+using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Net.Mime;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -21,7 +24,7 @@ namespace KiteConnect
     /// </summary>
     public class Kite
     {
-        internal static readonly JsonSerializerOptions JsonSerializerOptions = new JsonSerializerOptions() { PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower, Converters = { new JsonStringEnumConverter(), new CustomDateTimeConverter() } };
+        internal static readonly JsonSerializerOptions JsonSerializerOptions = new JsonSerializerOptions() { PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower, Converters = { new JsonStringEnumConverter(), new CustomDateTimeJsonConverter(), new CandleJsonConverter() } };
         // Default root API endpoint. It's possible to
         // override this by passing the `Root` parameter during initialisation.
         private string _root = "https://api.kite.trade";
@@ -117,14 +120,15 @@ namespace KiteConnect
 
         /// <summary>
         /// Do the token exchange with the `RequestToken` obtained after the login flow,
-		/// and retrieve the `AccessToken` required for all subsequent requests.The
+        /// and retrieve the `AccessToken` required for all subsequent requests.The
         /// response contains not just the `AccessToken`, but metadata for
         /// the user who has authenticated.
         /// </summary>
         /// <param name="RequestToken">Token obtained from the GET paramers after a successful login redirect.</param>
         /// <param name="AppSecret">API secret issued with the API key.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>User structure with tokens and profile data</returns>
-        public Task<User> GenerateSessionAsync(string RequestToken, string AppSecret)
+        public Task<User> GenerateSessionAsync(string RequestToken, string AppSecret, CancellationToken cancellationToken = default)
         {
             string checksum = Utils.SHA256Hash(_apiKey + RequestToken + AppSecret);
 
@@ -133,35 +137,37 @@ namespace KiteConnect
                 .Add("request_token", RequestToken)
                 .Add("checksum", checksum);
 
-            return PostAsync<User>("/session/token", formData: formDataBuilder.Build());
+            return PostAsync<User>("/session/token", formData: formDataBuilder.Build(), cancellationToken: cancellationToken);
         }
 
         /// <summary>
         /// Kill the session by invalidating the access token
         /// </summary>
         /// <param name="AccessToken">Access token to invalidate. Default is the active access token.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Json response in the form of nested string dictionary.</returns>
-        public Task<bool> InvalidateAccessTokenAsync(string AccessToken = null)
+        public Task<bool> InvalidateAccessTokenAsync(string AccessToken = null, CancellationToken cancellationToken = default)
         {
             var queryParametersBuilder = new ParametersBuilder()
                 .AddIfNotNull("api_key", _apiKey)
                 .AddIfNotNull("access_token", AccessToken);
 
-            return DeleteAsync<bool>("/session/token", queryParameters: queryParametersBuilder.Build());
+            return DeleteAsync<bool>("/session/token", queryParameters: queryParametersBuilder.Build(), cancellationToken: cancellationToken);
         }
 
         /// <summary>
         /// Invalidates RefreshToken
         /// </summary>
         /// <param name="RefreshToken">RefreshToken to invalidate</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Json response in the form of nested string dictionary.</returns>
-        public Task<bool> InvalidateRefreshTokenAsync(string RefreshToken)
+        public Task<bool> InvalidateRefreshTokenAsync(string RefreshToken, CancellationToken cancellationToken = default)
         {
             var queryParametersBuilder = new ParametersBuilder()
                 .AddIfNotNull("api_key", _apiKey)
                 .AddIfNotNull("refresh_token", RefreshToken);
 
-            return DeleteAsync<bool>("/session/token", queryParameters: queryParametersBuilder.Build());
+            return DeleteAsync<bool>("/session/token", queryParameters: queryParametersBuilder.Build(), cancellationToken: cancellationToken);
         }
 
         /// <summary>
@@ -169,8 +175,9 @@ namespace KiteConnect
         /// </summary>
         /// <param name="RefreshToken">RefreshToken to renew the AccessToken.</param>
         /// <param name="AppSecret">API secret issued with the API key.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>TokenRenewResponse that contains new AccessToken and RefreshToken.</returns>
-        public Task<TokenSet> RenewAccessTokenAsync(string RefreshToken, string AppSecret)
+        public Task<TokenSet> RenewAccessTokenAsync(string RefreshToken, string AppSecret, CancellationToken cancellationToken = default)
         {
             string checksum = Utils.SHA256Hash(_apiKey + RefreshToken + AppSecret);
             var formDataBuilder = new ParametersBuilder()
@@ -178,12 +185,13 @@ namespace KiteConnect
                 .AddIfNotNull("refresh_token", RefreshToken)
                 .AddIfNotNull("checksum", checksum);
 
-            return PostAsync<TokenSet>("/session/refresh_token", formData: formDataBuilder.Build());
+            return PostAsync<TokenSet>("/session/refresh_token", formData: formDataBuilder.Build(), cancellationToken: cancellationToken);
         }
 
         /// <summary>
         /// Gets currently logged in user details
         /// </summary>
+        /// <param name="cancellationToken"></param>
         /// <returns>User profile</returns>
         public Task<Profile> GetProfileAsync(CancellationToken cancellationToken = default)
         {
@@ -194,34 +202,11 @@ namespace KiteConnect
         /// A virtual contract provides detailed charges order-wise for brokerage, STT, stamp duty, exchange transaction charges, SEBI turnover charge, and GST.
         /// </summary>
         /// <param name="ContractNoteParams">List of all order params to get contract notes for</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>List of contract notes for the params</returns>
-        public List<ContractNote> GetVirtualContractNote(List<ContractNoteParams> ContractNoteParams)
+        public Task<List<ContractNote>> GetVirtualContractNoteAsync(List<ContractNoteParams> ContractNoteParams, CancellationToken cancellationToken = default)
         {
-            var paramList = new List<Dictionary<string, dynamic>>();
-
-            foreach (var item in ContractNoteParams)
-            {
-                var param = new Dictionary<string, dynamic>();
-                param["order_id"] = item.OrderID;
-                param["exchange"] = item.Exchange;
-                param["tradingsymbol"] = item.TradingSymbol;
-                param["transaction_type"] = item.TransactionType;
-                param["quantity"] = item.Quantity;
-                param["average_price"] = item.AveragePrice;
-                param["product"] = item.Product;
-                param["order_type"] = item.OrderType;
-                param["variety"] = item.Variety;
-
-                paramList.Add(param);
-            }
-
-            var contractNoteData = Post(Routes.Order.ContractNote, paramList, json: true);
-
-            List<ContractNote> contractNotes = new List<ContractNote>();
-            foreach (Dictionary<string, dynamic> item in contractNoteData["data"])
-                contractNotes.Add(new ContractNote(item));
-
-            return contractNotes;
+            return PostJsonAsync<List<ContractNoteParams>, List<ContractNote>>("/charges/orders", jsonData: ContractNoteParams, cancellationToken: cancellationToken);
         }
 
         /// <summary>
@@ -229,40 +214,14 @@ namespace KiteConnect
         /// </summary>
         /// <param name="OrderMarginParams">List of all order params to get margins for</param>
         /// <param name="Mode">Mode of the returned response content. Eg: Constants.Margin.Mode.Compact</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>List of margins of order</returns>
-        public List<OrderMargin> GetOrderMargins(List<OrderMarginParams> OrderMarginParams, string Mode = null)
+        public Task<List<OrderMargin>> GetOrderMarginsAsync(List<OrderMarginParams> OrderMarginParams, string Mode = null, CancellationToken cancellationToken = default)
         {
-            var paramList = new List<Dictionary<string, dynamic>>();
+            var queryParameterBuilder = new ParametersBuilder()
+                .AddIfNotNull("mode", Mode);
 
-            foreach (var item in OrderMarginParams)
-            {
-                var param = new Dictionary<string, dynamic>();
-                param["exchange"] = item.Exchange;
-                param["tradingsymbol"] = item.TradingSymbol;
-                param["transaction_type"] = item.TransactionType;
-                param["quantity"] = item.Quantity;
-                param["price"] = item.Price;
-                param["product"] = item.Product;
-                param["order_type"] = item.OrderType;
-                param["trigger_price"] = item.TriggerPrice;
-                param["variety"] = item.Variety;
-
-                paramList.Add(param);
-            }
-
-            var queryParams = new Dictionary<string, dynamic>();
-            if (Mode != null)
-            {
-                queryParams["mode"] = Mode;
-            }
-
-            var orderMarginsData = Post(Routes.Order.Margins, paramList, QueryParams: queryParams, json: true);
-
-            List<OrderMargin> orderMargins = new List<OrderMargin>();
-            foreach (Dictionary<string, dynamic> item in orderMarginsData["data"])
-                orderMargins.Add(new OrderMargin(item));
-
-            return orderMargins;
+            return PostJsonAsync<List<OrderMarginParams>, List<OrderMargin>>("/margins/orders", queryParameters: queryParameterBuilder.Build(), jsonData: OrderMarginParams, cancellationToken: cancellationToken);
         }
 
         /// <summary>
@@ -271,37 +230,15 @@ namespace KiteConnect
         /// <param name="OrderMarginParams">List of all order params to get margins for</param>
         /// <param name="ConsiderPositions">Consider users positions while calculating margins</param>
         /// <param name="Mode">Mode of the returned response content. Eg: Constants.Margin.Mode.Compact</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>List of margins of order</returns>
-        public BasketMargin GetBasketMargins(List<OrderMarginParams> OrderMarginParams, bool ConsiderPositions = true, string Mode = null)
+        public Task<BasketMargin> GetBasketMarginsAsync(List<OrderMarginParams> OrderMarginParams, bool ConsiderPositions = true, string Mode = null, CancellationToken cancellationToken = default)
         {
-            var paramList = new List<Dictionary<string, dynamic>>();
+            var queryParameterBuilder = new ParametersBuilder()
+                .Add("consider_positions", ConsiderPositions)
+                .AddIfNotNull("mode", Mode);
 
-            foreach (var item in OrderMarginParams)
-            {
-                var param = new Dictionary<string, dynamic>();
-                param["exchange"] = item.Exchange;
-                param["tradingsymbol"] = item.TradingSymbol;
-                param["transaction_type"] = item.TransactionType;
-                param["quantity"] = item.Quantity;
-                param["price"] = item.Price;
-                param["product"] = item.Product;
-                param["order_type"] = item.OrderType;
-                param["trigger_price"] = item.TriggerPrice;
-                param["variety"] = item.Variety;
-
-                paramList.Add(param);
-            }
-
-            var queryParams = new Dictionary<string, dynamic>();
-            queryParams["consider_positions"] = ConsiderPositions ? "true" : "false";
-            if (Mode != null)
-            {
-                queryParams["mode"] = Mode;
-            }
-
-            var basketMarginsData = Post(Routes.Basket.Margins, paramList, QueryParams: queryParams, json: true);
-
-            return new BasketMargin(basketMarginsData["data"]);
+            return PostJsonAsync<List<OrderMarginParams>, BasketMargin>("/margins/basket", queryParameters: queryParameterBuilder.Build(), jsonData: OrderMarginParams, cancellationToken: cancellationToken);
         }
 
         /// <summary>
@@ -346,6 +283,8 @@ namespace KiteConnect
         /// <param name="ValidityTTL">Order life span in minutes for TTL validity orders</param>
         /// <param name="IcebergLegs">Total number of legs for iceberg order type (number of legs per Iceberg should be between 2 and 10)</param>
         /// <param name="IcebergQuantity">Split quantity for each iceberg leg order (Quantity/IcebergLegs)</param>
+        /// <param name="AuctionNumber">A unique identifier for a particular auction</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Json response in the form of nested string dictionary.</returns>
         public Task<OrderResponse> PlaceOrderAsync(
             string Exchange,
@@ -366,7 +305,8 @@ namespace KiteConnect
             int? ValidityTTL = null,
             int? IcebergLegs = null,
             decimal? IcebergQuantity = null,
-            string AuctionNumber = null
+            string AuctionNumber = null,
+            CancellationToken cancellationToken = default
             )
         {
             var formDataBuilder = new ParametersBuilder()
@@ -390,7 +330,7 @@ namespace KiteConnect
                 .AddIfNotNull("iceberg_quantity", IcebergQuantity)
                 .AddIfNotNull("auction_number", AuctionNumber);
 
-            return PostAsync<OrderResponse>($"/orders/{Variety}", formData: formDataBuilder.Build());
+            return PostAsync<OrderResponse>($"/orders/{Variety}", formData: formDataBuilder.Build(), cancellationToken: cancellationToken);
         }
 
         /// <summary>
@@ -409,8 +349,9 @@ namespace KiteConnect
         /// <param name="DisclosedQuantity">Quantity to disclose publicly (for equity trades)</param>
         /// <param name="TriggerPrice">For SL, SL-M etc.</param>
         /// <param name="Variety">You can place orders of varieties; regular orders, after market orders, cover orders etc. </param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Json response in the form of nested string dictionary.</returns>
-        public Task<OrderResponse> ModifyOrder(
+        public Task<OrderResponse> ModifyOrderAsync(
             string OrderId,
             string ParentOrderId = null,
             string Exchange = null,
@@ -423,7 +364,8 @@ namespace KiteConnect
             string Validity = Constants.Validity.Day,
             decimal? DisclosedQuantity = null,
             decimal? TriggerPrice = null,
-            string Variety = Constants.Variety.Regular)
+            string Variety = Constants.Variety.Regular,
+            CancellationToken cancellationToken = default)
         {
             var formDataBuilder = new ParametersBuilder();
 
@@ -457,7 +399,7 @@ namespace KiteConnect
                     .AddIfNotNull("disclosed_quantity", DisclosedQuantity);
             }
 
-            return PutAsync<OrderResponse>($"/orders/{Variety}/{OrderId}", formData: formDataBuilder.Build());
+            return PutAsync<OrderResponse>($"/orders/{Variety}/{OrderId}", formData: formDataBuilder.Build(), cancellationToken: cancellationToken);
         }
 
         /// <summary>
@@ -466,32 +408,35 @@ namespace KiteConnect
         /// <param name="OrderId">Id of the order to be cancelled</param>
         /// <param name="Variety">You can place orders of varieties; regular orders, after market orders, cover orders etc. </param>
         /// <param name="ParentOrderId">Id of the parent order (obtained from the /orders call) as BO is a multi-legged order</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Json response in the form of nested string dictionary.</returns>
-        public Task<OrderResponse> CancelOrderAsync(string OrderId, string Variety = Constants.Variety.Regular, string ParentOrderId = null)
+        public Task<OrderResponse> CancelOrderAsync(string OrderId, string Variety = Constants.Variety.Regular, string ParentOrderId = null, CancellationToken cancellationToken = default)
         {
             var queryParametersBuilder = new ParametersBuilder()
                 .AddIfNotNull("parent_order_id", ParentOrderId);//TODO undocumented parameter
 
-            return DeleteAsync<OrderResponse>($"/orders/{Variety}/{OrderId}", queryParameters: queryParametersBuilder.Build());
+            return DeleteAsync<OrderResponse>($"/orders/{Variety}/{OrderId}", queryParameters: queryParametersBuilder.Build(), cancellationToken: cancellationToken);
         }
 
         /// <summary>
         /// Gets the collection of orders from the orderbook.
         /// </summary>
+        /// <param name="cancellationToken"></param>
         /// <returns>List of orders.</returns>
-        public Task<List<Order>> GetOrdersAsync()
+        public Task<List<Order>> GetOrdersAsync(CancellationToken cancellationToken = default)
         {
-            return GetAsync<List<Order>>("/orders");
+            return GetAsync<List<Order>>("/orders", cancellationToken: cancellationToken);
         }
 
         /// <summary>
         /// Gets information about given OrderId.
         /// </summary>
         /// <param name="OrderId">Unique order id</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>List of order objects.</returns>
-        public Task<List<Order>> GetOrderHistoryAsync(string OrderId)
+        public Task<List<Order>> GetOrderHistoryAsync(string OrderId, CancellationToken cancellationToken = default)
         {
-            return GetAsync<List<Order>>($"/orders/{OrderId}");
+            return GetAsync<List<Order>>($"/orders/{OrderId}", cancellationToken: cancellationToken);
         }
 
         /// <summary>
@@ -500,54 +445,44 @@ namespace KiteConnect
         /// These trades are individually recorded under an order.
         /// </summary>
         /// <param name="OrderId">is the ID of the order (optional) whose trades are to be retrieved. If no `OrderId` is specified, all trades for the day are returned.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>List of trades of given order.</returns>
-        public Task<List<Trade>> GetOrderTradesAsync(string OrderId = null)
+        public Task<List<Trade>> GetOrderTradesAsync(string OrderId = null, CancellationToken cancellationToken = default)
         {
             if (!string.IsNullOrEmpty(OrderId))
-                return GetAsync<List<Trade>>($"/orders/{OrderId}/trades");
+                return GetAsync<List<Trade>>($"/orders/{OrderId}/trades", cancellationToken: cancellationToken);
             else
-                return GetAsync<List<Trade>>("/trades");
+                return GetAsync<List<Trade>>("/trades", cancellationToken: cancellationToken);
         }
 
         /// <summary>
         /// Retrieve the list of positions.
         /// </summary>
+        /// <param name="cancellationToken"></param>
         /// <returns>Day and net positions.</returns>
-        public Task<PositionResponse> GetPositionsAsync()
+        public Task<PositionResponse> GetPositionsAsync(CancellationToken cancellationToken = default)
         {
-            return GetAsync<PositionResponse>("/portfolio/positions");
+            return GetAsync<PositionResponse>("/portfolio/positions", cancellationToken: cancellationToken);
         }
 
         /// <summary>
         /// Retrieve the list of equity holdings.
         /// </summary>
+        /// <param name="cancellationToken"></param>
         /// <returns>List of holdings.</returns>
-        public List<Holding> GetHoldings()
+        public Task<List<Holding>> GetHoldingsAsync(CancellationToken cancellationToken = default)
         {
-            var holdingsData = Get(Routes.Portfolio.Holdings);
-
-            List<Holding> holdings = new List<Holding>();
-
-            foreach (Dictionary<string, dynamic> item in holdingsData["data"])
-                holdings.Add(new Holding(item));
-
-            return holdings;
+            return GetAsync<List<Holding>>("/portfolio/holdings", cancellationToken: cancellationToken);
         }
 
         /// <summary>
         /// Retrieve the list of auction instruments.
         /// </summary>
+        /// <param name="cancellationToken"></param>
         /// <returns>List of auction instruments.</returns>
-        public List<AuctionInstrument> GetAuctionInstruments()
+        public Task<List<AuctionInstrument>> GetAuctionInstrumentsAsync(CancellationToken cancellationToken = default)
         {
-            var instrumentsData = Get(Routes.Portfolio.AuctionInstruments);
-
-            List<AuctionInstrument> instruments = new List<AuctionInstrument>();
-
-            foreach (Dictionary<string, dynamic> item in instrumentsData["data"])
-                instruments.Add(new AuctionInstrument(item));
-
-            return instruments;
+            return GetAsync<List<AuctionInstrument>>("/portfolio/holdings/auctions", cancellationToken: cancellationToken);
         }
 
         /// <summary>
@@ -560,110 +495,95 @@ namespace KiteConnect
         /// <param name="Quantity">Quantity to convert</param>
         /// <param name="OldProduct">Existing margin product of the position</param>
         /// <param name="NewProduct">Margin product to convert to</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Json response in the form of nested string dictionary.</returns>
-        public Dictionary<string, dynamic> ConvertPosition(
+        public Task<bool> ConvertPositionAsync(
             string Exchange,
             string TradingSymbol,
             string TransactionType,
             string PositionType,
             decimal? Quantity,
             string OldProduct,
-            string NewProduct)
+            string NewProduct,
+            CancellationToken cancellationToken = default)
         {
-            var param = new Dictionary<string, dynamic>();
+            var formDataBuilder = new ParametersBuilder()
+                .AddIfNotNull("exchange", Exchange)
+                .AddIfNotNull("tradingsymbol", TradingSymbol)
+                .AddIfNotNull("transaction_type", TransactionType)
+                .AddIfNotNull("position_type", PositionType)
+                .AddIfNotNull("quantity", Quantity)
+                .AddIfNotNull("old_product", OldProduct)
+                .AddIfNotNull("new_product", NewProduct);
 
-            Utils.AddIfNotNull(param, "exchange", Exchange);
-            Utils.AddIfNotNull(param, "tradingsymbol", TradingSymbol);
-            Utils.AddIfNotNull(param, "transaction_type", TransactionType);
-            Utils.AddIfNotNull(param, "position_type", PositionType);
-            Utils.AddIfNotNull(param, "quantity", Quantity.ToString());
-            Utils.AddIfNotNull(param, "old_product", OldProduct);
-            Utils.AddIfNotNull(param, "new_product", NewProduct);
-
-            return Put(Routes.Portfolio.ModifyPositions, param);
+            return PutAsync<bool>("/portfolio/positions", formData: formDataBuilder.Build(), cancellationToken: cancellationToken);
         }
 
         /// <summary>
         /// Retrieve the list of market instruments available to trade.
         /// Note that the results could be large, several hundred KBs in size,
-		/// with tens of thousands of entries in the list.
+        /// with tens of thousands of entries in the list.
         /// </summary>
         /// <param name="Exchange">Name of the exchange</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>List of instruments.</returns>
-        public List<Instrument> GetInstruments(string Exchange = null)
+        public IAsyncEnumerable<Instrument> GetInstrumentsAsync(string Exchange = null, CancellationToken cancellationToken = default)
         {
-            var param = new Dictionary<string, dynamic>();
-
-            List<Dictionary<string, dynamic>> instrumentsData;
-
             if (string.IsNullOrEmpty(Exchange))
-                instrumentsData = Get(Routes.Market.AllInstruments, param);
+                return GetCsvAsync<Instrument>("/instruments", cancellationToken: cancellationToken);
             else
-            {
-                param.Add("exchange", Exchange);
-                instrumentsData = Get(Routes.Market.Instruments, param);
-            }
-
-            List<Instrument> instruments = new List<Instrument>();
-
-            foreach (Dictionary<string, dynamic> item in instrumentsData)
-                instruments.Add(new Instrument(item));
-
-            return instruments;
+                return GetCsvAsync<Instrument>($"/instruments/{Exchange}", cancellationToken: cancellationToken);
         }
 
         /// <summary>
         /// Retrieve quote and market depth of upto 200 instruments
         /// </summary>
         /// <param name="InstrumentId">Indentification of instrument in the form of EXCHANGE:TRADINGSYMBOL (eg: NSE:INFY) or InstrumentToken (eg: 408065)</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Dictionary of all Quote objects with keys as in InstrumentId</returns>
-        public Dictionary<string, Quote> GetQuote(string[] InstrumentId)
+        public Task<Dictionary<string, Quote>> GetQuoteAsync(string[] InstrumentId, CancellationToken cancellationToken = default)
         {
-            var param = new Dictionary<string, dynamic>();
-            param.Add("i", InstrumentId);
-            Dictionary<string, dynamic> quoteData = Get(Routes.Market.Quote, param)["data"];
+            var queryParametersBuilder = new ParametersBuilder();
+            foreach (var i in InstrumentId)
+            {
+                queryParametersBuilder.Add("i", i);
+            }
 
-            Dictionary<string, Quote> quotes = new Dictionary<string, Quote>();
-            foreach (string item in quoteData.Keys)
-                quotes.Add(item, new Quote(quoteData[item]));
-
-            return quotes;
+            return GetAsync<Dictionary<string, Quote>>("/quote", queryParameters: queryParametersBuilder.Build(), cancellationToken: cancellationToken);
         }
 
         /// <summary>
         /// Retrieve LTP and OHLC of upto 200 instruments
         /// </summary>
         /// <param name="InstrumentId">Indentification of instrument in the form of EXCHANGE:TRADINGSYMBOL (eg: NSE:INFY) or InstrumentToken (eg: 408065)</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Dictionary of all OHLC objects with keys as in InstrumentId</returns>
-        public Dictionary<string, OHLC> GetOHLC(string[] InstrumentId)
+        public Task<Dictionary<string, OHLCResponse>> GetOHLCAsync(string[] InstrumentId, CancellationToken cancellationToken = default)
         {
-            var param = new Dictionary<string, dynamic>();
-            param.Add("i", InstrumentId);
-            Dictionary<string, dynamic> ohlcData = Get(Routes.Market.OHLC, param)["data"];
+            var queryParametersBuilder = new ParametersBuilder();
+            foreach (var i in InstrumentId)
+            {
+                queryParametersBuilder.Add("i", i);
+            }
 
-            Dictionary<string, OHLC> ohlcs = new Dictionary<string, OHLC>();
-            foreach (string item in ohlcData.Keys)
-                ohlcs.Add(item, new OHLC(ohlcData[item]));
-
-            return ohlcs;
+            return GetAsync<Dictionary<string, OHLCResponse>>("/quote/ohlc", queryParameters: queryParametersBuilder.Build(), cancellationToken: cancellationToken);
         }
 
         /// <summary>
         /// Retrieve LTP of upto 200 instruments
         /// </summary>
         /// <param name="InstrumentId">Indentification of instrument in the form of EXCHANGE:TRADINGSYMBOL (eg: NSE:INFY) or InstrumentToken (eg: 408065)</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Dictionary with InstrumentId as key and LTP as value.</returns>
-        public Dictionary<string, LTP> GetLTP(string[] InstrumentId)
+        public Task<Dictionary<string, LTP>> GetLTPAsync(string[] InstrumentId, CancellationToken cancellationToken = default)
         {
-            var param = new Dictionary<string, dynamic>();
-            param.Add("i", InstrumentId);
-            Dictionary<string, dynamic> ltpData = Get(Routes.Market.LTP, param)["data"];
+            var queryParametersBuilder = new ParametersBuilder();
+            foreach (var i in InstrumentId)
+            {
+                queryParametersBuilder.Add("i", i);
+            }
 
-            Dictionary<string, LTP> ltps = new Dictionary<string, LTP>();
-            foreach (string item in ltpData.Keys)
-                ltps.Add(item, new LTP(ltpData[item]));
-
-            return ltps;
+            return GetAsync<Dictionary<string, LTP>>("/quote/ltp", queryParameters: queryParametersBuilder.Build(), cancellationToken: cancellationToken);
         }
 
         /// <summary>
@@ -675,33 +595,28 @@ namespace KiteConnect
         /// <param name="Interval">The candle record interval. Possible values are: minute, day, 3minute, 5minute, 10minute, 15minute, 30minute, 60minute</param>
         /// <param name="Continuous">Pass true to get continous data of expired instruments.</param>
         /// <param name="OI">Pass true to get open interest data.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>List of Historical objects.</returns>
-        public List<Historical> GetHistoricalData(
+        public Task<HistoricalResponse> GetHistoricalDataAsync(
             string InstrumentToken,
             DateTime FromDate,
             DateTime ToDate,
             string Interval,
             bool Continuous = false,
-            bool OI = false)
+            bool OI = false,
+            CancellationToken cancellationToken = default)
         {
-            var param = new Dictionary<string, dynamic>();
+            var queryParametersBuilder = new ParametersBuilder();
 
-            param.Add("instrument_token", InstrumentToken);
-            param.Add("from", FromDate.ToString("yyyy-MM-dd HH:mm:ss"));
-            param.Add("to", ToDate.ToString("yyyy-MM-dd HH:mm:ss"));
-            param.Add("interval", Interval);
-            param.Add("continuous", Continuous ? "1" : "0");
-            param.Add("oi", OI ? "1" : "0");
+            queryParametersBuilder.Add("from", FromDate);
+            queryParametersBuilder.Add("to", ToDate);
+            queryParametersBuilder.AddAsO1("continuous", Continuous);
+            queryParametersBuilder.AddAsO1("oi", OI);
 
-            var historicalData = Get(Routes.Market.Historical, param);
-
-            List<Historical> historicals = new List<Historical>();
-
-            foreach (ArrayList item in historicalData["data"]["candles"])
-                historicals.Add(new Historical(item));
-
-            return historicals;
+            return GetAsync<HistoricalResponse>($"/instruments/historical/{InstrumentToken}/{Interval}", queryParametersBuilder.Build(), cancellationToken: cancellationToken);
         }
+
+        //TODO undocumented API
 
         /// <summary>
         /// Retrieve the buy/sell trigger range for Cover Orders.
@@ -730,10 +645,11 @@ namespace KiteConnect
         /// <summary>
         /// Retrieve the list of GTTs.
         /// </summary>
+        /// <param name="cancellationToken"></param>
         /// <returns>List of GTTs.</returns>
-        public Task<List<GTT>> GetGTTsAsync()
+        public Task<List<GTT>> GetGTTsAsync(CancellationToken cancellationToken = default)
         {
-            return GetAsync<List<GTT>>("/gtt/triggers");
+            return GetAsync<List<GTT>>("/gtt/triggers", cancellationToken: cancellationToken);
         }
 
 
@@ -741,23 +657,25 @@ namespace KiteConnect
         /// Retrieve a single GTT
         /// </summary>
         /// <param name="GTTId">Id of the GTT</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>GTT info</returns>
-        public Task<GTT> GetGTTAsync(int GTTId)
+        public Task<GTT> GetGTTAsync(int GTTId, CancellationToken cancellationToken = default)
         {
-            return GetAsync<GTT>($"/gtt/triggers/{GTTId}");
+            return GetAsync<GTT>($"/gtt/triggers/{GTTId}", cancellationToken: cancellationToken);
         }
 
         /// <summary>
         /// Place a GTT order
         /// </summary>
         /// <param name="gttParams">Contains the parameters for the GTT order</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Json response in the form of nested string dictionary.</returns>
-        public Task<GTTResponse> PlaceGTTAsync(GTTParams gttParams)
+        public Task<GTTResponse> PlaceGTTAsync(GTTParams gttParams, CancellationToken cancellationToken = default)
         {
             var condition = new Dictionary<string, object>
             {
                 { "exchange", gttParams.Exchange },
-                { "tradingsymbol", gttParams.TradingSymbol },
+                { "tradingsymbol", gttParams.Tradingsymbol },
                 { "trigger_values", gttParams.TriggerPrices },
                 { "last_price", gttParams.LastPrice },
                 { "instrument_token", gttParams.InstrumentToken } //TODO undocumented
@@ -769,7 +687,7 @@ namespace KiteConnect
                 var order = new Dictionary<string, object>()
                 {
                     { "exchange", gttParams.Exchange },
-                    { "tradingsymbol", gttParams.TradingSymbol },
+                    { "tradingsymbol", gttParams.Tradingsymbol },
                     { "transaction_type", o.TransactionType },
                     { "quantity", o.Quantity },
                     { "price", o.Price },
@@ -784,7 +702,7 @@ namespace KiteConnect
                 .Add("orders", JsonSerializer.Serialize(ordersParam, JsonSerializerOptions))
                 .Add("type", gttParams.TriggerType);
 
-            return PostAsync<GTTResponse>("/gtt/triggers", formData: formDataBuilder.Build());
+            return PostAsync<GTTResponse>("/gtt/triggers", formData: formDataBuilder.Build(), cancellationToken: cancellationToken);
         }
 
         /// <summary>
@@ -792,13 +710,14 @@ namespace KiteConnect
         /// </summary>
         /// <param name="GTTId">Id of the GTT to be modified</param>
         /// <param name="gttParams">Contains the parameters for the GTT order</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Json response in the form of nested string dictionary.</returns>
-        public Task<GTTResponse> ModifyGTTAsync(int GTTId, GTTParams gttParams)
+        public Task<GTTResponse> ModifyGTTAsync(int GTTId, GTTParams gttParams, CancellationToken cancellationToken = default)
         {
             var condition = new Dictionary<string, object>
             {
                 { "exchange", gttParams.Exchange },
-                { "tradingsymbol", gttParams.TradingSymbol },
+                { "tradingsymbol", gttParams.Tradingsymbol },
                 { "trigger_values", gttParams.TriggerPrices },
                 { "last_price", gttParams.LastPrice },
                 { "instrument_token", gttParams.InstrumentToken } //TODO undocumented
@@ -810,7 +729,7 @@ namespace KiteConnect
                 var order = new Dictionary<string, object>()
                 {
                     { "exchange", gttParams.Exchange },
-                    { "tradingsymbol", gttParams.TradingSymbol },
+                    { "tradingsymbol", gttParams.Tradingsymbol },
                     { "transaction_type", o.TransactionType },
                     { "quantity", o.Quantity },
                     { "price", o.Price },
@@ -825,17 +744,18 @@ namespace KiteConnect
                 .Add("orders", JsonSerializer.Serialize(ordersParam, JsonSerializerOptions))
                 .Add("type", gttParams.TriggerType);
 
-            return PutAsync<GTTResponse>($"/gtt/triggers/{GTTId}", formDataBuilder.Build());
+            return PutAsync<GTTResponse>($"/gtt/triggers/{GTTId}", formDataBuilder.Build(), cancellationToken: cancellationToken);
         }
 
         /// <summary>
         /// Cancel a GTT order
         /// </summary>
         /// <param name="GTTId">Id of the GTT to be modified</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>Json response in the form of nested string dictionary.</returns>
-        public Task<GTTResponse> CancelGTT(int GTTId)
+        public Task<GTTResponse> CancelGTTAsync(int GTTId, CancellationToken cancellationToken = default)
         {
-            return DeleteAsync<GTTResponse>($"/gtt/triggers/{GTTId}");
+            return DeleteAsync<GTTResponse>($"/gtt/triggers/{GTTId}", cancellationToken: cancellationToken);
         }
 
         #endregion GTT
@@ -846,40 +766,21 @@ namespace KiteConnect
         /// <summary>
         /// Gets the Mutual funds Instruments.
         /// </summary>
+        /// <param name="cancellationToken"></param>
         /// <returns>The Mutual funds Instruments.</returns>
-        public List<MFInstrument> GetMFInstruments()
+        public IAsyncEnumerable<MFInstrument> GetMFInstrumentsAsync(CancellationToken cancellationToken = default)
         {
-            var param = new Dictionary<string, dynamic>();
-
-            List<Dictionary<string, dynamic>> instrumentsData;
-
-            instrumentsData = Get(Routes.MutualFunds.Instruments, param);
-
-            List<MFInstrument> instruments = new List<MFInstrument>();
-
-            foreach (Dictionary<string, dynamic> item in instrumentsData)
-                instruments.Add(new MFInstrument(item));
-
-            return instruments;
+            return GetCsvAsync<MFInstrument>("/mf/instruments", cancellationToken: cancellationToken);
         }
 
         /// <summary>
         /// Gets all Mutual funds orders.
         /// </summary>
+        /// <param name="cancellationToken"></param>
         /// <returns>The Mutual funds orders.</returns>
-        public List<MFOrder> GetMFOrders()
+        public Task<List<MFOrder>> GetMFOrdersAsync(CancellationToken cancellationToken = default)
         {
-            var param = new Dictionary<string, dynamic>();
-
-            Dictionary<string, dynamic> ordersData;
-            ordersData = Get(Routes.MutualFunds.Orders, param);
-
-            List<MFOrder> orderlist = new List<MFOrder>();
-
-            foreach (Dictionary<string, dynamic> item in ordersData["data"])
-                orderlist.Add(new MFOrder(item));
-
-            return orderlist;
+            return GetAsync<List<MFOrder>>("/mf/orders", cancellationToken: cancellationToken);
         }
 
         /// <summary>
@@ -887,16 +788,13 @@ namespace KiteConnect
         /// </summary>
         /// <returns>The Mutual funds order.</returns>
         /// <param name="OrderId">Order id.</param>
-        public MFOrder GetMFOrders(string OrderId)
+        /// <param name="cancellationToken"></param>
+        public Task<MFOrder> GetMFOrdersAsync(string OrderId, CancellationToken cancellationToken = default)
         {
-            var param = new Dictionary<string, dynamic>();
-            param.Add("order_id", OrderId);
-
-            Dictionary<string, dynamic> orderData;
-            orderData = Get(Routes.MutualFunds.Order, param);
-
-            return new MFOrder(orderData["data"]);
+            return GetAsync<MFOrder>($"/mf/orders/{OrderId}", cancellationToken: cancellationToken);
         }
+
+        //TODO undocumented API
 
         /// <summary>
         /// Places a Mutual funds order.
@@ -925,6 +823,8 @@ namespace KiteConnect
             return Post(Routes.MutualFunds.PlaceOrder, param);
         }
 
+        //TODO undocumented API
+
         /// <summary>
         /// Cancels the Mutual funds order.
         /// </summary>
@@ -942,20 +842,11 @@ namespace KiteConnect
         /// <summary>
         /// Gets all Mutual funds SIPs.
         /// </summary>
+        /// <param name="cancellationToken"></param>
         /// <returns>The list of all Mutual funds SIPs.</returns>
-        public List<MFSIP> GetMFSIPs()
+        public Task<List<MFSIP>> GetMFSIPsAsync(CancellationToken cancellationToken = default)
         {
-            var param = new Dictionary<string, dynamic>();
-
-            Dictionary<string, dynamic> sipData;
-            sipData = Get(Routes.MutualFunds.SIPs, param);
-
-            List<MFSIP> siplist = new List<MFSIP>();
-
-            foreach (Dictionary<string, dynamic> item in sipData["data"])
-                siplist.Add(new MFSIP(item));
-
-            return siplist;
+            return GetAsync<List<MFSIP>>("/mf/sips", cancellationToken: cancellationToken);
         }
 
         /// <summary>
@@ -963,16 +854,13 @@ namespace KiteConnect
         /// </summary>
         /// <returns>The Mutual funds SIP.</returns>
         /// <param name="SIPID">SIP id.</param>
-        public MFSIP GetMFSIPs(string SIPID)
+        /// <param name="cancellationToken"></param>
+        public Task<MFSIP> GetMFSIPsAsync(string SIPID, CancellationToken cancellationToken = default)
         {
-            var param = new Dictionary<string, dynamic>();
-            param.Add("sip_id", SIPID);
-
-            Dictionary<string, dynamic> sipData;
-            sipData = Get(Routes.MutualFunds.SIP, param);
-
-            return new MFSIP(sipData["data"]);
+            return GetAsync<MFSIP>($"/mf/sips/{SIPID}", cancellationToken: cancellationToken);
         }
+
+        //TODO undocumented API
 
         /// <summary>
         /// Places a Mutual funds SIP order.
@@ -1006,6 +894,8 @@ namespace KiteConnect
             return Post(Routes.MutualFunds.PlaceSIP, param);
         }
 
+        //TODO undocumented API
+
         /// <summary>
         /// Modifies the Mutual funds SIP.
         /// </summary>
@@ -1036,12 +926,14 @@ namespace KiteConnect
             return Put(Routes.MutualFunds.ModifySIP, param);
         }
 
+        //TODO undocumented API
+
         /// <summary>
         /// Cancels the Mutual funds SIP.
         /// </summary>
         /// <returns>JSON response as nested string dictionary.</returns>
         /// <param name="SIPId">SIP id.</param>
-		public Dictionary<string, dynamic> CancelMFSIP(string SIPId)
+        public Dictionary<string, dynamic> CancelMFSIP(string SIPId)
         {
             var param = new Dictionary<string, dynamic>();
 
@@ -1053,20 +945,11 @@ namespace KiteConnect
         /// <summary>
         /// Gets the Mutual funds holdings.
         /// </summary>
+        /// <param name="cancellationToken"></param>
         /// <returns>The list of all Mutual funds holdings.</returns>
-        public List<MFHolding> GetMFHoldings()
+        public async Task<List<MFHolding>> GetMFHoldingsAsync(CancellationToken cancellationToken = default)
         {
-            var param = new Dictionary<string, dynamic>();
-
-            Dictionary<string, dynamic> holdingsData;
-            holdingsData = Get(Routes.MutualFunds.Holdings, param);
-
-            List<MFHolding> holdingslist = new List<MFHolding>();
-
-            foreach (Dictionary<string, dynamic> item in holdingsData["data"])
-                holdingslist.Add(new MFHolding(item));
-
-            return holdingslist;
+            return await GetAsync<List<MFHolding>>("/mf/holdings", cancellationToken: cancellationToken);
         }
 
         #endregion
@@ -1272,12 +1155,39 @@ namespace KiteConnect
             return SendRequestAsync<TResult>(HttpMethod.Get, url, cancellationToken: cancellationToken);
         }
 
+        private async IAsyncEnumerable<TResult> GetCsvAsync<TResult>(string path, IReadOnlyCollection<KeyValuePair<string, string>> queryParameters = null, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+        {
+            string url = BuildUrl(_root, path, queryParameters);
+            using var httpResponse = await httpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+            httpResponse.EnsureSuccessStatusCode();
+            if (httpResponse.Content.Headers.ContentType.MediaType != "text/csv")
+                throw new DataException($"Unexpected content type {httpResponse.Content.Headers.ContentType.MediaType}");
+            using var stream = await httpResponse.Content.ReadAsStreamAsync(cancellationToken);
+            using (var reader = new StreamReader(stream))
+            using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
+            {
+                await foreach (var record in csv.GetRecordsAsync<TResult>(cancellationToken))
+                {
+                    yield return record;
+                }
+            }
+        }
+
         private Task<TResult> PostAsync<TResult>(string path, IReadOnlyCollection<KeyValuePair<string, string>> queryParameters = null, IReadOnlyCollection<KeyValuePair<string, string>> formData = default, CancellationToken cancellationToken = default)
         {
             string url = BuildUrl(_root, path, queryParameters);
             HttpContent content = null;
             if (formData != null && formData.Count > 0)
                 content = new FormUrlEncodedContent(formData);
+            return SendRequestAsync<TResult>(HttpMethod.Post, url, content, cancellationToken);
+        }
+
+        private Task<TResult> PostJsonAsync<T, TResult>(string path, IReadOnlyCollection<KeyValuePair<string, string>> queryParameters = null, T jsonData = default, CancellationToken cancellationToken = default)
+        {
+            string url = BuildUrl(_root, path, queryParameters);
+            HttpContent content = null;
+            if (jsonData != null)
+                content = JsonContent.Create(jsonData);
             return SendRequestAsync<TResult>(HttpMethod.Post, url, content, cancellationToken);
         }
 
@@ -1327,6 +1237,7 @@ namespace KiteConnect
         {
             if (httpResponse.IsSuccessStatusCode)
             {
+                var strResponse = await httpResponse.Content.ReadAsStringAsync();//TODO remove
                 var response = await httpResponse.Content.ReadFromJsonAsync<SucessResponse<T>>(JsonSerializerOptions, cancellationToken);
                 if (response.Status == ResponseStatus.Success)
                     return response.Data;

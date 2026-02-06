@@ -1,5 +1,5 @@
-﻿using System;
-using System.Collections;
+﻿using CsvHelper.Configuration.Attributes;
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Text.Json.Nodes;
@@ -72,34 +72,24 @@ namespace KiteConnect
     /// </summary>
     public class DepthItem
     {
-        public DepthItem(Dictionary<string, dynamic> data)
-        {
-            Quantity = Convert.ToUInt32(data["quantity"]);
-            Price = data["price"];
-            Orders = Convert.ToUInt32(data["orders"]);
-        }
-
         public uint Quantity { get; set; }
         public decimal Price { get; set; }
         public uint Orders { get; set; }
     }
 
     /// <summary>
-    /// Historical structure
+    /// Historical Response structure
     /// </summary>
-    public class Historical
+    public class HistoricalResponse
     {
-        public Historical(ArrayList data)
-        {
-            TimeStamp = Convert.ToDateTime(data[0]);
-            Open = Convert.ToDecimal(data[1]);
-            High = Convert.ToDecimal(data[2]);
-            Low = Convert.ToDecimal(data[3]);
-            Close = Convert.ToDecimal(data[4]);
-            Volume = Convert.ToUInt64(data[5]);
-            OI = data.Count > 6 ? Convert.ToUInt64(data[6]) : 0;
-        }
+        public List<Candle> Candles { get; set; }
+    }
 
+    /// <summary>
+    /// Candle structure
+    /// </summary>
+    public class Candle
+    {
         public DateTime TimeStamp { get; set; }
         public decimal Open { get; set; }
         public decimal High { get; set; }
@@ -114,37 +104,6 @@ namespace KiteConnect
     /// </summary>
     public class Holding
     {
-        public Holding(Dictionary<string, dynamic> data)
-        {
-            try
-            {
-                Product = data["product"];
-                Exchange = data["exchange"];
-                Price = data["price"];
-                LastPrice = data["last_price"];
-                CollateralQuantity = Convert.ToInt32(data["collateral_quantity"]);
-                PNL = data["pnl"];
-                ClosePrice = data["close_price"];
-                AveragePrice = data["average_price"];
-                TradingSymbol = data["tradingsymbol"];
-                CollateralType = data["collateral_type"];
-                T1Quantity = Convert.ToInt32(data["t1_quantity"]);
-                InstrumentToken = Convert.ToUInt32(data["instrument_token"]);
-                ISIN = data["isin"];
-                RealisedQuantity = Convert.ToInt32(data["realised_quantity"]);
-                Quantity = Convert.ToInt32(data["quantity"]);
-                UsedQuantity = Convert.ToInt32(data["used_quantity"]);
-                AuthorisedQuantity = Convert.ToInt32(data["authorised_quantity"]);
-                AuthorisedDate = Utils.StringToDate(data["authorised_date"]);
-                Discrepancy = data["discrepancy"];
-                MTF = new MTFHolding(data["mtf"]);
-            }
-            catch (Exception e)
-            {
-                throw new DataException(e.Message + " " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
-            }
-        }
-
         public string Product { get; set; }
         public string Exchange { get; set; }
         public decimal Price { get; set; }
@@ -153,7 +112,7 @@ namespace KiteConnect
         public decimal PNL { get; set; }
         public decimal ClosePrice { get; set; }
         public decimal AveragePrice { get; set; }
-        public string TradingSymbol { get; set; }
+        public string Tradingsymbol { get; set; }
         public string CollateralType { get; set; }
         public decimal T1Quantity { get; set; }
         public uint InstrumentToken { get; set; }
@@ -172,22 +131,6 @@ namespace KiteConnect
     /// </summary>
     public class MTFHolding
     {
-        public MTFHolding(Dictionary<string, dynamic> data)
-        {
-            try
-            {
-                Quantity = data["quantity"];
-                UsedQuantity = data["used_quantity"];
-                AveragePrice = data["average_price"];
-                Value = data["value"];
-                InitialMargin = data["initial_margin"];
-            }
-            catch (Exception e)
-            {
-                throw new DataException(e.Message + " " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
-            }
-        }
-
         public decimal Quantity { get; set; }
         public decimal UsedQuantity { get; set; }
         public decimal AveragePrice { get; set; }
@@ -200,40 +143,7 @@ namespace KiteConnect
     /// </summary>
     public class AuctionInstrument
     {
-        public AuctionInstrument(Dictionary<string, dynamic> data)
-        {
-            try
-            {
-                TradingSymbol = data["tradingsymbol"];
-                Exchange = data["exchange"];
-                InstrumentToken = Convert.ToUInt32(data["instrument_token"]);
-                ISIN = data["isin"];
-                Product = data["product"];
-                Price = data["price"];
-                Quantity = Convert.ToInt32(data["quantity"]);
-                T1Quantity = Convert.ToInt32(data["t1_quantity"]);
-                RealisedQuantity = Convert.ToInt32(data["realised_quantity"]);
-                AuthorisedQuantity = Convert.ToInt32(data["authorised_quantity"]);
-                AuthorisedDate = Utils.StringToDate(data["authorised_date"]);
-                OpeningQuantity = Convert.ToInt32(data["opening_quantity"]);
-                CollateralQuantity = Convert.ToInt32(data["collateral_quantity"]);
-                CollateralType = data["collateral_type"];
-                Discrepancy = data["discrepancy"];
-                AveragePrice = data["average_price"];
-                LastPrice = data["last_price"];
-                ClosePrice = data["close_price"];
-                PNL = data["pnl"];
-                DayChange = data["day_change"];
-                DayChangePercentage = data["day_change_percentage"];
-                AuctionNumber = data["auction_number"];
-            }
-            catch (Exception e)
-            {
-                throw new DataException(e.Message + " " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
-            }
-        }
-
-        public string TradingSymbol { get; set; }
+        public string Tradingsymbol { get; set; }
         public string Exchange { get; set; }
         public uint InstrumentToken { get; set; }
         public string ISIN { get; set; }
@@ -323,7 +233,7 @@ namespace KiteConnect
         /// <summary>
         /// Tradingsymbol of the instrument  (ex. RELIANCE, INFY)
         /// </summary>
-        public string TradingSymbol { get; set; }
+        public string Tradingsymbol { get; set; }
 
         /// <summary>
         /// Transaction type (Constants.Transaction.Buy or Constants.Transaction.Sell)
@@ -366,33 +276,6 @@ namespace KiteConnect
     /// </summary>
     public class OrderMargin
     {
-        public OrderMargin(Dictionary<string, dynamic> data)
-        {
-            try
-            {
-                Type = data["type"];
-                Exchange = data["exchange"];
-                Tradingsymbol = data["tradingsymbol"];
-                Total = data["total"];
-
-                // available only in non compact mode
-                OptionPremium = Utils.GetValueOrDefault(data, "option_premium", 0m);
-                SPAN = Utils.GetValueOrDefault(data, "span", 0m);
-                Exposure = Utils.GetValueOrDefault(data, "exposure", 0m);
-                Additional = Utils.GetValueOrDefault(data, "additional", 0m);
-                BO = Utils.GetValueOrDefault(data, "bo", 0m);
-                Cash = Utils.GetValueOrDefault(data, "cash", 0m);
-                VAR = Utils.GetValueOrDefault(data, "var", 0m);
-                Leverage = Utils.GetValueOrDefault(data, "leverage", 0m);
-                Charges = new OrderCharges(Utils.GetValueOrDefault(data, "charges", new Dictionary<string, dynamic>()));
-                PNL = new OrderMarginPNL(Utils.GetValueOrDefault(data, "pnl", new Dictionary<string, dynamic>()));
-            }
-            catch (Exception e)
-            {
-                throw new DataException(e.Message + " " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
-            }
-        }
-
         public string Type { get; set; }
         public string Exchange { get; set; }
         public string Tradingsymbol { get; set; }
@@ -427,7 +310,7 @@ namespace KiteConnect
         /// <summary>
         /// Tradingsymbol of the instrument  (ex. RELIANCE, INFY)
         /// </summary>
-        public string TradingSymbol { get; set; }
+        public string Tradingsymbol { get; set; }
 
         /// <summary>
         /// Transaction type (Constants.Transaction.Buy or Constants.Transaction.Sell)
@@ -465,26 +348,6 @@ namespace KiteConnect
     /// </summary>
     public class ContractNote
     {
-        public ContractNote(Dictionary<string, dynamic> data)
-        {
-            try
-            {
-                Exchange = data["exchange"];
-                TradingSymbol = data["tradingsymbol"];
-                TransactionType = data["transaction_type"];
-                Quantity = Convert.ToInt32(data["quantity"]);
-                Price = Utils.GetValueOrDefault(data, "price", 0m);
-                Product = data["product"];
-                OrderType = data["order_type"];
-                Variety = data["variety"];
-                Charges = new OrderCharges(Utils.GetValueOrDefault(data, "charges", new Dictionary<string, dynamic>()));
-            }
-            catch (Exception e)
-            {
-                throw new DataException(e.Message + " " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
-            }
-        }
-
         /// <summary>
         /// Exchange in which instrument is listed (Constants.Exchange.NSE, Constants.Exchange.BSE, etc.)
         /// </summary>
@@ -493,7 +356,7 @@ namespace KiteConnect
         /// <summary>
         /// Tradingsymbol of the instrument  (ex. RELIANCE, INFY)
         /// </summary>
-        public string TradingSymbol { get; set; }
+        public string Tradingsymbol { get; set; }
 
         /// <summary>
         /// Transaction type (Constants.Transaction.Buy or Constants.Transaction.Sell)
@@ -508,7 +371,7 @@ namespace KiteConnect
         /// <summary>
         /// Order price
         /// </summary>
-        public decimal? Price { get; set; }
+        public decimal Price { get; set; }
 
         /// <summary>
         /// Product code (Constants.Product.CNC, Constants.Product.MIS, Constants.Product.NRML)
@@ -536,25 +399,6 @@ namespace KiteConnect
     /// </summary>
     public class OrderCharges
     {
-        public OrderCharges(Dictionary<string, dynamic> data)
-        {
-            try
-            {
-                TransactionTax = Utils.GetValueOrDefault(data, "transaction_tax", 0m);
-                TransactionTaxType = Utils.GetValueOrDefault(data, "transaction_tax_type", "");
-                ExchangeTurnoverCharge = Utils.GetValueOrDefault(data, "exchange_turnover_charge", 0m);
-                SEBITurnoverCharge = Utils.GetValueOrDefault(data, "sebi_turnover_charge", 0m);
-                Brokerage = Utils.GetValueOrDefault(data, "brokerage", 0m);
-                StampDuty = Utils.GetValueOrDefault(data, "stamp_duty", 0m);
-                Total = Utils.GetValueOrDefault(data, "total", 0m);
-                GST = new OrderChargesGST(Utils.GetValueOrDefault(data, "gst", new Dictionary<string, dynamic>()));
-            }
-            catch (Exception e)
-            {
-                throw new DataException(e.Message + " " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
-            }
-        }
-
         public decimal TransactionTax { get; set; }
         public string TransactionTaxType { get; set; }
         public decimal ExchangeTurnoverCharge { get; set; }
@@ -570,21 +414,6 @@ namespace KiteConnect
     /// </summary>
     public class OrderChargesGST
     {
-        public OrderChargesGST(Dictionary<string, dynamic> data)
-        {
-            try
-            {
-                IGST = Utils.GetValueOrDefault(data, "igst", 0m);
-                CGST = Utils.GetValueOrDefault(data, "cgst", 0m);
-                SGST = Utils.GetValueOrDefault(data, "sgst", 0m);
-                Total = Utils.GetValueOrDefault(data, "total", 0m);
-            }
-            catch (Exception e)
-            {
-                throw new DataException(e.Message + " " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
-            }
-        }
-
         public decimal IGST { get; set; }
         public decimal CGST { get; set; }
         public decimal SGST { get; set; }
@@ -596,23 +425,6 @@ namespace KiteConnect
     /// </summary>
     public class BasketMargin
     {
-        public BasketMargin(Dictionary<string, dynamic> data)
-        {
-            try
-            {
-                Initial = new OrderMargin(data["initial"]);
-                Final = new OrderMargin(data["final"]);
-                Orders = new List<OrderMargin>();
-
-                foreach (Dictionary<string, dynamic> item in data["orders"])
-                    Orders.Add(new OrderMargin(item));
-            }
-            catch (Exception e)
-            {
-                throw new DataException(e.Message + " " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
-            }
-        }
-
         public OrderMargin Initial { get; set; }
         public OrderMargin Final { get; set; }
         public List<OrderMargin> Orders { get; set; }
@@ -625,19 +437,6 @@ namespace KiteConnect
     /// </summary>
     public class OrderMarginPNL
     {
-        public OrderMarginPNL(Dictionary<string, dynamic> data)
-        {
-            try
-            {
-                Realised = Utils.GetValueOrDefault(data, "realised", 0m);
-                Unrealised = Utils.GetValueOrDefault(data, "unrealised", 0m);
-            }
-            catch (Exception e)
-            {
-                throw new DataException(e.Message + " " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
-            }
-        }
-
         public decimal Realised { get; set; }
         public decimal Unrealised { get; set; }
     }
@@ -655,9 +454,7 @@ namespace KiteConnect
         [JsonPropertyName("buy_m2m")]
         public decimal BuyM2M { get; set; }
         public decimal LastPrice { get; set; }
-
-        [JsonPropertyName("tradingsymbol")]
-        public string TradingSymbol { get; set; }
+        public string Tradingsymbol { get; set; }
         public decimal Realised { get; set; }
         public decimal PNL { get; set; }
         public decimal Multiplier { get; set; }
@@ -764,9 +561,7 @@ namespace KiteConnect
     {
         public uint InstrumentToken { get; set; }
         public string Exchange { get; set; }
-
-        [JsonPropertyName("tradingsymbol")]
-        public string TradingSymbol { get; set; }
+        public string Tradingsymbol { get; set; }
         public List<decimal> TriggerValues { get; set; }
         public decimal LastPrice { get; set; }
     }
@@ -811,7 +606,7 @@ namespace KiteConnect
     /// </summary>
     public class GTTParams
     {
-        public string TradingSymbol { get; set; }
+        public string Tradingsymbol { get; set; }
         public string Exchange { get; set; }
         public uint InstrumentToken { get; set; }
         public string TriggerType { get; set; }
@@ -840,42 +635,40 @@ namespace KiteConnect
     /// </summary>
     public class Instrument
     {
-        public Instrument(Dictionary<string, dynamic> data)
-        {
-            try
-            {
-                InstrumentToken = Convert.ToUInt32(data["instrument_token"]);
-                ExchangeToken = Convert.ToUInt32(data["exchange_token"]);
-                TradingSymbol = data["tradingsymbol"];
-                Name = data["name"];
-                LastPrice = Utils.StringToDecimal(data["last_price"]);
-                TickSize = Utils.StringToDecimal(data["tick_size"]);
-                Expiry = Utils.StringToDate(data["expiry"]);
-                InstrumentType = data["instrument_type"];
-                Segment = data["segment"];
-                Exchange = data["exchange"];
-                Strike = Utils.StringToDecimal(data["strike"]);
-
-                LotSize = Convert.ToUInt32(data["lot_size"]);
-            }
-            catch (Exception e)
-            {
-                throw new DataException(e.Message + " " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
-            }
-
-        }
-
+        [Name("instrument_token")]
         public uint InstrumentToken { get; set; }
+
+        [Name("exchange_token")]
         public uint ExchangeToken { get; set; }
-        public string TradingSymbol { get; set; }
+
+        [Name("tradingsymbol")]
+        public string Tradingsymbol { get; set; }
+
+        [Name("name")]
         public string Name { get; set; }
+
+        [Name("last_price")]
         public decimal LastPrice { get; set; }
+
+        [Name("tick_size")]
         public decimal TickSize { get; set; }
+
+        [Name("expiry")]
         public DateTime? Expiry { get; set; }
+
+        [Name("instrument_type")]
         public string InstrumentType { get; set; }
+
+        [Name("segment")]
         public string Segment { get; set; }
+
+        [Name("exchange")]
         public string Exchange { get; set; }
+
+        [Name("strike")]
         public decimal Strike { get; set; }
+
+        [Name("lot_size")]
         public uint LotSize { get; set; }
     }
 
@@ -978,85 +771,6 @@ namespace KiteConnect
     /// </summary>
     public class Quote
     {
-        public Quote(Dictionary<string, dynamic> data)
-        {
-            try
-            {
-                InstrumentToken = Convert.ToUInt32(data["instrument_token"]);
-                Timestamp = Utils.StringToDate(data["timestamp"]);
-                LastPrice = data["last_price"];
-
-                Change = data["net_change"];
-
-                Open = data["ohlc"]["open"];
-                Close = data["ohlc"]["close"];
-                Low = data["ohlc"]["low"];
-                High = data["ohlc"]["high"];
-
-                if (data.ContainsKey("last_quantity"))
-                {
-                    // Non index quote
-                    LastQuantity = Convert.ToUInt32(data["last_quantity"]);
-                    LastTradeTime = Utils.StringToDate(data["last_trade_time"]);
-                    AveragePrice = data["average_price"];
-                    Volume = Convert.ToUInt32(data["volume"]);
-
-                    BuyQuantity = Convert.ToUInt32(data["buy_quantity"]);
-                    SellQuantity = Convert.ToUInt32(data["sell_quantity"]);
-
-                    OI = Convert.ToUInt32(data["oi"]);
-
-                    OIDayHigh = Convert.ToUInt32(data["oi_day_high"]);
-                    OIDayLow = Convert.ToUInt32(data["oi_day_low"]);
-
-                    LowerCircuitLimit = data["lower_circuit_limit"];
-                    UpperCircuitLimit = data["upper_circuit_limit"];
-
-                    Bids = new List<DepthItem>();
-                    Offers = new List<DepthItem>();
-
-                    if (data["depth"]["buy"] != null)
-                    {
-                        foreach (Dictionary<string, dynamic> bid in data["depth"]["buy"])
-                            Bids.Add(new DepthItem(bid));
-                    }
-
-                    if (data["depth"]["sell"] != null)
-                    {
-                        foreach (Dictionary<string, dynamic> offer in data["depth"]["sell"])
-                            Offers.Add(new DepthItem(offer));
-                    }
-                }
-                else
-                {
-                    // Index quote
-                    LastQuantity = 0;
-                    LastTradeTime = null;
-                    AveragePrice = 0;
-                    Volume = 0;
-
-                    BuyQuantity = 0;
-                    SellQuantity = 0;
-
-                    OI = 0;
-
-                    OIDayHigh = 0;
-                    OIDayLow = 0;
-
-                    LowerCircuitLimit = 0;
-                    UpperCircuitLimit = 0;
-
-                    Bids = new List<DepthItem>();
-                    Offers = new List<DepthItem>();
-                }
-            }
-            catch (Exception e)
-            {
-                throw new DataException(e.Message + " " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
-            }
-
-        }
-
         public uint InstrumentToken { get; set; }
         public decimal LastPrice { get; set; }
         public uint LastQuantity { get; set; }
@@ -1064,15 +778,13 @@ namespace KiteConnect
         public uint Volume { get; set; }
         public uint BuyQuantity { get; set; }
         public uint SellQuantity { get; set; }
-        public decimal Open { get; set; }
-        public decimal High { get; set; }
-        public decimal Low { get; set; }
-        public decimal Close { get; set; }
+        public OHLC Ohlc { get; set; }
+
+        [JsonPropertyName("net_change")]
         public decimal Change { get; set; }
         public decimal LowerCircuitLimit { get; set; }
         public decimal UpperCircuitLimit { get; set; }
-        public List<DepthItem> Bids { get; set; }
-        public List<DepthItem> Offers { get; set; }
+        public QuoteDepth Depth { get; set; }
 
         // KiteConnect 3 Fields
 
@@ -1083,35 +795,30 @@ namespace KiteConnect
         public DateTime? Timestamp { get; set; }
     }
 
+    public class QuoteDepth
+    {
+        [JsonPropertyName("buy")]
+        public List<DepthItem> Bids { get; set; }
+        [JsonPropertyName("sell")]
+        public List<DepthItem> Offers { get; set; }
+    }
+
+    public class OHLC
+    {
+        public decimal Open { get; set; }
+        public decimal High { get; set; }
+        public decimal Low { get; set; }
+        public decimal Close { get; set; }
+    }
+
     /// <summary>
     /// OHLC Quote structure
     /// </summary>
-    public class OHLC
+    public class OHLCResponse
     {
-        public OHLC(Dictionary<string, dynamic> data)
-        {
-            try
-            {
-                InstrumentToken = Convert.ToUInt32(data["instrument_token"]);
-                LastPrice = data["last_price"];
-
-                Open = data["ohlc"]["open"];
-                Close = data["ohlc"]["close"];
-                Low = data["ohlc"]["low"];
-                High = data["ohlc"]["high"];
-            }
-            catch (Exception e)
-            {
-                throw new DataException(e.Message + " " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
-            }
-
-        }
         public uint InstrumentToken { get; set; }
         public decimal LastPrice { get; set; }
-        public decimal Open { get; set; }
-        public decimal Close { get; set; }
-        public decimal High { get; set; }
-        public decimal Low { get; set; }
+        public OHLC Ohlc { get; set; }
     }
 
     /// <summary>
@@ -1119,19 +826,6 @@ namespace KiteConnect
     /// </summary>
     public class LTP
     {
-        public LTP(Dictionary<string, dynamic> data)
-        {
-            try
-            {
-                InstrumentToken = Convert.ToUInt32(data["instrument_token"]);
-                LastPrice = data["last_price"];
-            }
-            catch (Exception e)
-            {
-                throw new DataException(e.Message + " " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
-            }
-
-        }
         public uint InstrumentToken { get; set; }
         public decimal LastPrice { get; set; }
     }
@@ -1141,30 +835,11 @@ namespace KiteConnect
     /// </summary>
     public class MFHolding
     {
-        public MFHolding(Dictionary<string, dynamic> data)
-        {
-            try
-            {
-                Quantity = data["quantity"];
-                Fund = data["fund"];
-                Folio = data["folio"];
-                AveragePrice = data["average_price"];
-                TradingSymbol = data["tradingsymbol"];
-                LastPrice = data["last_price"];
-                PNL = data["pnl"];
-            }
-            catch (Exception e)
-            {
-                throw new DataException(e.Message + " " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
-            }
-
-        }
-
         public decimal Quantity { get; set; }
         public string Fund { get; set; }
         public string Folio { get; set; }
         public decimal AveragePrice { get; set; }
-        public string TradingSymbol { get; set; }
+        public string Tradingsymbol { get; set; }
         public decimal LastPrice { get; set; }
         public decimal PNL { get; set; }
     }
@@ -1174,55 +849,54 @@ namespace KiteConnect
     /// </summary>
     public class MFInstrument
     {
-        public MFInstrument(Dictionary<string, dynamic> data)
-        {
-            try
-            {
-                TradingSymbol = data["tradingsymbol"];
-                AMC = data["amc"];
-                Name = data["name"];
+        [Name("tradingsymbol")]
+        public string Tradingsymbol { get; set; }
 
-                PurchaseAllowed = data["purchase_allowed"] == "1";
-                RedemtpionAllowed = data["redemption_allowed"] == "1";
-
-                MinimumPurchaseAmount = Utils.StringToDecimal(data["minimum_purchase_amount"]);
-                PurchaseAmountMultiplier = Utils.StringToDecimal(data["purchase_amount_multiplier"]);
-                MinimumAdditionalPurchaseAmount = Utils.StringToDecimal(data["minimum_additional_purchase_amount"]);
-                MinimumRedemptionQuantity = Utils.StringToDecimal(data["minimum_redemption_quantity"]);
-                RedemptionQuantityMultiplier = Utils.StringToDecimal(data["redemption_quantity_multiplier"]);
-                LastPrice = Utils.StringToDecimal(data["last_price"]);
-
-                DividendType = data["dividend_type"];
-                SchemeType = data["scheme_type"];
-                Plan = data["plan"];
-                SettlementType = data["settlement_type"];
-                LastPriceDate = Utils.StringToDate(data["last_price_date"]);
-            }
-            catch (Exception e)
-            {
-                throw new DataException(e.Message + " " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
-            }
-
-        }
-
-        public string TradingSymbol { get; set; }
+        [Name("amc")]
         public string AMC { get; set; }
+
+        [Name("name")]
         public string Name { get; set; }
 
-        public bool PurchaseAllowed { get; set; }
-        public bool RedemtpionAllowed { get; set; }
+        [Name("purchase_allowed")]
+        public string PurchaseAllowedString { get; set; }
+        public bool PurchaseAllowed => PurchaseAllowedString == "1";
 
+        [Name("redemption_allowed")]
+        public string RedemtpionAllowedString { get; set; }
+        public bool RedemtpionAllowed => RedemtpionAllowedString == "1";
+
+        [Name("minimum_purchase_amount")]
         public decimal MinimumPurchaseAmount { get; set; }
+
+        [Name("purchase_amount_multiplier")]
         public decimal PurchaseAmountMultiplier { get; set; }
+
+        [Name("minimum_additional_purchase_amount")]
         public decimal MinimumAdditionalPurchaseAmount { get; set; }
+
+        [Name("minimum_redemption_quantity")]
         public decimal MinimumRedemptionQuantity { get; set; }
+
+        [Name("redemption_quantity_multiplier")]
         public decimal RedemptionQuantityMultiplier { get; set; }
+
+        [Name("last_price")]
         public decimal LastPrice { get; set; }
 
+        [Name("dividend_type")]
         public string DividendType { get; set; }
+
+        [Name("scheme_type")]
         public string SchemeType { get; set; }
+
+        [Name("plan")]
         public string Plan { get; set; }
+
+        [Name("settlement_type")]
         public string SettlementType { get; set; }
+
+        [Name("last_price_date")]
         public DateTime? LastPriceDate { get; set; }
     }
 
@@ -1231,37 +905,6 @@ namespace KiteConnect
     /// </summary>
     public class MFOrder
     {
-        public MFOrder(Dictionary<string, dynamic> data)
-        {
-            try
-            {
-                StatusMessage = data["status_message"];
-                PurchaseType = data["purchase_type"];
-                PlacedBy = data["placed_by"];
-                Amount = data["amount"];
-                Quantity = data["quantity"];
-                SettlementId = data["settlement_id"];
-                OrderTimestamp = Utils.StringToDate(data["order_timestamp"]);
-                AveragePrice = data["average_price"];
-                TransactionType = data["transaction_type"];
-                ExchangeOrderId = data["exchange_order_id"];
-                ExchangeTimestamp = Utils.StringToDate(data["exchange_timestamp"]);
-                Fund = data["fund"];
-                Variety = data["variety"];
-                Folio = data["folio"];
-                Tradingsymbol = data["tradingsymbol"];
-                Tag = data["tag"];
-                OrderId = data["order_id"];
-                Status = data["status"];
-                LastPrice = data["last_price"];
-            }
-            catch (Exception e)
-            {
-                throw new DataException(e.Message + " " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
-            }
-
-        }
-
         public string StatusMessage { get; set; }
         public string PurchaseType { get; set; }
         public string PlacedBy { get; set; }
@@ -1288,32 +931,6 @@ namespace KiteConnect
     /// </summary>
     public class MFSIP
     {
-        public MFSIP(Dictionary<string, dynamic> data)
-        {
-            try
-            {
-                DividendType = data["dividend_type"];
-                PendingInstalments = Convert.ToInt32(data["pending_instalments"]);
-                Created = Utils.StringToDate(data["created"]);
-                LastInstalment = Utils.StringToDate(data["last_instalment"]);
-                TransactionType = data["transaction_type"];
-                Frequency = data["frequency"];
-                InstalmentDate = Convert.ToInt32(data["instalment_date"]);
-                Fund = data["fund"];
-                SIPId = data["sip_id"];
-                Tradingsymbol = data["tradingsymbol"];
-                Tag = data["tag"];
-                InstalmentAmount = Convert.ToInt32(data["instalment_amount"]);
-                Instalments = Convert.ToInt32(data["instalments"]);
-                Status = data["status"];
-                OrderId = data.ContainsKey(("order_id")) ? data["order_id"] : "";
-            }
-            catch (Exception e)
-            {
-                throw new DataException(e.Message + " " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
-            }
-        }
-
         public string DividendType { get; set; }
         public int PendingInstalments { get; set; }
         public DateTime? Created { get; set; }

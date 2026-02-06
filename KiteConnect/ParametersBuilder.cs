@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace KiteConnect
 {
@@ -13,6 +14,24 @@ namespace KiteConnect
         public ParametersBuilder Add(string key, string value)
         {
             _parameters.Add(new KeyValuePair<string, string>(key, value));
+            return this;
+        }
+
+        public ParametersBuilder Add(string key, bool value)
+        {
+            _parameters.Add(new KeyValuePair<string, string>(key, value.ToString()));
+            return this;
+        }
+
+        public ParametersBuilder AddAsO1(string key, bool value)
+        {
+            _parameters.Add(new KeyValuePair<string, string>(key, value ? "1" : "0"));
+            return this;
+        }
+
+        public ParametersBuilder Add(string key, DateTime value)
+        {
+            _parameters.Add(new KeyValuePair<string, string>(key, value.ToString("yyyy-MM-dd HH:mm:ss")));
             return this;
         }
 
