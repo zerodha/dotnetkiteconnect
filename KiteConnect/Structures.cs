@@ -109,27 +109,27 @@ namespace KiteConnect
         public decimal Price { get; set; }
         public decimal LastPrice { get; set; }
         public decimal CollateralQuantity { get; set; }
-        public decimal PNL { get; set; }
+        public decimal Pnl { get; set; }
         public decimal ClosePrice { get; set; }
         public decimal AveragePrice { get; set; }
         public string Tradingsymbol { get; set; }
         public string CollateralType { get; set; }
         public decimal T1Quantity { get; set; }
         public uint InstrumentToken { get; set; }
-        public string ISIN { get; set; }
+        public string Isin { get; set; }
         public decimal RealisedQuantity { get; set; }
         public decimal Quantity { get; set; }
         public decimal UsedQuantity { get; set; }
         public decimal AuthorisedQuantity { get; set; }
         public DateTime? AuthorisedDate { get; set; }
         public bool Discrepancy { get; set; }
-        public MTFHolding MTF { get; set; }
+        public MtfHolding Mtf { get; set; }
     }
 
     /// <summary>
     /// MTF Holding structure
     /// </summary>
-    public class MTFHolding
+    public class MtfHolding
     {
         public decimal Quantity { get; set; }
         public decimal UsedQuantity { get; set; }
@@ -146,7 +146,7 @@ namespace KiteConnect
         public string Tradingsymbol { get; set; }
         public string Exchange { get; set; }
         public uint InstrumentToken { get; set; }
-        public string ISIN { get; set; }
+        public string Isin { get; set; }
         public string Product { get; set; }
         public decimal Price { get; set; }
         public decimal Quantity { get; set; }
@@ -161,7 +161,7 @@ namespace KiteConnect
         public decimal AveragePrice { get; set; }
         public decimal LastPrice { get; set; }
         public decimal ClosePrice { get; set; }
-        public decimal PNL { get; set; }
+        public decimal Pnl { get; set; }
         public decimal DayChange { get; set; }
         public decimal DayChangePercentage { get; set; }
         public string AuctionNumber { get; set; }
@@ -280,13 +280,13 @@ namespace KiteConnect
         public string Exchange { get; set; }
         public string Tradingsymbol { get; set; }
         public decimal OptionPremium { get; set; }
-        public decimal SPAN { get; set; }
+        public decimal Span { get; set; }
         public decimal Exposure { get; set; }
         public decimal Additional { get; set; }
         public decimal BO { get; set; }
         public decimal Cash { get; set; }
-        public decimal VAR { get; set; }
-        public OrderMarginPNL PNL { get; set; }
+        public decimal Var { get; set; }
+        public OrderMarginPnl Pnl { get; set; }
         public OrderCharges Charges { get; set; }
         public decimal Leverage { get; set; }
         public decimal Total { get; set; }
@@ -406,17 +406,17 @@ namespace KiteConnect
         public decimal Brokerage { get; set; }
         public decimal StampDuty { get; set; }
         public decimal Total { get; set; }
-        public OrderChargesGST GST { get; set; }
+        public OrderChargesGst Gst { get; set; }
     }
 
     /// <summary>
     /// OrderChargesGST structure
     /// </summary>
-    public class OrderChargesGST
+    public class OrderChargesGst
     {
-        public decimal IGST { get; set; }
-        public decimal CGST { get; set; }
-        public decimal SGST { get; set; }
+        public decimal Igst { get; set; }
+        public decimal Cgst { get; set; }
+        public decimal Sgst { get; set; }
         public decimal Total { get; set; }
     }
 
@@ -435,7 +435,7 @@ namespace KiteConnect
     /// <summary>
     /// OrderMarginPNL structure
     /// </summary>
-    public class OrderMarginPNL
+    public class OrderMarginPnl
     {
         public decimal Realised { get; set; }
         public decimal Unrealised { get; set; }
@@ -456,7 +456,7 @@ namespace KiteConnect
         public decimal LastPrice { get; set; }
         public string Tradingsymbol { get; set; }
         public decimal Realised { get; set; }
-        public decimal PNL { get; set; }
+        public decimal Pnl { get; set; }
         public decimal Multiplier { get; set; }
         public decimal SellQuantity { get; set; }
 
@@ -522,7 +522,7 @@ namespace KiteConnect
         public string TransactionType { get; set; }
         public decimal TriggerPrice { get; set; }
         public string Validity { get; set; }
-        public int ValidityTTL { get; set; }
+        public int ValidityTtl { get; set; }
         public int AuctionNumber { get; set; }
         public string Variety { get; set; }
         public JsonNode Meta { get; set; }
@@ -531,25 +531,25 @@ namespace KiteConnect
     /// <summary>
     /// GTTOrder structure
     /// </summary>
-    public class GTT
+    public class Gtt
     {
         public int Id { get; set; }
-        public GTTCondition? Condition { get; set; }
+        public GttCondition? Condition { get; set; }
 
         [JsonPropertyName("type")]
         public string TriggerType { get; set; }
-        public List<GTTOrder> Orders { get; set; }
+        public List<GttOrder> Orders { get; set; }
         public string Status { get; set; }
         public DateTime? CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
         public DateTime? ExpiresAt { get; set; }
-        public GTTMeta? Meta { get; set; }
+        public GttMeta? Meta { get; set; }
     }
 
     /// <summary>
     /// GTTMeta structure
     /// </summary>
-    public class GTTMeta
+    public class GttMeta
     {
         public string RejectionReason { get; set; }
     }
@@ -557,7 +557,7 @@ namespace KiteConnect
     /// <summary>
     /// GTTCondition structure
     /// </summary>
-    public class GTTCondition
+    public class GttCondition
     {
         public uint InstrumentToken { get; set; }
         public string Exchange { get; set; }
@@ -569,23 +569,23 @@ namespace KiteConnect
     /// <summary>
     /// GTTOrder structure
     /// </summary>
-    public class GTTOrder
+    public class GttOrder
     {
         public string TransactionType { get; set; }
         public string Product { get; set; }
         public string OrderType { get; set; }
         public decimal Quantity { get; set; }
         public decimal Price { get; set; }
-        public GTTResult? Result { get; set; }
+        public GttResult? Result { get; set; }
     }
 
     /// <summary>
     /// GTTResult structure
     /// </summary>
-    public class GTTResult
+    public class GttResult
     {
         //TODO missing some documented fields
-        public GTTOrderResult? OrderResult { get; set; }
+        public GttOrderResult? OrderResult { get; set; }
         public string Timestamp { get; set; }
 
         [JsonPropertyName("triggered_at")]
@@ -595,7 +595,7 @@ namespace KiteConnect
     /// <summary>
     /// GTTOrderResult structure
     /// </summary>
-    public class GTTOrderResult
+    public class GttOrderResult
     {
         public string OrderId { get; set; }
         public string RejectionReason { get; set; }
@@ -604,21 +604,21 @@ namespace KiteConnect
     /// <summary>
     /// GTTParams structure
     /// </summary>
-    public class GTTParams
+    public class GttParams
     {
         public string Tradingsymbol { get; set; }
         public string Exchange { get; set; }
         public uint InstrumentToken { get; set; }
         public string TriggerType { get; set; }
         public decimal LastPrice { get; set; }
-        public List<GTTOrderParams> Orders { get; set; }
+        public List<GttOrderParams> Orders { get; set; }
         public List<decimal> TriggerPrices { get; set; }
     }
 
     /// <summary>
     /// GTTOrderParams structure
     /// </summary>
-    public class GTTOrderParams
+    public class GttOrderParams
     {
         public decimal Quantity { get; set; }
         public decimal Price { get; set; }
@@ -728,7 +728,7 @@ namespace KiteConnect
 
         [JsonPropertyName("user_shortname")]
         public string UserShortName { get; set; }
-        public string AvatarURL { get; set; }
+        public string AvatarUrl { get; set; }
         public string Broker { get; set; }
         public string AccessToken { get; set; }
         public string PublicToken { get; set; }
@@ -758,7 +758,7 @@ namespace KiteConnect
 
         [JsonPropertyName("user_shortname")]
         public string UserShortName { get; set; }
-        public string AvatarURL { get; set; }
+        public string AvatarUrl { get; set; }
         public string Broker { get; set; }
         public string UserType { get; set; }
         public string[] Exchanges { get; set; }
@@ -778,7 +778,7 @@ namespace KiteConnect
         public uint Volume { get; set; }
         public uint BuyQuantity { get; set; }
         public uint SellQuantity { get; set; }
-        public OHLC Ohlc { get; set; }
+        public Ohlc Ohlc { get; set; }
 
         [JsonPropertyName("net_change")]
         public decimal Change { get; set; }
@@ -803,7 +803,7 @@ namespace KiteConnect
         public List<DepthItem> Offers { get; set; }
     }
 
-    public class OHLC
+    public class Ohlc
     {
         public decimal Open { get; set; }
         public decimal High { get; set; }
@@ -814,17 +814,17 @@ namespace KiteConnect
     /// <summary>
     /// OHLC Quote structure
     /// </summary>
-    public class OHLCResponse
+    public class OhlcResponse
     {
         public uint InstrumentToken { get; set; }
         public decimal LastPrice { get; set; }
-        public OHLC Ohlc { get; set; }
+        public Ohlc Ohlc { get; set; }
     }
 
     /// <summary>
     /// LTP Quote structure
     /// </summary>
-    public class LTP
+    public class Ltp
     {
         public uint InstrumentToken { get; set; }
         public decimal LastPrice { get; set; }
@@ -841,7 +841,7 @@ namespace KiteConnect
         public decimal AveragePrice { get; set; }
         public string Tradingsymbol { get; set; }
         public decimal LastPrice { get; set; }
-        public decimal PNL { get; set; }
+        public decimal Pnl { get; set; }
     }
 
     /// <summary>
@@ -853,7 +853,7 @@ namespace KiteConnect
         public string Tradingsymbol { get; set; }
 
         [Name("amc")]
-        public string AMC { get; set; }
+        public string Amc { get; set; }
 
         [Name("name")]
         public string Name { get; set; }
@@ -929,7 +929,7 @@ namespace KiteConnect
     /// <summary>
     /// Mutual funds SIP structure
     /// </summary>
-    public class MFSIP
+    public class MFSip
     {
         public string DividendType { get; set; }
         public int PendingInstalments { get; set; }
@@ -953,7 +953,7 @@ namespace KiteConnect
         public string OrderId { get; set; }
     }
 
-    public class GTTResponse
+    public class GttResponse
     {
         public int TriggerId { get; set; }
     }

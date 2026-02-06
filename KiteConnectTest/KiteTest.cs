@@ -41,7 +41,7 @@ namespace KiteConnectTest
             string json = File.ReadAllText(@"responses/error.json", Encoding.UTF8);
             ms.SetStatusCode(403);
             ms.SetResponse("application/json", json);
-            Kite kite = new Kite("apikey", Root: "http://localhost:8080", Debug: true);
+            Kite kite = new Kite("apikey", root: "http://localhost:8080", debug: true);
             Assert.ThrowsAsync<GeneralException>(async () => await kite.GetProfileAsync());
         }
 
@@ -50,7 +50,7 @@ namespace KiteConnectTest
         {
             string json = File.ReadAllText(@"responses/profile.json", Encoding.UTF8);
             ms.SetResponse("application/json", json);
-            Kite kite = new Kite("apikey", Root: "http://localhost:8080");
+            Kite kite = new Kite("apikey", root: "http://localhost:8080");
             Profile profile = await kite.GetProfileAsync();
             Console.WriteLine(profile.Email);
             Assert.AreEqual(profile.Email, "xxxyyy@gmail.com");
@@ -61,7 +61,7 @@ namespace KiteConnectTest
         {
             string json = File.ReadAllText(@"responses/positions.json", Encoding.UTF8);
             ms.SetResponse("application/json", json);
-            Kite kite = new Kite("apikey", Root: "http://localhost:8080");
+            Kite kite = new Kite("apikey", root: "http://localhost:8080");
             PositionResponse positionResponse = await kite.GetPositionsAsync();
             Assert.AreEqual(positionResponse.Net[0].Tradingsymbol, "LEADMINI17DECFUT");
             Assert.AreEqual(positionResponse.Day[0].Tradingsymbol, "GOLDGUINEA17DECFUT");
@@ -72,10 +72,10 @@ namespace KiteConnectTest
         {
             string json = File.ReadAllText(@"responses/holdings.json", Encoding.UTF8);
             ms.SetResponse("application/json", json);
-            Kite kite = new Kite("apikey", Root: "http://localhost:8080");
+            Kite kite = new Kite("apikey", root: "http://localhost:8080");
             List<Holding> holdings = await kite.GetHoldingsAsync();
             Assert.AreEqual(holdings[0].AveragePrice, 40.67m);
-            Assert.AreEqual(holdings[0].MTF.Quantity, 1000m);
+            Assert.AreEqual(holdings[0].Mtf.Quantity, 1000m);
         }
 
         [TestMethod]
@@ -83,9 +83,9 @@ namespace KiteConnectTest
         {
             string json = File.ReadAllText(@"responses/auction_instruments.json", Encoding.UTF8);
             ms.SetResponse("application/json", json);
-            Kite kite = new Kite("apikey", Root: "http://localhost:8080");
+            Kite kite = new Kite("apikey", root: "http://localhost:8080");
             List<AuctionInstrument> instruments = await kite.GetAuctionInstrumentsAsync();
-            Assert.AreEqual(instruments[0].PNL, 564.8000000000002m);
+            Assert.AreEqual(instruments[0].Pnl, 564.8000000000002m);
         }
 
         [TestMethod]
@@ -93,7 +93,7 @@ namespace KiteConnectTest
         {
             string json = File.ReadAllText(@"responses/margins.json", Encoding.UTF8);
             ms.SetResponse("application/json", json);
-            Kite kite = new Kite("apikey", Root: "http://localhost:8080");
+            Kite kite = new Kite("apikey", root: "http://localhost:8080");
             UserMarginsResponse margins = await kite.GetMarginsAsync();
 
             Assert.AreEqual(margins.Equity.Net, (decimal)1697.7);
@@ -105,7 +105,7 @@ namespace KiteConnectTest
         {
             string json = File.ReadAllText(@"responses/margins_noturnover.json", Encoding.UTF8);
             ms.SetResponse("application/json", json);
-            Kite kite = new Kite("apikey", Root: "http://localhost:8080");
+            Kite kite = new Kite("apikey", root: "http://localhost:8080");
             UserMarginsResponse margins = await kite.GetMarginsAsync();
 
             Assert.AreEqual(margins.Equity.Utilised.Turnover, (decimal)0);
@@ -117,7 +117,7 @@ namespace KiteConnectTest
         {
             string json = File.ReadAllText(@"responses/order_margins.json", Encoding.UTF8);
             ms.SetResponse("application/json", json);
-            Kite kite = new Kite("apikey", Root: "http://localhost:8080");
+            Kite kite = new Kite("apikey", root: "http://localhost:8080");
 
             OrderMarginParams param = new OrderMarginParams();
             param.Exchange = Constants.Exchange.NFO;
@@ -131,10 +131,10 @@ namespace KiteConnectTest
             List<OrderMargin> margins = await kite.GetOrderMarginsAsync(new List<OrderMarginParams>() { param });
 
             Assert.AreEqual(margins[0].Total, (decimal)8.36025);
-            Assert.AreEqual(margins[0].SPAN, (decimal)5.408);
+            Assert.AreEqual(margins[0].Span, (decimal)5.408);
             Assert.AreEqual(margins[0].Leverage, (decimal)5);
             Assert.AreEqual(margins[0].Charges.TransactionTax, (decimal)0.5);
-            Assert.AreEqual(margins[0].Charges.GST.IGST, (decimal)0.386496);
+            Assert.AreEqual(margins[0].Charges.Gst.Igst, (decimal)0.386496);
         }
 
         [TestMethod]
@@ -142,7 +142,7 @@ namespace KiteConnectTest
         {
             string json = File.ReadAllText(@"responses/order_margins_compact.json", Encoding.UTF8);
             ms.SetResponse("application/json", json);
-            Kite kite = new Kite("apikey", Root: "http://localhost:8080");
+            Kite kite = new Kite("apikey", root: "http://localhost:8080");
 
             OrderMarginParams param = new OrderMarginParams();
             param.Exchange = Constants.Exchange.NFO;
@@ -162,10 +162,10 @@ namespace KiteConnectTest
             param2.Product = Constants.Product.MIS;
             param2.OrderType = Constants.OrderType.Limit;
 
-            List<OrderMargin> margins = await kite.GetOrderMarginsAsync(new List<OrderMarginParams>() { param, param2 }, Mode: Constants.Margin.Mode.Compact);
+            List<OrderMargin> margins = await kite.GetOrderMarginsAsync(new List<OrderMarginParams>() { param, param2 }, mode: Constants.Margin.Mode.Compact);
 
             Assert.AreEqual(margins[0].Total, (decimal)30.2280825);
-            Assert.AreEqual(margins[0].SPAN, (decimal)0);
+            Assert.AreEqual(margins[0].Span, (decimal)0);
         }
 
         [TestMethod]
@@ -173,7 +173,7 @@ namespace KiteConnectTest
         {
             string json = File.ReadAllText(@"responses/basket_margins.json", Encoding.UTF8);
             ms.SetResponse("application/json", json);
-            Kite kite = new Kite("apikey", Root: "http://localhost:8080");
+            Kite kite = new Kite("apikey", root: "http://localhost:8080");
 
             OrderMarginParams param = new OrderMarginParams();
             param.Exchange = Constants.Exchange.NFO;
@@ -196,7 +196,7 @@ namespace KiteConnectTest
             BasketMargin margins = await kite.GetBasketMarginsAsync(new List<OrderMarginParams>() { param, param2 });
 
             Assert.AreEqual(margins.Final.Total, (decimal)22530.221345);
-            Assert.AreEqual(margins.Final.SPAN, (decimal)26.9577);
+            Assert.AreEqual(margins.Final.Span, (decimal)26.9577);
         }
 
         [TestMethod]
@@ -204,7 +204,7 @@ namespace KiteConnectTest
         {
             string json = File.ReadAllText(@"responses/basket_margins_compact.json", Encoding.UTF8);
             ms.SetResponse("application/json", json);
-            Kite kite = new Kite("apikey", Root: "http://localhost:8080");
+            Kite kite = new Kite("apikey", root: "http://localhost:8080");
 
             OrderMarginParams param = new OrderMarginParams();
             param.Exchange = Constants.Exchange.NFO;
@@ -224,10 +224,10 @@ namespace KiteConnectTest
             param2.Product = Constants.Product.MIS;
             param2.OrderType = Constants.OrderType.Limit;
 
-            BasketMargin margins = await kite.GetBasketMarginsAsync(new List<OrderMarginParams>() { param, param2 }, Mode: Constants.Margin.Mode.Compact);
+            BasketMargin margins = await kite.GetBasketMarginsAsync(new List<OrderMarginParams>() { param, param2 }, mode: Constants.Margin.Mode.Compact);
 
             Assert.AreEqual(margins.Final.Total, (decimal)22530.2280825);
-            Assert.AreEqual(margins.Final.SPAN, (decimal)0);
+            Assert.AreEqual(margins.Final.Span, (decimal)0);
         }
 
         [TestMethod]
@@ -235,7 +235,7 @@ namespace KiteConnectTest
         {
             string json = File.ReadAllText(@"responses/equity_margins.json", Encoding.UTF8);
             ms.SetResponse("application/json", json);
-            Kite kite = new Kite("apikey", Root: "http://localhost:8080");
+            Kite kite = new Kite("apikey", root: "http://localhost:8080");
             UserMargin margin = await kite.GetMarginsAsync("equity");
 
             Assert.AreEqual(margin.Net, (decimal)1812.3535);
@@ -246,7 +246,7 @@ namespace KiteConnectTest
         {
             string json = File.ReadAllText(@"responses/equity_margins.json", Encoding.UTF8);
             ms.SetResponse("application/json", json);
-            Kite kite = new Kite("apikey", Root: "http://localhost:8080");
+            Kite kite = new Kite("apikey", root: "http://localhost:8080");
             UserMargin margin = await kite.GetMarginsAsync("commodity");
 
             Assert.AreEqual(margin.Net, (decimal)1812.3535);
@@ -257,8 +257,8 @@ namespace KiteConnectTest
         {
             string json = File.ReadAllText(@"responses/ohlc.json", Encoding.UTF8);
             ms.SetResponse("application/json", json);
-            Kite kite = new Kite("apikey", Root: "http://localhost:8080");
-            Dictionary<string, OHLCResponse> ohlcs = await kite.GetOHLCAsync(new string[] { "408065", "NSE:INFY" });
+            Kite kite = new Kite("apikey", root: "http://localhost:8080");
+            Dictionary<string, OhlcResponse> ohlcs = await kite.GetOhlcAsync(new string[] { "408065", "NSE:INFY" });
 
             Assert.AreEqual(ohlcs["408065"].LastPrice, 966.8m);
             Assert.AreEqual(ohlcs["408065"].Ohlc.Open, 966.6m);
@@ -269,8 +269,8 @@ namespace KiteConnectTest
         {
             string json = File.ReadAllText(@"responses/ltp.json", Encoding.UTF8);
             ms.SetResponse("application/json", json);
-            Kite kite = new Kite("apikey", Root: "http://localhost:8080");
-            Dictionary<string, LTP> ltps = await kite.GetLTPAsync(new string[] { "NSE:INFY" });
+            Kite kite = new Kite("apikey", root: "http://localhost:8080");
+            Dictionary<string, Ltp> ltps = await kite.GetLtpAsync(new string[] { "NSE:INFY" });
 
             Assert.AreEqual(ltps["NSE:INFY"].LastPrice, (decimal)989.2);
         }
@@ -280,7 +280,7 @@ namespace KiteConnectTest
         {
             string json = File.ReadAllText(@"responses/quote.json", Encoding.UTF8);
             ms.SetResponse("application/json", json);
-            Kite kite = new Kite("apikey", Root: "http://localhost:8080");
+            Kite kite = new Kite("apikey", root: "http://localhost:8080");
             Dictionary<string, Quote> quotes = await kite.GetQuoteAsync(new string[] { "NSE:ASHOKLEY", "NSE:NIFTY 50" });
 
             Assert.AreEqual(quotes["NSE:ASHOKLEY"].LastPrice, 76.6m);
@@ -296,7 +296,7 @@ namespace KiteConnectTest
         {
             string json = File.ReadAllText(@"responses/orders.json", Encoding.UTF8);
             ms.SetResponse("application/json", json);
-            Kite kite = new Kite("apikey", Root: "http://localhost:8080");
+            Kite kite = new Kite("apikey", root: "http://localhost:8080");
             List<Order> orders = await kite.GetOrdersAsync();
 
             Assert.AreEqual(orders[0].Price, 72);
@@ -304,7 +304,7 @@ namespace KiteConnectTest
             Assert.AreEqual(orders[2].Tag, "connect test order2");
             Assert.AreEqual(orders[2].Tags[1], "XXXXX");
 
-            Assert.AreEqual(orders[3].ValidityTTL, 2);
+            Assert.AreEqual(orders[3].ValidityTtl, 2);
 
             Assert.AreEqual(orders[3].Meta["iceberg"]["legs"].GetValue<int>(), 5);
 
@@ -318,8 +318,8 @@ namespace KiteConnectTest
         {
             string json = File.ReadAllText(@"responses/gtt_get_orders.json", Encoding.UTF8);
             ms.SetResponse("application/json", json);
-            Kite kite = new Kite("apikey", Root: "http://localhost:8080");
-            List<GTT> gtts = await kite.GetGTTsAsync();
+            Kite kite = new Kite("apikey", root: "http://localhost:8080");
+            List<Gtt> gtts = await kite.GetGttsAsync();
 
             Assert.AreEqual(gtts[0].Id, 105099);
             Assert.AreEqual(gtts[0].Condition?.TriggerValues[0], 102m);
@@ -332,8 +332,8 @@ namespace KiteConnectTest
         {
             string json = File.ReadAllText(@"responses/gtt_get_order.json", Encoding.UTF8);
             ms.SetResponse("application/json", json);
-            Kite kite = new Kite("apikey", Root: "http://localhost:8080");
-            GTT gtt = await kite.GetGTTAsync(123);
+            Kite kite = new Kite("apikey", root: "http://localhost:8080");
+            Gtt gtt = await kite.GetGttAsync(123);
 
             Assert.AreEqual(gtt.Id, 123);
         }
@@ -343,7 +343,7 @@ namespace KiteConnectTest
         {
             string json = File.ReadAllText(@"responses/orderinfo.json", Encoding.UTF8);
             ms.SetResponse("application/json", json);
-            Kite kite = new Kite("apikey", Root: "http://localhost:8080");
+            Kite kite = new Kite("apikey", root: "http://localhost:8080");
             List<Order> orderhistory = await kite.GetOrderHistoryAsync("171124000819854");
 
             Assert.AreEqual(orderhistory[0].PendingQuantity, 100);
@@ -354,7 +354,7 @@ namespace KiteConnectTest
         {
             string csv = File.ReadAllText(@"responses/instruments_all.csv", Encoding.UTF8);
             ms.SetResponse("text/csv", csv);
-            Kite kite = new Kite("apikey", Root: "http://localhost:8080");
+            Kite kite = new Kite("apikey", root: "http://localhost:8080");
             var instrument = kite.GetInstrumentsAsync().ToBlockingEnumerable().First();
 
             Assert.AreEqual(instrument.InstrumentToken, (uint)3813889);
@@ -367,7 +367,7 @@ namespace KiteConnectTest
         {
             string csv = File.ReadAllText(@"responses/historical.json", Encoding.UTF8);
             ms.SetResponse("application/json", csv);
-            Kite kite = new Kite("apikey", Root: "http://localhost:8080");
+            Kite kite = new Kite("apikey", root: "http://localhost:8080");
             var historicalData = await kite.GetHistoricalDataAsync("3813889", DateTime.Now, DateTime.Now, "Minutes");
 
             Assert.HasCount(6, historicalData.Candles);
@@ -383,7 +383,7 @@ namespace KiteConnectTest
         {
             string csv = File.ReadAllText(@"responses/historical-oi.json", Encoding.UTF8);
             ms.SetResponse("application/json", csv);
-            Kite kite = new Kite("apikey", Root: "http://localhost:8080");
+            Kite kite = new Kite("apikey", root: "http://localhost:8080");
             var historicalData = await kite.GetHistoricalDataAsync("3813889", DateTime.Now, DateTime.Now, "Minutes");
 
             Assert.HasCount(6, historicalData.Candles);
@@ -395,7 +395,7 @@ namespace KiteConnectTest
         {
             string csv = File.ReadAllText(@"responses/instruments_nse.csv", Encoding.UTF8);
             ms.SetResponse("text/csv", csv);
-            Kite kite = new Kite("apikey", Root: "http://localhost:8080");
+            Kite kite = new Kite("apikey", root: "http://localhost:8080");
             var instrument = kite.GetInstrumentsAsync(Constants.Exchange.NSE).ToBlockingEnumerable().First();
 
             Assert.AreEqual(instrument.InstrumentToken, (uint)3813889);
@@ -406,7 +406,7 @@ namespace KiteConnectTest
         {
             string json = File.ReadAllText(@"responses/trades.json", Encoding.UTF8);
             ms.SetResponse("application/json", json);
-            Kite kite = new Kite("apikey", Root: "http://localhost:8080");
+            Kite kite = new Kite("apikey", root: "http://localhost:8080");
             List<Trade> trades = await kite.GetOrderTradesAsync("151220000000000");
 
             Assert.AreEqual(trades[0].TradeId, "159918");
@@ -417,8 +417,8 @@ namespace KiteConnectTest
         {
             string json = File.ReadAllText(@"responses/mf_sips.json", Encoding.UTF8);
             ms.SetResponse("application/json", json);
-            Kite kite = new Kite("apikey", Root: "http://localhost:8080");
-            List<MFSIP> sips = await kite.GetMFSIPsAsync();
+            Kite kite = new Kite("apikey", root: "http://localhost:8080");
+            List<MFSip> sips = await kite.GetMFSipsAsync();
 
             Assert.AreEqual(sips[0].SIPId, "1234");
         }
@@ -428,8 +428,8 @@ namespace KiteConnectTest
         {
             string json = File.ReadAllText(@"responses/mf_sip.json", Encoding.UTF8);
             ms.SetResponse("application/json", json);
-            Kite kite = new Kite("apikey", Root: "http://localhost:8080");
-            MFSIP sip = await kite.GetMFSIPsAsync("1234");
+            Kite kite = new Kite("apikey", root: "http://localhost:8080");
+            MFSip sip = await kite.GetMFSipsAsync("1234");
 
             Assert.AreEqual(sip.SIPId, "1234");
         }
@@ -439,7 +439,7 @@ namespace KiteConnectTest
         {
             string json = File.ReadAllText(@"responses/mf_orders.json", Encoding.UTF8);
             ms.SetResponse("application/json", json);
-            Kite kite = new Kite("apikey", Root: "http://localhost:8080");
+            Kite kite = new Kite("apikey", root: "http://localhost:8080");
             List<MFOrder> orders = await kite.GetMFOrdersAsync();
 
             Assert.AreEqual(orders[0].OrderId, "123123");
@@ -450,7 +450,7 @@ namespace KiteConnectTest
         {
             string json = File.ReadAllText(@"responses/mf_order.json", Encoding.UTF8);
             ms.SetResponse("application/json", json);
-            Kite kite = new Kite("apikey", Root: "http://localhost:8080");
+            Kite kite = new Kite("apikey", root: "http://localhost:8080");
             MFOrder order = await kite.GetMFOrdersAsync("123123");
 
             Assert.AreEqual(order.OrderId, "123123");
@@ -461,7 +461,7 @@ namespace KiteConnectTest
         {
             string json = File.ReadAllText(@"responses/mf_holdings.json", Encoding.UTF8);
             ms.SetResponse("application/json", json);
-            Kite kite = new Kite("apikey", Root: "http://localhost:8080");
+            Kite kite = new Kite("apikey", root: "http://localhost:8080");
             List<MFHolding> holdings = await kite.GetMFHoldingsAsync();
 
             Assert.AreEqual(holdings[0].Folio, "123123/123");
@@ -472,7 +472,7 @@ namespace KiteConnectTest
         {
             string csv = File.ReadAllText(@"responses/mf_instruments.csv", Encoding.UTF8);
             ms.SetResponse("text/csv", csv);
-            Kite kite = new Kite("apikey", Root: "http://localhost:8080");
+            Kite kite = new Kite("apikey", root: "http://localhost:8080");
             var instrument = kite.GetMFInstrumentsAsync().ToBlockingEnumerable().First();
 
             Assert.AreEqual(instrument.Tradingsymbol, "INF209K01157");
