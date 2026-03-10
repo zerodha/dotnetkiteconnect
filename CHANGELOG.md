@@ -1,7 +1,11 @@
-## 4.4.0
+## 5.0.0
 
-* .NET target updated to `net10.0`. Previous target `net6.0` has reached end-of-life as of Nov 2024.
-* Implemented centralized package version management using Directory.Packages.props for better dependency management across the solution.
+* .NET target updated to `net10.0`. Previous target `net6.0` has reached end-of-life as of Nov 2024. Thanks @kunalk16.
+* Implemented centralized package version management using Directory.Packages.props for better dependency management across the solution. Thanks @kunalk16.
+* Upgraded all dependencies to latest versions
+* All quantities changed to decimal type for consistency.
+* Added MTF product type and updated holdings parsing.
+* Reorganized constants and routes into sub classes for better code organization.
 
 ## 4.3.0
 

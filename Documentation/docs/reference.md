@@ -13,7 +13,7 @@ Initialize a new Kite Connect client instance.
 | Root | String | API end point root. Unless you explicitly want to send API requests to a non-default endpoint, this can be ignored. |
 | Debug | Boolean | If set to True, will serialise and print requests and responses to stdout. |
 | Timeout | Int32 | Time in milliseconds for which  the API client will wait for a request to complete before it fails |
-| Proxy | Net.WebProxy | To set proxy for http request. Should be an object of WebProxy. |
+| Proxy | Net.IWebProxy | To set proxy for http request. Should be an object of WebProxy. |
 | Pool | Int32 | Number of connections to server. Client will reuse the connections if they are alive. |
 
 ### ![Method](/assets/method.jpg) &nbsp;&nbsp;Kite.EnableLogging
@@ -122,7 +122,7 @@ Margin data for a specific order
 | Argument | Type | Description |
 | --- | --- | --- |
 | OrderMarginParams | Collections.Generic.List{OrderMarginParams} | List of all order params to get margins for |
-| Mode | String | Mode of the returned response content. Eg: Constants.MARGIN_MODE_COMPACT |
+| Mode | String | Mode of the returned response content. Eg: Constants.Margin.Mode.Compact |
 
 **Returns:** List of margins of order
 
@@ -134,7 +134,7 @@ Margin data for a basket orders
 | --- | --- | --- |
 | OrderMarginParams | Collections.Generic.List{OrderMarginParams} | List of all order params to get margins for |
 | ConsiderPositions | Boolean | Consider users positions while calculating margins |
-| Mode | String | Mode of the returned response content. Eg: Constants.MARGIN_MODE_COMPACT |
+| Mode | String | Mode of the returned response content. Eg: Constants.Margin.Mode.Compact |
 
 **Returns:** List of margins of order
 
@@ -163,12 +163,12 @@ Place an order
 | Exchange | String | Name of the exchange |
 | TradingSymbol | String | Tradingsymbol of the instrument |
 | TransactionType | String | BUY or SELL |
-| Quantity | Int32 | Quantity to transact |
+| Quantity | Decimal | Quantity to transact |
 | Price | Nullable{Decimal} | For LIMIT orders |
 | Product | String | Margin product applied to the order (margin is blocked based on this) |
 | OrderType | String | Order type (MARKET, LIMIT etc.) |
 | Validity | String | Order validity (DAY, IOC and TTL) |
-| DisclosedQuantity | Nullable{Int32} | Quantity to disclose publicly (for equity trades) |
+| DisclosedQuantity | Nullable{Decimal} | Quantity to disclose publicly (for equity trades) |
 | TriggerPrice | Nullable{Decimal} | For SL, SL-M etc. |
 | SquareOffValue | Nullable{Decimal} | Price difference at which the order should be squared off and profit booked (eg: Order price is 100. Profit target is 102. So squareoff = 2) |
 | StoplossValue | Nullable{Decimal} | Stoploss difference at which the order should be squared off (eg: Order price is 100. Stoploss target is 98. So stoploss = 2) |
@@ -177,7 +177,7 @@ Place an order
 | Tag | String | An optional tag to apply to an order to identify it (alphanumeric, max 20 chars) |
 | ValidityTTL | Nullable{Int32} | Order life span in minutes for TTL validity orders |
 | IcebergLegs | Nullable{Int32} | Total number of legs for iceberg order type (number of legs per Iceberg should be between 2 and 10) |
-| IcebergQuantity | Nullable{Int32} | Split quantity for each iceberg leg order (Quantity/IcebergLegs) |
+| IcebergQuantity | Nullable{Decimal} | Split quantity for each iceberg leg order (Quantity/IcebergLegs) |
 
 **Returns:** Json response in the form of nested string dictionary.
 
@@ -192,12 +192,12 @@ Modify an open order.
 | Exchange | String | Name of the exchange |
 | TradingSymbol | String | Tradingsymbol of the instrument |
 | TransactionType | String | BUY or SELL |
-| Quantity | String | Quantity to transact |
+| Quantity | Nullable{Decimal} | Quantity to transact |
 | Price | Nullable{Decimal} | For LIMIT orders |
 | Product | String | Margin product applied to the order (margin is blocked based on this) |
 | OrderType | String | Order type (MARKET, LIMIT etc.) |
 | Validity | String | Order validity |
-| DisclosedQuantity | Nullable{Int32} | Quantity to disclose publicly (for equity trades) |
+| DisclosedQuantity | Nullable{Decimal} | Quantity to disclose publicly (for equity trades) |
 | TriggerPrice | Nullable{Decimal} | For SL, SL-M etc. |
 | Variety | String | You can place orders of varieties; regular orders, after market orders, cover orders etc. |
 
@@ -271,7 +271,7 @@ Modify an open position's product type.
 | TradingSymbol | String | Tradingsymbol of the instrument |
 | TransactionType | String | BUY or SELL |
 | PositionType | String | overnight or day |
-| Quantity | Nullable{Int32} | Quantity to convert |
+| Quantity | Nullable{Decimal} | Quantity to convert |
 | OldProduct | String | Existing margin product of the position |
 | NewProduct | String | Margin product to convert to |
 
@@ -551,7 +551,7 @@ Adds extra headers to request
 
 | Argument | Type | Description |
 | --- | --- | --- |
-| Req | Net.HttpWebRequest@ | Request object to add headers |
+| Req | Net.Http.HttpRequestMessage@ | Request object to add headers |
 
 ### ![Method](/assets/method.jpg) &nbsp;&nbsp;Kite.Request
 
@@ -581,6 +581,10 @@ Historical structure
 
 Holding structure
 
+## ![Class](/assets/class.jpg) &nbsp;&nbsp;MTFHolding Class
+
+MTF Holding structure
+
 ## ![Class](/assets/class.jpg) &nbsp;&nbsp;AuctionInstrument Class
 
 AuctionInstrument structure
@@ -607,7 +611,7 @@ OrderMarginParams structure
 
 ### ![Field](/assets/pubfield.jpg) &nbsp;&nbsp;OrderMarginParams.Exchange
 
-Exchange in which instrument is listed (Constants.EXCHANGE_NSE, Constants.EXCHANGE_BSE, etc.)
+Exchange in which instrument is listed (Constants.Exchange.NSE, Constants.Exchange.BSE, etc.)
 
 ### ![Field](/assets/pubfield.jpg) &nbsp;&nbsp;OrderMarginParams.TradingSymbol
 
@@ -615,7 +619,7 @@ Tradingsymbol of the instrument  (ex. RELIANCE, INFY)
 
 ### ![Field](/assets/pubfield.jpg) &nbsp;&nbsp;OrderMarginParams.TransactionType
 
-Transaction type (Constants.TRANSACTION_TYPE_BUY or Constants.TRANSACTION_TYPE_SELL)
+Transaction type (Constants.Transaction.Buy or Constants.Transaction.Sell)
 
 ### ![Field](/assets/pubfield.jpg) &nbsp;&nbsp;OrderMarginParams.Quantity
 
@@ -631,15 +635,15 @@ Trigger price
 
 ### ![Field](/assets/pubfield.jpg) &nbsp;&nbsp;OrderMarginParams.Product
 
-Product code (Constants.PRODUCT_CNC, Constants.PRODUCT_MIS, Constants.PRODUCT_NRML)
+Product code (Constants.Product.CNC, Constants.Product.MIS, Constants.Product.NRML)
 
 ### ![Field](/assets/pubfield.jpg) &nbsp;&nbsp;OrderMarginParams.OrderType
 
-Order type (Constants.ORDER_TYPE_MARKET, Constants.ORDER_TYPE_SL, etc.)
+Order type (Constants.OrderType.Market, Constants.OrderType.SL, etc.)
 
 ### ![Field](/assets/pubfield.jpg) &nbsp;&nbsp;OrderMarginParams.Variety
 
-Variety (Constants.VARIETY_REGULAR, Constants.VARIETY_AMO, etc.)
+Variety (Constants.Variety.Regular, Constants.Variety.AMO, etc.)
 
 ## ![Class](/assets/class.jpg) &nbsp;&nbsp;OrderMargin Class
 
@@ -655,7 +659,7 @@ Order ID that is received in the orderbook
 
 ### ![Field](/assets/pubfield.jpg) &nbsp;&nbsp;ContractNoteParams.Exchange
 
-Exchange in which instrument is listed (Constants.EXCHANGE_NSE, Constants.EXCHANGE_BSE, etc.)
+Exchange in which instrument is listed (Constants.Exchange.NSE, Constants.Exchange.BSE, etc.)
 
 ### ![Field](/assets/pubfield.jpg) &nbsp;&nbsp;ContractNoteParams.TradingSymbol
 
@@ -663,7 +667,7 @@ Tradingsymbol of the instrument  (ex. RELIANCE, INFY)
 
 ### ![Field](/assets/pubfield.jpg) &nbsp;&nbsp;ContractNoteParams.TransactionType
 
-Transaction type (Constants.TRANSACTION_TYPE_BUY or Constants.TRANSACTION_TYPE_SELL)
+Transaction type (Constants.Transaction.Buy or Constants.Transaction.Sell)
 
 ### ![Field](/assets/pubfield.jpg) &nbsp;&nbsp;ContractNoteParams.Quantity
 
@@ -675,15 +679,15 @@ Average price
 
 ### ![Field](/assets/pubfield.jpg) &nbsp;&nbsp;ContractNoteParams.Product
 
-Product code (Constants.PRODUCT_CNC, Constants.PRODUCT_MIS, Constants.PRODUCT_NRML)
+Product code (Constants.Product.CNC, Constants.Product.MIS, Constants.Product.NRML)
 
 ### ![Field](/assets/pubfield.jpg) &nbsp;&nbsp;ContractNoteParams.OrderType
 
-Order type (Constants.ORDER_TYPE_MARKET, Constants.ORDER_TYPE_SL, etc.)
+Order type (Constants.OrderType.Market, Constants.OrderType.SL, etc.)
 
 ### ![Field](/assets/pubfield.jpg) &nbsp;&nbsp;ContractNoteParams.Variety
 
-Variety (Constants.VARIETY_REGULAR, Constants.VARIETY_AMO, etc.)
+Variety (Constants.Variety.Regular, Constants.Variety.AMO, etc.)
 
 ## ![Class](/assets/class.jpg) &nbsp;&nbsp;ContractNote Class
 
@@ -691,7 +695,7 @@ ContractNote structure
 
 ### ![Field](/assets/pubfield.jpg) &nbsp;&nbsp;ContractNote.Exchange
 
-Exchange in which instrument is listed (Constants.EXCHANGE_NSE, Constants.EXCHANGE_BSE, etc.)
+Exchange in which instrument is listed (Constants.Exchange.NSE, Constants.Exchange.BSE, etc.)
 
 ### ![Field](/assets/pubfield.jpg) &nbsp;&nbsp;ContractNote.TradingSymbol
 
@@ -699,7 +703,7 @@ Tradingsymbol of the instrument  (ex. RELIANCE, INFY)
 
 ### ![Field](/assets/pubfield.jpg) &nbsp;&nbsp;ContractNote.TransactionType
 
-Transaction type (Constants.TRANSACTION_TYPE_BUY or Constants.TRANSACTION_TYPE_SELL)
+Transaction type (Constants.Transaction.Buy or Constants.Transaction.Sell)
 
 ### ![Field](/assets/pubfield.jpg) &nbsp;&nbsp;ContractNote.Quantity
 
@@ -711,15 +715,15 @@ Order price
 
 ### ![Field](/assets/pubfield.jpg) &nbsp;&nbsp;ContractNote.Product
 
-Product code (Constants.PRODUCT_CNC, Constants.PRODUCT_MIS, Constants.PRODUCT_NRML)
+Product code (Constants.Product.CNC, Constants.Product.MIS, Constants.Product.NRML)
 
 ### ![Field](/assets/pubfield.jpg) &nbsp;&nbsp;ContractNote.OrderType
 
-Order type (Constants.ORDER_TYPE_MARKET, Constants.ORDER_TYPE_SL, etc.)
+Order type (Constants.OrderType.Market, Constants.OrderType.SL, etc.)
 
 ### ![Field](/assets/pubfield.jpg) &nbsp;&nbsp;ContractNote.Variety
 
-Variety (Constants.VARIETY_REGULAR, Constants.VARIETY_AMO, etc.)
+Variety (Constants.Variety.Regular, Constants.Variety.AMO, etc.)
 
 ### ![Field](/assets/pubfield.jpg) &nbsp;&nbsp;ContractNote.Charges
 
@@ -1045,7 +1049,7 @@ Helper function to add parameter to the request only if it is not null or empty
 | Key | String | Key of the parameter |
 | Value | String | Value of the parameter |
 
-### ![Method](/assets/method.jpg) &nbsp;&nbsp;Utils.SHA256
+### ![Method](/assets/method.jpg) &nbsp;&nbsp;Utils.SHA256Hash
 
 Generates SHA256 checksum for login.
 
