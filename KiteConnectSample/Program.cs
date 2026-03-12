@@ -301,6 +301,17 @@ namespace KiteConnectSample
                 ValidityTTL: 5
             );
 
+            // Place market order with auto market protection
+            kite.PlaceOrder(
+                Exchange: Constants.Exchange.NSE,
+                TradingSymbol: "INFY",
+                TransactionType: Constants.Transaction.Buy,
+                Quantity: 1,
+                OrderType: Constants.OrderType.Market,
+                Product: Constants.Product.MIS,
+                MarketProtection: Constants.MarketProtection.Auto
+            );
+
             // Place an Iceberg order
             kite.PlaceOrder(
                 Exchange: Constants.Exchange.NSE,

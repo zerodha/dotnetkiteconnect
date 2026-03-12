@@ -94,6 +94,17 @@ namespace KiteConnect
             public const string Day = "day";
         }
 
+        /// <summary>
+        /// Market protection percentage for MARKET and SL-M orders.
+        /// </summary>
+        public static class MarketProtection
+        {
+            /// <summary>No market protection applied.</summary>
+            public const decimal None = 0;
+            /// <summary>Automatic system-applied market protection.</summary>
+            public const decimal Auto = -1;
+        }
+
         public static class GTT
         {
             public static class Status

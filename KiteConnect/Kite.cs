@@ -349,6 +349,8 @@ namespace KiteConnect
         /// <param name="ValidityTTL">Order life span in minutes for TTL validity orders</param>
         /// <param name="IcebergLegs">Total number of legs for iceberg order type (number of legs per Iceberg should be between 2 and 10)</param>
         /// <param name="IcebergQuantity">Split quantity for each iceberg leg order (Quantity/IcebergLegs)</param>
+        /// <param name="AuctionNumber">Auction number for auction orders</param>
+        /// <param name="MarketProtection">Market protection percentage for MARKET and SL-M orders. Use Constants.MarketProtection.None (0) for no protection or Constants.MarketProtection.Auto (-1) for automatic protection. Custom percentage can be specified as 1-100.</param>
         /// <returns>Json response in the form of nested string dictionary.</returns>
         public Dictionary<string, dynamic> PlaceOrder(
             string Exchange,
@@ -369,7 +371,8 @@ namespace KiteConnect
             int? ValidityTTL = null,
             int? IcebergLegs = null,
             decimal? IcebergQuantity = null,
-            string AuctionNumber = null
+            string AuctionNumber = null,
+            decimal? MarketProtection = null
             )
         {
             var param = new Dictionary<string, dynamic>();
@@ -393,6 +396,7 @@ namespace KiteConnect
             Utils.AddIfNotNull(param, "iceberg_legs", IcebergLegs.ToString());
             Utils.AddIfNotNull(param, "iceberg_quantity", IcebergQuantity.ToString());
             Utils.AddIfNotNull(param, "auction_number", AuctionNumber);
+            Utils.AddIfNotNull(param, "market_protection", MarketProtection.ToString());
 
             return Post(Routes.Order.Place, param);
         }
