@@ -6,6 +6,7 @@
 * All quantities changed to decimal type for consistency.
 * Added MTF product type and updated holdings parsing.
 * Reorganized constants and routes into sub classes for better code organization.
+* Added market protection parameter for market orders
 
 ## 4.3.0
 

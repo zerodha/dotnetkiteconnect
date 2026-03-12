@@ -14,7 +14,24 @@ def xml_to_map(xml_file):
 md = open(OUT_MD, 'w')
 xml = xml_to_map(DOC_XML)
 
-for member in xml['doc']['members']['member']:
+members = xml['doc']['members']['member']
+
+# Sort so that Kite class and its methods show up first
+def sort_key(member):
+    name = member['@name'].split(':')[1]
+    if name.startswith('KiteConnect.Kite') and not name.startswith('KiteConnect.Kite.'):
+        return (0, name)
+    if name.startswith('KiteConnect.Kite.') or name.startswith('KiteConnect.Kite '):
+        return (1, name)
+    if name.startswith('KiteConnect.Ticker') and not name.startswith('KiteConnect.Ticker.'):
+        return (2, name)
+    if name.startswith('KiteConnect.Ticker.') or name.startswith('KiteConnect.Ticker '):
+        return (3, name)
+    return (4, name)
+
+members.sort(key=sort_key)
+
+for member in members:
     # member has a format like "M:KiteConnect.Kite.CancelMFOrder(System.String)"
     # mtype is a single char that is defined as:
     # M -> method - function
