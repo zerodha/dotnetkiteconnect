@@ -767,6 +767,86 @@ namespace KiteConnect
     }
 
     /// <summary>
+    /// Order response returned by PlaceOrder. For autoslice orders, includes child order details.
+    /// </summary>
+    public struct OrderResponse
+    {
+        public OrderResponse(Dictionary<string, dynamic> data)
+        {
+            try
+            {
+                OrderId = data["data"]["order_id"];
+                Children = new List<OrderChild>();
+
+                if (data["data"].ContainsKey("children"))
+                {
+                    foreach (var child in data["data"]["children"])
+                    {
+                        Children.Add(new OrderChild(child));
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                throw new DataException(e.Message + " " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
+            }
+        }
+
+        /// <summary>Order ID of the parent order.</summary>
+        public string OrderId { get; set; }
+        /// <summary>List of child orders for autoslice orders. Empty for regular orders.</summary>
+        public List<OrderChild> Children { get; set; }
+    }
+
+    /// <summary>
+    /// Represents a child order in an autoslice order response.
+    /// Each child is either a successfully placed order (OrderId is set) or a failed order (Error is set).
+    /// </summary>
+    public struct OrderChild
+    {
+        public OrderChild(Dictionary<string, dynamic> data)
+        {
+            OrderId = null;
+            Error = null;
+
+            if (data.ContainsKey("order_id") && data["order_id"] != null)
+            {
+                OrderId = data["order_id"].ToString();
+            }
+
+            if (data.ContainsKey("error") && data["error"] != null)
+            {
+                Error = new OrderChildError(data["error"]);
+            }
+        }
+
+        /// <summary>Order ID of the child order. Null if the child order failed.</summary>
+        public string OrderId { get; set; }
+        /// <summary>Error details if the child order failed. Null if successful.</summary>
+        public OrderChildError? Error { get; set; }
+    }
+
+    /// <summary>
+    /// Represents an error for a child order in an autoslice response.
+    /// </summary>
+    public struct OrderChildError
+    {
+        public OrderChildError(Dictionary<string, dynamic> data)
+        {
+            Code = Convert.ToInt32(data["code"]);
+            ErrorType = data["error_type"];
+            Message = data["message"];
+        }
+
+        /// <summary>HTTP status code of the error.</summary>
+        public int Code { get; set; }
+        /// <summary>Type of error (e.g. MarginException).</summary>
+        public string ErrorType { get; set; }
+        /// <summary>Error message.</summary>
+        public string Message { get; set; }
+    }
+
+    /// <summary>
     /// Order structure
     /// </summary>
     public struct Order

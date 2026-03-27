@@ -348,8 +348,9 @@ namespace KiteConnect
         /// <param name="IcebergQuantity">Split quantity for each iceberg leg order (Quantity/IcebergLegs)</param>
         /// <param name="AuctionNumber">Auction number for auction orders</param>
         /// <param name="MarketProtection">Market protection percentage for MARKET and SL-M orders. Use Constants.MarketProtection.None (0) for no protection or Constants.MarketProtection.Auto (-1) for automatic protection. Custom percentage can be specified as 1-100.</param>
-        /// <returns>Json response in the form of nested string dictionary.</returns>
-        public Dictionary<string, dynamic> PlaceOrder(
+        /// <param name="Autoslice">Enable automatic order slicing for quantities above freeze limits. When enabled, the response includes child order details in the Children field of OrderResponse.</param>
+        /// <returns>OrderResponse with parent order ID and child order details for autoslice orders.</returns>
+        public OrderResponse PlaceOrder(
             string Exchange,
             string TradingSymbol,
             string TransactionType,
@@ -366,7 +367,8 @@ namespace KiteConnect
             int? IcebergLegs = null,
             decimal? IcebergQuantity = null,
             string AuctionNumber = null,
-            decimal? MarketProtection = null
+            decimal? MarketProtection = null,
+            bool Autoslice = false
             )
         {
             var param = new Dictionary<string, dynamic>();
@@ -388,8 +390,10 @@ namespace KiteConnect
             Utils.AddIfNotNull(param, "iceberg_quantity", IcebergQuantity.ToString());
             Utils.AddIfNotNull(param, "auction_number", AuctionNumber);
             Utils.AddIfNotNull(param, "market_protection", MarketProtection.ToString());
+            if (Autoslice)
+                param.Add("autoslice", "true");
 
-            return Post(Routes.Order.Place, param);
+            return new OrderResponse(Post(Routes.Order.Place, param));
         }
 
         /// <summary>

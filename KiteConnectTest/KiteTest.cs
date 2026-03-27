@@ -445,5 +445,40 @@ namespace KiteConnectTest
             Assert.AreEqual(instruments[0].MinimumPurchaseAmount, 1234.0m);
             Assert.AreEqual(instruments[0].PurchaseAmountMultiplier, 13.14m);
         }
+        [TestMethod]
+        public void TestAutosliceOrder()
+        {
+            string json = File.ReadAllText(@"responses/autoslice_response.json", Encoding.UTF8);
+            ms.SetResponse("application/json", json);
+            Kite kite = new Kite("apikey", Root: "http://localhost:8080");
+            OrderResponse response = kite.PlaceOrder(
+                Exchange: Constants.Exchange.NSE,
+                TradingSymbol: "NIFTY26APRFUT",
+                TransactionType: Constants.Transaction.Buy,
+                Quantity: 1755,
+                Price: 22693,
+                Product: Constants.Product.NRML,
+                OrderType: Constants.OrderType.Limit
+            );
+
+            // Parent order ID
+            Assert.AreEqual(response.OrderId, "1914227164488687616");
+
+            // 4 children: 3 successful, 1 error
+            Assert.AreEqual(response.Children.Count, 4);
+
+            // Successful children
+            Assert.AreEqual(response.Children[0].OrderId, "1914227164534824960");
+            Assert.IsNull(response.Children[0].Error);
+            Assert.AreEqual(response.Children[1].OrderId, "1914227164580962304");
+            Assert.AreEqual(response.Children[3].OrderId, "1914227164681625600");
+
+            // Failed child
+            Assert.IsNull(response.Children[2].OrderId);
+            Assert.IsNotNull(response.Children[2].Error);
+            Assert.AreEqual(response.Children[2].Error.Value.Code, 400);
+            Assert.AreEqual(response.Children[2].Error.Value.ErrorType, "MarginException");
+            Assert.IsTrue(response.Children[2].Error.Value.Message.Contains("Insufficient funds"));
+        }
     }
 }

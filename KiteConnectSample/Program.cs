@@ -159,7 +159,7 @@ namespace KiteConnectSample
 
             // Place sell order
 
-            Dictionary<string, dynamic> response = kite.PlaceOrder(
+            OrderResponse response = kite.PlaceOrder(
                 Exchange: Constants.Exchange.CDS,
                 TradingSymbol: "USDINR17AUGFUT",
                 TransactionType: Constants.Transaction.Sell,
@@ -168,7 +168,7 @@ namespace KiteConnectSample
                 OrderType: Constants.OrderType.Market,
                 Product: Constants.Product.MIS
             );
-            Console.WriteLine("Order Id: " + response["data"]["order_id"]);
+            Console.WriteLine("Order Id: " + response.OrderId);
 
             // Place buy order
 
