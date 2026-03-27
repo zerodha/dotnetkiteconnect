@@ -65,7 +65,6 @@ namespace KiteConnect
             public const string OHLC = "/quote/ohlc";
             public const string LTP = "/quote/ltp";
             public const string Historical = "/instruments/historical/{instrument_token}/{interval}";
-            public const string TriggerRange = "/instruments/trigger_range/{transaction_type}";
         }
 
         public static class MutualFunds

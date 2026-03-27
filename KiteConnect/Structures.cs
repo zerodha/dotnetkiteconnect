@@ -1146,32 +1146,6 @@ namespace KiteConnect
     }
 
     /// <summary>
-    /// Trigger range structure
-    /// </summary>
-    public struct TrigerRange
-    {
-        public TrigerRange(Dictionary<string, dynamic> data)
-        {
-            try
-            {
-                InstrumentToken = Convert.ToUInt32(data["instrument_token"]);
-                Lower = data["lower"];
-                Upper = data["upper"];
-                Percentage = data["percentage"];
-            }
-            catch (Exception e)
-            {
-                throw new DataException(e.Message + " " + Utils.JsonSerialize(data), HttpStatusCode.OK, e);
-            }
-
-        }
-        public UInt32 InstrumentToken { get; }
-        public decimal Lower { get; }
-        public decimal Upper { get; }
-        public decimal Percentage { get; }
-    }
-
-    /// <summary>
     /// User structure
     /// </summary>
     public struct User

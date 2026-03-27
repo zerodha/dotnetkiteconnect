@@ -147,14 +147,6 @@ namespace KiteConnectSample
             Dictionary<string, LTP> ltps = kite.GetLTP(InstrumentId: new string[] { "NSE:INFY", "NSE:ASHOKLEY" });
             Console.WriteLine(Utils.JsonSerialize(ltps));
 
-            // Trigger Range
-
-            Dictionary<string, TrigerRange> triggerRange = kite.GetTriggerRange(
-                InstrumentId: new string[] { "NSE:ASHOKLEY" },
-                TrasactionType: Constants.Transaction.Buy
-            );
-            Console.WriteLine(Utils.JsonSerialize(triggerRange));
-
             // Get all orders
 
             List<Order> orders = kite.GetOrders();
@@ -194,54 +186,6 @@ namespace KiteConnectSample
 
             kite.CancelOrder("1234");
 
-            //BO LIMIT order placing
-
-            kite.PlaceOrder(
-                Exchange: Constants.Exchange.NSE,
-                TradingSymbol: "ASHOKLEY",
-                TransactionType: Constants.Transaction.Buy,
-                Quantity: 1,
-                Price: 115,
-                Product: Constants.Product.MIS,
-                OrderType: Constants.OrderType.Limit,
-                Validity: Constants.Validity.Day,
-                SquareOffValue: 2,
-                StoplossValue: 2,
-                Variety: Constants.Variety.BO
-            );
-
-            // BO LIMIT exiting
-
-            kite.CancelOrder(
-                OrderId: "1234",
-                Variety: Constants.Variety.BO,
-                ParentOrderId: "5678"
-            );
-
-            // BO SL order placing
-
-            kite.PlaceOrder(
-                Exchange: Constants.Exchange.NSE,
-                TradingSymbol: "ASHOKLEY",
-                TransactionType: Constants.Transaction.Buy,
-                Quantity: 1,
-                Price: 117,
-                Product: Constants.Product.MIS,
-                OrderType: Constants.OrderType.SL,
-                Validity: Constants.Validity.Day,
-                SquareOffValue: 2,
-                StoplossValue: 2,
-                TriggerPrice: 117.5m,
-                Variety: Constants.Variety.BO
-            );
-
-            // BO SL exiting
-
-            kite.CancelOrder(
-               OrderId: "1234",
-               Variety: Constants.Variety.BO,
-               ParentOrderId: "5678"
-           );
 
             // CO LIMIT order placing
 
@@ -262,7 +206,7 @@ namespace KiteConnectSample
 
             kite.CancelOrder(
                OrderId: "1234",
-               Variety: Constants.Variety.BO,
+               Variety: Constants.Variety.CO,
                ParentOrderId: "5678"
            );
 
@@ -284,7 +228,7 @@ namespace KiteConnectSample
 
             kite.CancelOrder(
                 OrderId: "1234",
-                Variety: Constants.Variety.BO,
+                Variety: Constants.Variety.CO,
                 ParentOrderId: "5678"
             );
 

@@ -341,9 +341,6 @@ namespace KiteConnect
         /// <param name="Validity">Order validity (DAY, IOC and TTL)</param>
         /// <param name="DisclosedQuantity">Quantity to disclose publicly (for equity trades)</param>
         /// <param name="TriggerPrice">For SL, SL-M etc.</param>
-        /// <param name="SquareOffValue">Price difference at which the order should be squared off and profit booked (eg: Order price is 100. Profit target is 102. So squareoff = 2)</param>
-        /// <param name="StoplossValue">Stoploss difference at which the order should be squared off (eg: Order price is 100. Stoploss target is 98. So stoploss = 2)</param>
-        /// <param name="TrailingStoploss">Incremental value by which stoploss price changes when market moves in your favor by the same incremental value from the entry price (optional)</param>
         /// <param name="Variety">You can place orders of varieties; regular orders, after market orders, cover orders, iceberg orders etc. </param>
         /// <param name="Tag">An optional tag to apply to an order to identify it (alphanumeric, max 20 chars)</param>
         /// <param name="ValidityTTL">Order life span in minutes for TTL validity orders</param>
@@ -363,9 +360,6 @@ namespace KiteConnect
             string Validity = null,
             decimal? DisclosedQuantity = null,
             decimal? TriggerPrice = null,
-            decimal? SquareOffValue = null,
-            decimal? StoplossValue = null,
-            decimal? TrailingStoploss = null,
             string Variety = Constants.Variety.Regular,
             string Tag = "",
             int? ValidityTTL = null,
@@ -387,9 +381,6 @@ namespace KiteConnect
             Utils.AddIfNotNull(param, "validity", Validity);
             Utils.AddIfNotNull(param, "disclosed_quantity", DisclosedQuantity.ToString());
             Utils.AddIfNotNull(param, "trigger_price", TriggerPrice.ToString());
-            Utils.AddIfNotNull(param, "squareoff", SquareOffValue.ToString());
-            Utils.AddIfNotNull(param, "stoploss", StoplossValue.ToString());
-            Utils.AddIfNotNull(param, "trailing_stoploss", TrailingStoploss.ToString());
             Utils.AddIfNotNull(param, "variety", Variety);
             Utils.AddIfNotNull(param, "tag", Tag);
             Utils.AddIfNotNull(param, "validity_ttl", ValidityTTL.ToString());
@@ -405,7 +396,7 @@ namespace KiteConnect
         /// Modify an open order.
         /// </summary>
         /// <param name="OrderId">Id of the order to be modified</param>
-        /// <param name="ParentOrderId">Id of the parent order (obtained from the /orders call) as BO is a multi-legged order</param>
+        /// <param name="ParentOrderId">Id of the parent order (obtained from the /orders call)</param>
         /// <param name="Exchange">Name of the exchange</param>
         /// <param name="TradingSymbol">Tradingsymbol of the instrument</param>
         /// <param name="TransactionType">BUY or SELL</param>
@@ -435,35 +426,19 @@ namespace KiteConnect
         {
             var param = new Dictionary<string, dynamic>();
 
-            string VarietyString = Variety;
-            string ProductString = Product;
-
-            if ((ProductString == "bo" || ProductString == "co") && VarietyString != ProductString)
-                throw new Exception(String.Format("Invalid variety. It should be: {0}", ProductString));
-
             Utils.AddIfNotNull(param, "order_id", OrderId);
             Utils.AddIfNotNull(param, "parent_order_id", ParentOrderId);
+            Utils.AddIfNotNull(param, "exchange", Exchange);
+            Utils.AddIfNotNull(param, "tradingsymbol", TradingSymbol);
+            Utils.AddIfNotNull(param, "transaction_type", TransactionType);
+            Utils.AddIfNotNull(param, "quantity", Quantity.ToString());
+            Utils.AddIfNotNull(param, "price", Price.ToString());
+            Utils.AddIfNotNull(param, "product", Product);
+            Utils.AddIfNotNull(param, "order_type", OrderType);
+            Utils.AddIfNotNull(param, "validity", Validity);
+            Utils.AddIfNotNull(param, "disclosed_quantity", DisclosedQuantity.ToString());
             Utils.AddIfNotNull(param, "trigger_price", TriggerPrice.ToString());
             Utils.AddIfNotNull(param, "variety", Variety);
-
-            if (VarietyString == "bo" && ProductString == "bo")
-            {
-                Utils.AddIfNotNull(param, "quantity", Quantity.ToString());
-                Utils.AddIfNotNull(param, "price", Price.ToString());
-                Utils.AddIfNotNull(param, "disclosed_quantity", DisclosedQuantity.ToString());
-            }
-            else if (VarietyString != "co" && ProductString != "co")
-            {
-                Utils.AddIfNotNull(param, "exchange", Exchange);
-                Utils.AddIfNotNull(param, "tradingsymbol", TradingSymbol);
-                Utils.AddIfNotNull(param, "transaction_type", TransactionType);
-                Utils.AddIfNotNull(param, "quantity", Quantity.ToString());
-                Utils.AddIfNotNull(param, "price", Price.ToString());
-                Utils.AddIfNotNull(param, "product", Product);
-                Utils.AddIfNotNull(param, "order_type", OrderType);
-                Utils.AddIfNotNull(param, "validity", Validity);
-                Utils.AddIfNotNull(param, "disclosed_quantity", DisclosedQuantity.ToString());
-            }
 
             return Put(Routes.Order.Modify, param);
         }
@@ -473,7 +448,7 @@ namespace KiteConnect
         /// </summary>
         /// <param name="OrderId">Id of the order to be cancelled</param>
         /// <param name="Variety">You can place orders of varieties; regular orders, after market orders, cover orders etc. </param>
-        /// <param name="ParentOrderId">Id of the parent order (obtained from the /orders call) as BO is a multi-legged order</param>
+        /// <param name="ParentOrderId">Id of the parent order (obtained from the /orders call)</param>
         /// <returns>Json response in the form of nested string dictionary.</returns>
         public Dictionary<string, dynamic> CancelOrder(string OrderId, string Variety = Constants.Variety.Regular, string ParentOrderId = null)
         {
@@ -744,27 +719,6 @@ namespace KiteConnect
             return historicals;
         }
 
-        /// <summary>
-        /// Retrieve the buy/sell trigger range for Cover Orders.
-        /// </summary>
-        /// <param name="InstrumentId">Indentification of instrument in the form of EXCHANGE:TRADINGSYMBOL (eg: NSE:INFY) or InstrumentToken (eg: 408065)</param>
-        /// <param name="TrasactionType">BUY or SELL</param>
-        /// <returns>List of trigger ranges for given instrument ids for given transaction type.</returns>
-        public Dictionary<string, TrigerRange> GetTriggerRange(string[] InstrumentId, string TrasactionType)
-        {
-            var param = new Dictionary<string, dynamic>();
-
-            param.Add("i", InstrumentId);
-            param.Add("transaction_type", TrasactionType.ToLower());
-
-            var triggerdata = Get(Routes.Market.TriggerRange, param)["data"];
-
-            Dictionary<string, TrigerRange> triggerRanges = new Dictionary<string, TrigerRange>();
-            foreach (string item in triggerdata.Keys)
-                triggerRanges.Add(item, new TrigerRange(triggerdata[item]));
-
-            return triggerRanges;
-        }
 
         #region GTT
 

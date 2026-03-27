@@ -28,7 +28,6 @@ namespace KiteConnect
         public static class Variety
         {
             public const string Regular = "regular";
-            public const string BO = "bo";
             public const string CO = "co";
             public const string AMO = "amo";
             public const string Iceberg = "iceberg";
