@@ -1,6 +1,8 @@
 ## 5.1.0
 
 * Support modifying an order to apply Market Protection
+* Support for auto slice orders
+* Cleaned up functions for deprecated APIs
 
 ## 5.0.0
 
