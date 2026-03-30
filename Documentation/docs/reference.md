@@ -62,7 +62,7 @@ Cancel an order
 | --- | --- | --- |
 | OrderId | String | Id of the order to be cancelled |
 | Variety | String | You can place orders of varieties; regular orders, after market orders, cover orders etc. |
-| ParentOrderId | String | Id of the parent order (obtained from the /orders call) as BO is a multi-legged order |
+| ParentOrderId | String | Id of the parent order (obtained from the /orders call) |
 
 **Returns:** Json response in the form of nested string dictionary.
 
@@ -340,17 +340,6 @@ Retrieve quote and market depth of upto 200 instruments
 
 **Returns:** Dictionary of all Quote objects with keys as in InstrumentId
 
-### ![Method](/assets/method.jpg) &nbsp;&nbsp;Kite.GetTriggerRange
-
-Retrieve the buy/sell trigger range for Cover Orders.
-
-| Argument | Type | Description |
-| --- | --- | --- |
-| InstrumentId | String[] | Indentification of instrument in the form of EXCHANGE:TRADINGSYMBOL (eg: NSE:INFY) or InstrumentToken (eg: 408065) |
-| TrasactionType | String | BUY or SELL |
-
-**Returns:** List of trigger ranges for given instrument ids for given transaction type.
-
 ### ![Method](/assets/method.jpg) &nbsp;&nbsp;Kite.GetVirtualContractNote
 
 A virtual contract provides detailed charges order-wise for brokerage, STT, stamp duty, exchange transaction charges, SEBI turnover charge, and GST.
@@ -414,7 +403,7 @@ Modify an open order.
 | Argument | Type | Description |
 | --- | --- | --- |
 | OrderId | String | Id of the order to be modified |
-| ParentOrderId | String | Id of the parent order (obtained from the /orders call) as BO is a multi-legged order |
+| ParentOrderId | String | Id of the parent order (obtained from the /orders call) |
 | Exchange | String | Name of the exchange |
 | TradingSymbol | String | Tradingsymbol of the instrument |
 | TransactionType | String | BUY or SELL |
@@ -485,9 +474,6 @@ Place an order
 | Validity | String | Order validity (DAY, IOC and TTL) |
 | DisclosedQuantity | Nullable{Decimal} | Quantity to disclose publicly (for equity trades) |
 | TriggerPrice | Nullable{Decimal} | For SL, SL-M etc. |
-| SquareOffValue | Nullable{Decimal} | Price difference at which the order should be squared off and profit booked (eg: Order price is 100. Profit target is 102. So squareoff = 2) |
-| StoplossValue | Nullable{Decimal} | Stoploss difference at which the order should be squared off (eg: Order price is 100. Stoploss target is 98. So stoploss = 2) |
-| TrailingStoploss | Nullable{Decimal} | Incremental value by which stoploss price changes when market moves in your favor by the same incremental value from the entry price (optional) |
 | Variety | String | You can place orders of varieties; regular orders, after market orders, cover orders, iceberg orders etc. |
 | Tag | String | An optional tag to apply to an order to identify it (alphanumeric, max 20 chars) |
 | ValidityTTL | Nullable{Int32} | Order life span in minutes for TTL validity orders |
@@ -958,10 +944,6 @@ Tick data structure
 ## ![Class](/assets/class.jpg) &nbsp;&nbsp;Trade Class
 
 Trade structure
-
-## ![Class](/assets/class.jpg) &nbsp;&nbsp;TrigerRange Class
-
-Trigger range structure
 
 ## ![Class](/assets/class.jpg) &nbsp;&nbsp;User Class
 

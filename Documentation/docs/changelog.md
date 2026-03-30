@@ -1,3 +1,7 @@
+## 5.1.0
+
+* Support modifying an order to apply Market Protection
+
 ## 5.0.0
 
 * .NET target updated to `net10.0`. Previous target `net6.0` has reached end-of-life as of Nov 2024. Thanks @kunalk16.
