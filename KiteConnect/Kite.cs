@@ -426,7 +426,8 @@ namespace KiteConnect
             string Validity = Constants.Validity.Day,
             decimal? DisclosedQuantity = null,
             decimal? TriggerPrice = null,
-            string Variety = Constants.Variety.Regular)
+            string Variety = Constants.Variety.Regular,
+            decimal? MarketProtection = null)
         {
             var param = new Dictionary<string, dynamic>();
 
@@ -443,6 +444,7 @@ namespace KiteConnect
             Utils.AddIfNotNull(param, "disclosed_quantity", DisclosedQuantity.ToString());
             Utils.AddIfNotNull(param, "trigger_price", TriggerPrice.ToString());
             Utils.AddIfNotNull(param, "variety", Variety);
+            Utils.AddIfNotNull(param, "market_protection", MarketProtection.ToString());
 
             return Put(Routes.Order.Modify, param);
         }
