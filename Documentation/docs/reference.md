@@ -481,8 +481,10 @@ Place an order
 | IcebergQuantity | Nullable{Decimal} | Split quantity for each iceberg leg order (Quantity/IcebergLegs) |
 | AuctionNumber | String | Auction number for auction orders |
 | MarketProtection | Nullable{Decimal} | Market protection percentage for MARKET and SL-M orders. Use Constants.MarketProtection.None (0) for no protection or Constants.MarketProtection.Auto (-1) for automatic protection. Custom percentage can be specified as 1-100. |
+| Autoslice | Boolean | Enable automatic order slicing for quantities above freeze limits. When enabled, the response includes child order details in the Children field of OrderResponse. |
+| AlgoID | String | An optional algo ID to tag the order with an algorithmic order identifier. |
 
-**Returns:** Json response in the form of nested string dictionary.
+**Returns:** OrderResponse with parent order ID and child order details for autoslice orders.
 
 ### ![Method](/assets/method.jpg) &nbsp;&nbsp;Kite.Post
 
@@ -873,6 +875,35 @@ OrderCharges structure
 
 OrderChargesGST structure
 
+## ![Class](/assets/class.jpg) &nbsp;&nbsp;OrderChild Class
+
+Represents a child order in an autoslice order response.
+            Each child is either a successfully placed order (OrderId is set) or a failed order (Error is set).
+
+### ![Field](/assets/pubfield.jpg) &nbsp;&nbsp;OrderChild.Error
+
+Error details if the child order failed. Null if successful.
+
+### ![Field](/assets/pubfield.jpg) &nbsp;&nbsp;OrderChild.OrderId
+
+Order ID of the child order. Null if the child order failed.
+
+## ![Class](/assets/class.jpg) &nbsp;&nbsp;OrderChildError Class
+
+Represents an error for a child order in an autoslice response.
+
+### ![Field](/assets/pubfield.jpg) &nbsp;&nbsp;OrderChildError.Code
+
+HTTP status code of the error.
+
+### ![Field](/assets/pubfield.jpg) &nbsp;&nbsp;OrderChildError.ErrorType
+
+Type of error (e.g. MarginException).
+
+### ![Field](/assets/pubfield.jpg) &nbsp;&nbsp;OrderChildError.Message
+
+Error message.
+
 ## ![Class](/assets/class.jpg) &nbsp;&nbsp;OrderMargin Class
 
 OrderMargin structure
@@ -920,6 +951,18 @@ Trigger price
 ### ![Field](/assets/pubfield.jpg) &nbsp;&nbsp;OrderMarginParams.Variety
 
 Variety (Constants.Variety.Regular, Constants.Variety.AMO, etc.)
+
+## ![Class](/assets/class.jpg) &nbsp;&nbsp;OrderResponse Class
+
+Order response returned by PlaceOrder. For autoslice orders, includes child order details.
+
+### ![Field](/assets/pubfield.jpg) &nbsp;&nbsp;OrderResponse.Children
+
+List of child orders for autoslice orders. Empty for regular orders.
+
+### ![Field](/assets/pubfield.jpg) &nbsp;&nbsp;OrderResponse.OrderId
+
+Order ID of the parent order.
 
 ## ![Class](/assets/class.jpg) &nbsp;&nbsp;Position Class
 

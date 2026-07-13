@@ -1,6 +1,12 @@
+## 5.2.0
+
+* Support for algo ID parameter in place order
+
 ## 5.1.0
 
 * Support modifying an order to apply Market Protection
+* Support for auto slice orders
+* Cleaned up functions for deprecated APIs
 
 ## 5.0.0
 

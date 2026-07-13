@@ -142,7 +142,7 @@
             <param name="Segment">Trading segment (eg: equity or commodity)</param>
             <returns>Margins for specified segment.</returns>
         </member>
-        <member name="M:KiteConnect.Kite.PlaceOrder(System.String,System.String,System.String,System.Decimal,System.Nullable{System.Decimal},System.String,System.String,System.String,System.Nullable{System.Decimal},System.Nullable{System.Decimal},System.String,System.String,System.Nullable{System.Int32},System.Nullable{System.Int32},System.Nullable{System.Decimal},System.String,System.Nullable{System.Decimal})">
+        <member name="M:KiteConnect.Kite.PlaceOrder(System.String,System.String,System.String,System.Decimal,System.Nullable{System.Decimal},System.String,System.String,System.String,System.Nullable{System.Decimal},System.Nullable{System.Decimal},System.String,System.String,System.Nullable{System.Int32},System.Nullable{System.Int32},System.Nullable{System.Decimal},System.String,System.Nullable{System.Decimal},System.Boolean,System.String)">
             <summary>
             Place an order
             </summary>
@@ -163,9 +163,11 @@
             <param name="IcebergQuantity">Split quantity for each iceberg leg order (Quantity/IcebergLegs)</param>
             <param name="AuctionNumber">Auction number for auction orders</param>
             <param name="MarketProtection">Market protection percentage for MARKET and SL-M orders. Use Constants.MarketProtection.None (0) for no protection or Constants.MarketProtection.Auto (-1) for automatic protection. Custom percentage can be specified as 1-100.</param>
-            <returns>Json response in the form of nested string dictionary.</returns>
+            <param name="Autoslice">Enable automatic order slicing for quantities above freeze limits. When enabled, the response includes child order details in the Children field of OrderResponse.</param>
+            <param name="AlgoID">An optional algo ID to tag the order with an algorithmic order identifier.</param>
+            <returns>OrderResponse with parent order ID and child order details for autoslice orders.</returns>
         </member>
-        <member name="M:KiteConnect.Kite.ModifyOrder(System.String,System.String,System.String,System.String,System.String,System.Nullable{System.Decimal},System.Nullable{System.Decimal},System.String,System.String,System.String,System.Nullable{System.Decimal},System.Nullable{System.Decimal},System.String)">
+        <member name="M:KiteConnect.Kite.ModifyOrder(System.String,System.String,System.String,System.String,System.String,System.Nullable{System.Decimal},System.Nullable{System.Decimal},System.String,System.String,System.String,System.Nullable{System.Decimal},System.Nullable{System.Decimal},System.String,System.Nullable{System.Decimal})">
             <summary>
             Modify an open order.
             </summary>
@@ -692,6 +694,43 @@
             <summary>
             Position response structure
             </summary>
+        </member>
+        <member name="T:KiteConnect.OrderResponse">
+            <summary>
+            Order response returned by PlaceOrder. For autoslice orders, includes child order details.
+            </summary>
+        </member>
+        <member name="P:KiteConnect.OrderResponse.OrderId">
+            <summary>Order ID of the parent order.</summary>
+        </member>
+        <member name="P:KiteConnect.OrderResponse.Children">
+            <summary>List of child orders for autoslice orders. Empty for regular orders.</summary>
+        </member>
+        <member name="T:KiteConnect.OrderChild">
+            <summary>
+            Represents a child order in an autoslice order response.
+            Each child is either a successfully placed order (OrderId is set) or a failed order (Error is set).
+            </summary>
+        </member>
+        <member name="P:KiteConnect.OrderChild.OrderId">
+            <summary>Order ID of the child order. Null if the child order failed.</summary>
+        </member>
+        <member name="P:KiteConnect.OrderChild.Error">
+            <summary>Error details if the child order failed. Null if successful.</summary>
+        </member>
+        <member name="T:KiteConnect.OrderChildError">
+            <summary>
+            Represents an error for a child order in an autoslice response.
+            </summary>
+        </member>
+        <member name="P:KiteConnect.OrderChildError.Code">
+            <summary>HTTP status code of the error.</summary>
+        </member>
+        <member name="P:KiteConnect.OrderChildError.ErrorType">
+            <summary>Type of error (e.g. MarginException).</summary>
+        </member>
+        <member name="P:KiteConnect.OrderChildError.Message">
+            <summary>Error message.</summary>
         </member>
         <member name="T:KiteConnect.Order">
             <summary>
