@@ -1,8 +1,9 @@
+VERSION := $(shell grep -m1 '<Version>' KiteConnect/KiteConnect.csproj | sed -E 's/.*<Version>(.*)<\/Version>.*/\1/')
 
 build:
 	@dotnet build -c Release KiteConnect/KiteConnect.csproj
 
-pack:
+pack: build clean
 	@dotnet pack -c Release KiteConnect/KiteConnect.csproj
 
 clean:
@@ -16,3 +17,11 @@ docs:
 
 test:
 	@dotnet test
+
+# setup: security add-generic-password -a "$USER" -s nuget-api-key -w
+publish: pack
+	@dotnet nuget push \
+		"KiteConnect/bin/Release/Tech.Zerodha.KiteConnect.$(VERSION).nupkg" \
+		--api-key "$$(security find-generic-password -s nuget-api-key -w)" \
+		--source https://api.nuget.org/v3/index.json \
+		--skip-duplicate
