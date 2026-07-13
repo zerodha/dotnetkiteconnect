@@ -15,6 +15,8 @@ namespace KiteConnectTest
         string responseString = "";
         int statusCode = 200;
 
+        public string LastRequestBody { get; private set; } = "";
+
         public MockServer(string url)
         {
 
@@ -36,6 +38,10 @@ namespace KiteConnectTest
         public void HandleRequest()
         {
             var context = httpListener.GetContext();
+
+            using (var reader = new System.IO.StreamReader(context.Request.InputStream, context.Request.ContentEncoding))
+                LastRequestBody = reader.ReadToEnd();
+
             var response = context.Response;
             response.StatusCode = statusCode;
             response.ContentType = contentType;

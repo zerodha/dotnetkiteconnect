@@ -480,5 +480,48 @@ namespace KiteConnectTest
             Assert.AreEqual(response.Children[2].Error.Value.ErrorType, "MarginException");
             Assert.IsTrue(response.Children[2].Error.Value.Message.Contains("Insufficient funds"));
         }
+
+        [TestMethod]
+        public void TestPlaceOrderAlgoID()
+        {
+            string json = File.ReadAllText(@"responses/autoslice_response.json", Encoding.UTF8);
+            ms.SetResponse("application/json", json);
+            Kite kite = new Kite("apikey", Root: "http://localhost:8080");
+            kite.PlaceOrder(
+                Exchange: Constants.Exchange.NSE,
+                TradingSymbol: "INFY",
+                TransactionType: Constants.Transaction.Buy,
+                Quantity: 1,
+                Price: 1500,
+                Product: Constants.Product.CNC,
+                OrderType: Constants.OrderType.Limit,
+                Tag: "mytag",
+                AlgoID: "12345"
+            );
+
+            // algo_id is sent as a form param, alongside other params like tag
+            Assert.IsTrue(ms.LastRequestBody.Contains("algo_id=12345"));
+            Assert.IsTrue(ms.LastRequestBody.Contains("tag=mytag"));
+        }
+
+        [TestMethod]
+        public void TestPlaceOrderWithoutAlgoID()
+        {
+            string json = File.ReadAllText(@"responses/autoslice_response.json", Encoding.UTF8);
+            ms.SetResponse("application/json", json);
+            Kite kite = new Kite("apikey", Root: "http://localhost:8080");
+            kite.PlaceOrder(
+                Exchange: Constants.Exchange.NSE,
+                TradingSymbol: "INFY",
+                TransactionType: Constants.Transaction.Buy,
+                Quantity: 1,
+                Price: 1500,
+                Product: Constants.Product.CNC,
+                OrderType: Constants.OrderType.Limit
+            );
+
+            // algo_id is omitted from the request when not provided
+            Assert.IsFalse(ms.LastRequestBody.Contains("algo_id"));
+        }
     }
 }

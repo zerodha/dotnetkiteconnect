@@ -349,6 +349,7 @@ namespace KiteConnect
         /// <param name="AuctionNumber">Auction number for auction orders</param>
         /// <param name="MarketProtection">Market protection percentage for MARKET and SL-M orders. Use Constants.MarketProtection.None (0) for no protection or Constants.MarketProtection.Auto (-1) for automatic protection. Custom percentage can be specified as 1-100.</param>
         /// <param name="Autoslice">Enable automatic order slicing for quantities above freeze limits. When enabled, the response includes child order details in the Children field of OrderResponse.</param>
+        /// <param name="AlgoID">An optional algo ID to tag the order with an algorithmic order identifier.</param>
         /// <returns>OrderResponse with parent order ID and child order details for autoslice orders.</returns>
         public OrderResponse PlaceOrder(
             string Exchange,
@@ -368,7 +369,8 @@ namespace KiteConnect
             decimal? IcebergQuantity = null,
             string AuctionNumber = null,
             decimal? MarketProtection = null,
-            bool Autoslice = false
+            bool Autoslice = false,
+            string AlgoID = null
             )
         {
             var param = new Dictionary<string, dynamic>();
@@ -390,6 +392,7 @@ namespace KiteConnect
             Utils.AddIfNotNull(param, "iceberg_quantity", IcebergQuantity.ToString());
             Utils.AddIfNotNull(param, "auction_number", AuctionNumber);
             Utils.AddIfNotNull(param, "market_protection", MarketProtection.ToString());
+            Utils.AddIfNotNull(param, "algo_id", AlgoID);
             if (Autoslice)
                 param.Add("autoslice", "true");
 
