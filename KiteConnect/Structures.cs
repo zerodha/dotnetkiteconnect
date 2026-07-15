@@ -894,7 +894,15 @@ namespace KiteConnect
                 AuctionNumber = 0;
                 if (data.ContainsKey("auction_number"))
                 {
-                    AuctionNumber = Convert.ToInt32(data["auction_number"]);
+                    // Non-auction orders carry auction_number as an empty string (""). Passing that
+                    // straight to Convert.ToInt32 throws FormatException, and because it runs inside
+                    // this constructor it takes the ENTIRE order list down (GetOrders/GetOrderHistory
+                    // throw for every order in the response). Treat empty/null as 0 (not an auction).
+                    string auctionNumber = data["auction_number"]?.ToString();
+                    if (!string.IsNullOrEmpty(auctionNumber))
+                    {
+                        AuctionNumber = Convert.ToInt32(auctionNumber);
+                    }
                 }
 
                 Meta = new Dictionary<string, dynamic>();

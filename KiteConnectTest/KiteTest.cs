@@ -305,6 +305,11 @@ namespace KiteConnectTest
             Assert.AreEqual(orders[0].AuctionNumber, 10);
 
             Assert.AreEqual(orders[4].Product, Constants.Product.MTF);
+
+            // A non-auction order returns auction_number as an empty string ("").
+            // Parsing must not throw and must yield 0 (regression: FormatException here
+            // used to take the whole order list down for GetOrders/GetOrderHistory).
+            Assert.AreEqual(orders[5].AuctionNumber, 0);
         }
 
         [TestMethod]
