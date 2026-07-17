@@ -183,7 +183,8 @@
       "market_protection": 0,
       "meta": {},
       "tag": null,
-      "guid": null
+      "guid": null,
+      "auction_number": ""
     }
   ]
 }

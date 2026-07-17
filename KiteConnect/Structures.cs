@@ -892,7 +892,7 @@ namespace KiteConnect
                 Variety = data["variety"];
 
                 AuctionNumber = 0;
-                if (data.ContainsKey("auction_number"))
+                if (data.ContainsKey("auction_number") && !string.IsNullOrEmpty(Convert.ToString(data["auction_number"])))
                 {
                     AuctionNumber = Convert.ToInt32(data["auction_number"]);
                 }

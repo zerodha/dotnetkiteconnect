@@ -304,6 +304,9 @@ namespace KiteConnectTest
 
             Assert.AreEqual(orders[0].AuctionNumber, 10);
 
+            // Empty string auction_number should default to 0 instead of throwing
+            Assert.AreEqual(orders[4].AuctionNumber, 0);
+
             Assert.AreEqual(orders[4].Product, Constants.Product.MTF);
         }
 
