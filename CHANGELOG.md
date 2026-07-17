@@ -1,3 +1,7 @@
+## 5.2.1
+
+* Fixed `DataException` in `GetOrders()` when `auction_number` is an empty string
+
 ## 5.2.0
 
 * Support for algo ID parameter in place order
