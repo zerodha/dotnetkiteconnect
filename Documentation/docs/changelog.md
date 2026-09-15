@@ -1,3 +1,7 @@
+## 5.2.2
+
+* Fixed NCO ticker price conversion
+
 ## 5.2.1
 
 * Fixed `DataException` in `GetOrders()` when `auction_number` is an empty string
