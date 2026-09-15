@@ -207,6 +207,7 @@ namespace KiteConnect
                 case 3: // CDS
                     return 10000000.0m;
                 case 6: // BCD
+				case 12: // NCO
                     return 10000.0m;
                 default:
                     return 100.0m;
